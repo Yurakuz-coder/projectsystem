@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect, session, jsonify, abort, send_file
 from flask.helpers import send_from_directory
 from sqlalchemy import *
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import  create_engine
 from sqlalchemy import exc
 from sqlalchemy.orm import create_session, aliased
 from sqlalchemy.schema import Table, MetaData
