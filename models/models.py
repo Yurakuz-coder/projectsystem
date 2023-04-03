@@ -17,7 +17,7 @@ class Sheffofprojects(Base):
     sheffprEmail = mapped_column(String(100))
     Login = mapped_column(String(100), nullable=False)
     Pass = mapped_column(String(100))
-    positionName = relationship("Positions", foreign_keys=[IDpositions])
+    positionsName = relationship("Positions", foreign_keys=[IDpositions])
 
 
 class Positions(Base):

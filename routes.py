@@ -20,8 +20,7 @@ def index():
         data_workers = (
             db_session.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
         )
-        print(data_workers.positionsName)
-        if data_workers.Login == login and data_workers.Pass == passw and data_workers.positionsName == "Администратор":
+        if data_workers.Login == login and data_workers.Pass == rendered_pass and data_workers.positionsName == "Администратор":
             return redirect("/admin/reg_shefforg")
         else:
             return render_template("index.html", title='Неверный логин и/или пароль!!!')
