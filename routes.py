@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, sessions
+from flask import Blueprint, render_template, request, redirect, session
 import hashlib
 from models.models import *
 from models.database import get_session
@@ -16,12 +16,12 @@ def index():
     rendered_pass = passw.hexdigest()
     role = request.form["role"]
     if role == "sheffofprojects":
-        db_session = get_session()
+        db_sessions = get_session()
         data_workers = (
-            db_session.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
+            db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
         )
-        print(data_workers.positionsName.positionsName)
         if data_workers.Login == login and data_workers.Pass == rendered_pass and data_workers.positionsName.positionsName == "Администратор":
+            session['admin'] = [data_workers.IDsheffpr, data_workers.IDpositions, data_workers.sheffprFirstname, data_workers.sheffprName, data_workers.sheffprFathername, data_workers.positionsName.positionsName]
             return redirect("/admin/reg_shefforg")
         else:
             return render_template("index.html", title='Неверный логин и/или пароль!!!')
