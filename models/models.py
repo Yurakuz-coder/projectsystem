@@ -1,4 +1,5 @@
 from sqlalchemy import *
+from database import *
 
 class sheffofprojects (Base):
     __table__ = Table('sheffofprojects', metadata, autoload=True)
