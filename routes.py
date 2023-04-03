@@ -60,5 +60,5 @@ def addshefforg():
             shefforgPositions = pos, shefforgDoc = doc, shefforgEmail = em, shefforgPhone = phone,
             Login = login, Pass = passw)
         db_sessions.add(add)
-        db_sessions.flush()
+        db_sessions.commit()
         return redirect('/admin/reg_shefforg')
