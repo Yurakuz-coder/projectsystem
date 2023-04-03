@@ -55,6 +55,13 @@
           </div>
         </div>
         <h1>Руководители организаций</h1>
+          <ol>
+          {% for el in shefforg %}
+          <li style="font-size: 20px"><b>ФИО: </b>{{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
+            {{ el.Shefforganizations.shefforgFathername }}<br>
+          </li>
+          {% endfor %}
+        </ol>
         <!-- Button trigger modal -->
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
           Добавить руководителя организации

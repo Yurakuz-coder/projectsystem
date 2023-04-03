@@ -37,7 +37,10 @@ def exit_page():
 @pages.route("/admin/reg_shefforg", methods=["GET", "POST"]) #админка-регистрация рук.огранизации
 def reg_shefforg():
     if request.method == "GET":
-        return render_template("registration.html")
+        shefforg = get_select(Organizations.orgName, Shefforganizations).join_from(Shefforganizations, Organizations,
+                                                                        Organizations.IDshefforg == Shefforganizations.IDshefforg,
+                                                                        isouter=True)
+        return render_template("registration.html", session=session['admin'], shefforg = shefforg)
 
 
 @pages.route("/admin/add-shefforg", methods=["GET", "POST"]) #добавление рук.организации

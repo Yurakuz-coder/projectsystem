@@ -1,6 +1,6 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 01.04.2023 16:17:48
+-- Дата скрипта: 03.04.2023 23:23:37
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
@@ -88,7 +88,8 @@ CREATE TABLE shefforganizations (
   UNIQUE INDEX UK_shefforganizations_Login (Login, Pass)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 2
+AVG_ROW_LENGTH = 16384
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Руководители организаций';
@@ -558,8 +559,8 @@ INSERT INTO positions VALUES
 -- 
 -- Вывод данных для таблицы shefforganizations
 --
-
--- Таблица projectsystem.shefforganizations не содержит данных
+INSERT INTO shefforganizations VALUES
+(1, 'Кузнецов', 'Юрий', 'Александрович', 'директор', 'Доверенность', 'iurij.kuznetsov2011@yandex.ru', '+79131973415', 'Kuz', 'd8578edf8458ce06fbc5bb76a58c5ca4');
 
 -- 
 -- Вывод данных для таблицы specializations
