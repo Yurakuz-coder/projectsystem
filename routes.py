@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, session
 import hashlib
 from models.models import *
-from models.database import get_session
+from models.database import get_session, get_select
 
 pages = Blueprint("pages", __name__, template_folder="templates")
 

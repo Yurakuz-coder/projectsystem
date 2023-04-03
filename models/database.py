@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql.expression import Select
 from dotenv import load_dotenv
 from os import getenv
 
@@ -17,3 +18,6 @@ def init_db():
 
 def get_session():
     return db_session
+
+def get_select():
+    return Select
