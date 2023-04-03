@@ -6,7 +6,7 @@ from models.database import get_session
 pages = Blueprint("pages", __name__, template_folder="templates")
 
 
-@pages.route("/", methods=["GET", "POST"])
+@pages.route("/", methods=["GET", "POST"]) #главная страница
 def index():
     if request.method == "GET":
         return render_template("index.html")
@@ -27,14 +27,38 @@ def index():
             return render_template("index.html", title='Неверный логин и/или пароль!!!')
 
 
-@pages.route('/exit', methods=['POST', 'GET'])
+@pages.route('/exit', methods=['POST', 'GET']) #кнопка выхода из системы
 def exit_page():
     if request.method == "POST":
         session.pop('admin', None)
         return redirect('/')
 
 
-@pages.route("/admin/reg_shefforg", methods=["GET", "POST"])
+@pages.route("/admin/reg_shefforg", methods=["GET", "POST"]) #админка-регистрация рук.огранизации
 def reg_shefforg():
     if request.method == "GET":
         return render_template("registration.html")
+
+
+@pages.route("/admin/add-shefforg", methods=["GET", "POST"]) #добавление рук.организации
+def addshefforg():
+    if request.method == "POST":
+        db_sessions = get_session()
+        firstname = str(request.form["shefforgFirstname"])
+        name = str(request.form["shefforgName"])
+        fathername = str(request.form["shefforgFathername"])
+        pos = str(request.form["shefforgPositions"])
+        doc = str(request.form["shefforgDoc"])
+        em = str(request.form["shefforgEmail"])
+        phone = str(request.form["shefforgPhone"])
+        login = str(request.form["Login"])
+        password = str(request.form["Pass"])
+        passw = hashlib.md5(password.encode())
+        passw = passw.hexdigest()
+        add = Shefforganizations(
+            shefforgFirstname = firstname, shefforgName = name, shefforgFathername = fathername,
+            shefforgPositions = pos, shefforgDoc = doc, shefforgEmail = em, shefforgPhone = phone,
+            Login = login, Pass = passw)
+        db_sessions.add(add)
+        db_sessions.flush()
+        return redirect('/admin/reg_shefforg')

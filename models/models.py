@@ -24,3 +24,20 @@ class Positions(Base):
     __tablename__ = "positions"
     IDpositions = mapped_column(Integer, primary_key=True)
     positionsName = mapped_column(String(100), nullable=False)
+
+
+class Shefforganizations(Base):
+    __tablename__ = "shefforganizations"
+    IDshefforg = mapped_column(Integer, primary_key=True)
+    shefforgFirstname = mapped_column(String(255), nullable=False)
+    shefforgName = mapped_column(String(255), nullable=False)
+    shefforgFathername = mapped_column(String(255))
+    shefforgPositions = mapped_column(String(255), nullable=False)
+    shefforgDoc = mapped_column(String(255), nullable=False)
+    shefforgEmail = mapped_column(String(100), nullable=False)
+    shefforgPhone = mapped_column(String(12), nullable=False)
+    Login = mapped_column(String(100), nullable=False)
+    Pass = mapped_column(String(100), nullable=False)
+
+
+
