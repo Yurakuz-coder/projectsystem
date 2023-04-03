@@ -27,6 +27,13 @@ def index():
             return render_template("index.html", title='Неверный логин и/или пароль!!!')
 
 
+@pages.route('/exit', methods=['POST', 'GET'])
+def exit_page():
+    if request.method == "POST":
+        session.pop('admin', None)
+        return redirect('/')
+
+
 @pages.route("/admin/reg_shefforg", methods=["GET", "POST"])
 def reg_shefforg():
     if request.method == "GET":
