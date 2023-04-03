@@ -40,4 +40,15 @@ class Shefforganizations(Base):
     Pass = mapped_column(String(100), nullable=False)
 
 
+class Organizations(Base):
+    __tablename__ = "organizations"
+    IDorg = mapped_column(Integer, primary_key=True)
+    IDshefforg = mapped_column(ForeignKey("shefforganizations.IDshefforg"))
+    orgName = mapped_column(String(255), nullable=False)
+    orgYuraddress = mapped_column(String(255), nullable=False)
+    orgPostaddress = mapped_column(String(255), nullable=False)
+    orgEmail = mapped_column(String(100), nullable=False)
+    orgPhone = mapped_column(String(12), nullable=False)
+
+
 
