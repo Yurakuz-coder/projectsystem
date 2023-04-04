@@ -41,6 +41,7 @@ def reg_shefforg():
         shefforg = select(Organizations.orgName, Shefforganizations).join_from(Shefforganizations, Organizations,
                                                                         Organizations.IDshefforg == Shefforganizations.IDshefforg,
                                                                         isouter=True)
+        print(shefforg)
         return render_template("registration.html", shefforg = shefforg)
 
 
