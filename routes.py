@@ -6,7 +6,7 @@ from models.database import get_session, get_select
 pages = Blueprint("pages", __name__, template_folder="templates")
 
 
-@pages.route("/", methods=["GET", "POST"]) #главная страница
+@pages.route("/", methods=["GET", "POST"])  # главная страница
 def index():
     if request.method == "GET":
         return render_template("index.html")
@@ -20,32 +20,47 @@ def index():
         data_workers = (
             db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
         )
-        if data_workers.Login == login and data_workers.Pass == rendered_pass and data_workers.positionsName.positionsName == "Администратор":
-            session['admin'] = [data_workers.IDsheffpr, data_workers.IDpositions, data_workers.sheffprFirstname, data_workers.sheffprName, data_workers.sheffprFathername, data_workers.positionsName.positionsName]
+        if (
+            data_workers.Login == login
+            and data_workers.Pass == rendered_pass
+            and data_workers.positionsName.positionsName == "Администратор"
+        ):
+            session["admin"] = [
+                data_workers.IDsheffpr,
+                data_workers.IDpositions,
+                data_workers.sheffprFirstname,
+                data_workers.sheffprName,
+                data_workers.sheffprFathername,
+                data_workers.positionsName.positionsName,
+            ]
             return redirect("/admin/reg_shefforg")
         else:
-            return render_template("index.html", title='Неверный логин и/или пароль!!!')
+            return render_template("index.html", title="Неверный логин и/или пароль!!!")
 
 
-@pages.route('/exit', methods=['POST', 'GET']) #кнопка выхода из системы
+@pages.route("/exit", methods=["POST", "GET"])  # кнопка выхода из системы
 def exit_page():
     if request.method == "POST":
-        session.pop('admin', None)
-        return redirect('/')
+        session.pop("admin", None)
+        return redirect("/")
 
 
-@pages.route("/admin/reg_shefforg", methods=["GET", "POST"]) #админка-регистрация рук.огранизации
+@pages.route("/admin/reg_shefforg", methods=["GET", "POST"])  # админка-регистрация рук.огранизации
 def reg_shefforg():
     if request.method == "GET":
         select = get_select()
-        shefforg = select(Organizations.orgName, Shefforganizations).join_from(Shefforganizations, Organizations,
-                                                                        Organizations.IDshefforg == Shefforganizations.IDshefforg,
-                                                                        isouter=True)
-        print(shefforg)
-        return render_template("registration.html", shefforg = shefforg)
+        db_sessions = get_session()
+        select_shefforg = select(Organizations, Shefforganizations).join_from(
+            Shefforganizations,
+            Organizations,
+            Organizations.IDshefforg == Shefforganizations.IDshefforg,
+            isouter=True,
+        )
+        shefforg = db_sessions.execute(select_shefforg)
+        return render_template("registration.html", shefforg=shefforg)
 
 
-@pages.route("/admin/add-shefforg", methods=["GET", "POST"]) #добавление рук.организации
+@pages.route("/admin/add-shefforg", methods=["GET", "POST"])  # добавление рук.организации
 def addshefforg():
     if request.method == "POST":
         db_sessions = get_session()
@@ -61,9 +76,16 @@ def addshefforg():
         passw = hashlib.md5(password.encode())
         passw = passw.hexdigest()
         add = Shefforganizations(
-            shefforgFirstname = firstname, shefforgName = name, shefforgFathername = fathername,
-            shefforgPositions = pos, shefforgDoc = doc, shefforgEmail = em, shefforgPhone = phone,
-            Login = login, Pass = passw)
+            shefforgFirstname=firstname,
+            shefforgName=name,
+            shefforgFathername=fathername,
+            shefforgPositions=pos,
+            shefforgDoc=doc,
+            shefforgEmail=em,
+            shefforgPhone=phone,
+            Login=login,
+            Pass=passw,
+        )
         db_sessions.add(add)
         db_sessions.commit()
-        return redirect('/admin/reg_shefforg')
+        return redirect("/admin/reg_shefforg")
