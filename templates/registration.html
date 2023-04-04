@@ -58,55 +58,83 @@
           </div>
         </div>
         <h1>Руководители организаций</h1>
+        <br />
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Добавить руководителя организации
+          </button>
+          <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button"
+            aria-expanded="false" aria-controls="collapseTableBody">
+            Отобразить данные
+          </a>
+          <a class="btn btn-warning" data-bs-toggle="collapse" href="#collapseFilters" role="button"
+            aria-expanded="false" aria-controls="collapseFilters">
+            Добавить фильтры
+          </a>
+        </div>
+        <br />
+        <div class="collapse" id="collapseFilters">
+          <br />
+          <input type="text" id="fioFilter" class="form-control" placeholder="Фильтр по ФИО" aria-label="fioFilter"
+            aria-describedby="basic-addon1">
+          <br />
+          <input type="text" id="orgFilter" class="form-control" placeholder="Фильтр по наименованию организации"
+            aria-label="orgFilter" aria-describedby="basic-addon1">
+          <br />
+          <button type="button" class="btn btn-warning" id="buttonFilter" onClick="applyFilters()">
+            Применить фильтры
+          </button>
+          <br />
+        </div>
         <table class="table table-hover">
           <thead>
             <tr>
               <th scope="col">
               </th>
               <th scope="col">
-                ФИО
+                <div class="input-group mb-3">
+                  ФИО
+                </div>
               </th>
               <th scope="col">
-                Наименование организации
-              </th>
-            </tr>
-            <tr>
-              <th scope="col">
-                <button type="button" class="btn btn-light">Применить фильтры</button>
+                <div class="input-group mb-3">
+                  Наименование организации
+                </div>
               </th>
               <th scope="col">
-                <input type="text" class="form-control" aria-label="" placeholder="Фильтр по ФИО">
+                Юридический адрес
               </th>
               <th scope="col">
-                <input type="text" class="form-control" aria-label="" placeholder="Фильтр по наименованию организации">
+                Электронный адрес
+              </th>
+              <th scope="col">
+                Должность
+              </th>
+              <th scope="col">
+                Сведения о документе
+              </th>
+              <th scope="col">
+                Телефон
+              </th>
+              <th scope="col">
+                Логин
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="collapse" id="collapseTableBody">
             {% for el in shefforg %}
             <tr>
               <th scope="row"></th>
-              <th scope="row">
-                <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button"
-                  aria-expanded="false" aria-controls="collapseExample">
-                  {{ el.Shefforganizations.shefforgFirstname }} {{
-                  el.Shefforganizations.shefforgName }}
-                  {{ el.Shefforganizations.shefforgFathername }}
-                </a>
-                <div class="collapse" data-parent="#accordion" id="collapseExample">
-                  <div class="card">
-                    <ul class="list-group list-group-flush">
-                      <li class="list-group-item">Телефон: {{ el.Shefforganizations.shefforgPhone }}</li>
-                      <li class="list-group-item">Email: {{ el.Shefforganizations.shefforgEmail }}</li>
-                      <li class="list-group-item">Логин: {{ el.Shefforganizations.Login }}</li>
-                      <li class="list-group-item">Сведения о документе: {{ el.Shefforganizations.shefforgDoc }}</li>
-                      <li class="list-group-item">Юр. адрес: {{ el.Organizations.orgYuraddress }}</li>
-                      <li class="list-group-item">Позиция: {{ el.Shefforganizations.shefforgPositions }}</li>
-                    </ul>
-                  </div>
-                </div>
-              </th>
+              <th scope="row"> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
+                {{
+                el.Shefforganizations.shefforgFathername }}</th>
               <th scope="row">{{ el.Organizations.orgName or '' }}</th>
+              <th scope="row">{{ el.Organizations.orgYuraddress }}</th>
+              <th scope="row">{{ el.Shefforganizations.shefforgEmail }}</th>
+              <th scope="row">{{ el.Shefforganizations.shefforgPositions }}</th>
+              <th scope="row">{{ el.Shefforganizations.shefforgDoc }}</th>
+              <th scope="row">{{ el.Shefforganizations.shefforgPhone }}</th>
+              <th scope="row">{{ el.Shefforganizations.Login }}</th>
             </tr>
             {% endfor %}
           </tbody>
@@ -115,10 +143,6 @@
 
         </ol>
         <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-          Добавить руководителя организации
-        </button>
-
         <!-- Modal -->
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
@@ -186,6 +210,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
     crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='reg_shefforg.js') }}"></script>
 </body>
 
 </html>

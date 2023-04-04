@@ -48,16 +48,30 @@ def exit_page():
 @pages.route("/admin/reg_shefforg", methods=["GET", "POST"])  # админка-регистрация рук.огранизации
 def reg_shefforg():
     if request.method == "GET":
-        select = get_select()
-        db_sessions = get_session()
-        select_shefforg = select(Organizations, Shefforganizations).join_from(
-            Shefforganizations,
-            Organizations,
-            Organizations.IDshefforg == Shefforganizations.IDshefforg,
-            isouter=True,
-        )
-        shefforg = db_sessions.execute(select_shefforg)
-        return render_template("registration.html", shefforg=shefforg)
+      select = get_select()
+      db_sessions = get_session()
+      select_shefforg = select(Organizations, Shefforganizations).join_from(
+          Shefforganizations,
+          Organizations,
+          Organizations.IDshefforg == Shefforganizations.IDshefforg,
+          isouter=True,
+      )
+      shefforg = db_sessions.execute(select_shefforg)
+      return render_template("registration.html", shefforg=shefforg)
+    if request.method == "POST":
+      fioFilter = request.form['fioFilter']
+      orgFilter = request.form['orgFilter']
+      select = get_select()
+      db_sessions = get_session()
+      select_shefforg = select(Organizations, Shefforganizations).join_from(
+          Shefforganizations,
+          Organizations,
+          Organizations.IDshefforg == Shefforganizations.IDshefforg,
+          isouter=True,
+      )
+      shefforg = db_sessions.execute(select_shefforg)
+      return shefforg
+
 
 
 @pages.route("/admin/add-shefforg", methods=["GET", "POST"])  # добавление рук.организации
