@@ -124,3 +124,50 @@ def delshefforg():
         db_sessions.query(Shefforganizations).filter(Shefforganizations.IDshefforg == idshefforg).delete()
         db_sessions.commit()
         return redirect("/admin/reg_shefforg")
+
+
+@pages.route("/admin/redshefforganiz", methods=["GET", "POST"])  # редактирование рук.организации
+def redshefforg():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idshefforg = int(request.form['redshefforg'])
+        firstname = request.form["redshefforgFirstname"]
+        name = request.form["redshefforgName"]
+        fathername = request.form["redshefforgFathername"]
+        pos = request.form["redshefforgPositions"]
+        doc = request.form["redshefforgDoc"]
+        em = request.form["redshefforgEmail"]
+        phone = request.form["redshefforgPhone"]
+        login = request.form["redLogin"]
+        password = request.form["redPass"]
+        npr = db_sessions.query(Shefforganizations).filter(Shefforganizations.IDshefforg == idshefforg).first()
+        if str(firstname) != "":
+            npr.shefforgFirstname = str(firstname)
+            db_sessions.commit()
+        if str(name) != "":
+            npr.shefforgName = str(name)
+            db_sessions.commit()
+        if str(fathername) != "":
+            npr.shefforgFathername = str(fathername)
+            db_sessions.commit()
+        if str(pos) != "":
+            npr.shefforgPositions = str(pos)
+            db_sessions.commit()
+        if str(doc) != "":
+            npr.shefforgDoc = str(doc)
+            db_sessions.commit()
+        if str(em) != "":
+            npr.shefforgEmail = str(em)
+            db_sessions.commit()
+        if str(phone) != "":
+            npr.shefforgPhone = str(phone)
+            db_sessions.commit()
+        if str(login) != "":
+            npr.Login = str(login)
+            db_sessions.commit()
+        if str(password) != "":
+            password = hashlib.md5(password.encode())
+            password = password.hexdigest()
+            npr.Pass = str(password)
+            db_sessions.commit()
+        return redirect("/admin/reg_shefforg")
