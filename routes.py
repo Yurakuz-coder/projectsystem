@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, session
+from flask import Blueprint, render_template, request, redirect, session, jsonify
 import hashlib
 from models.models import *
 from models.database import get_session, get_select
+from sqlalchemy import text
 
 pages = Blueprint("pages", __name__, template_folder="templates")
 
@@ -48,30 +49,40 @@ def exit_page():
 @pages.route("/admin/reg_shefforg", methods=["GET", "POST"])  # админка-регистрация рук.огранизации
 def reg_shefforg():
     if request.method == "GET":
-      select = get_select()
-      db_sessions = get_session()
-      select_shefforg = select(Organizations, Shefforganizations).join_from(
-          Shefforganizations,
-          Organizations,
-          Organizations.IDshefforg == Shefforganizations.IDshefforg,
-          isouter=True,
-      )
-      shefforg = db_sessions.execute(select_shefforg)
-      return render_template("registration.html", shefforg=shefforg)
+        select = get_select()
+        db_sessions = get_session()
+        select_shefforg = select(Organizations, Shefforganizations).join_from(
+            Shefforganizations,
+            Organizations,
+            Organizations.IDshefforg == Shefforganizations.IDshefforg,
+            isouter=True,
+        )
+        shefforg = db_sessions.execute(select_shefforg).all()
+        return render_template("registration.html", shefforg=shefforg)
     if request.method == "POST":
-      fioFilter = request.form['fioFilter']
-      orgFilter = request.form['orgFilter']
-      select = get_select()
-      db_sessions = get_session()
-      select_shefforg = select(Organizations, Shefforganizations).join_from(
-          Shefforganizations,
-          Organizations,
-          Organizations.IDshefforg == Shefforganizations.IDshefforg,
-          isouter=True,
-      )
-      shefforg = db_sessions.execute(select_shefforg)
-      return shefforg
-
+        fio_filter = request.form["fioFilter"]
+        org_filter = request.form["orgFilter"]
+        where_fio_filter = (
+            Shefforganizations.FullName.ilike("%" + fio_filter + "%") if fio_filter else text("1=1")
+        )
+        where_org_filter = (
+            Organizations.orgName.ilike("%" + org_filter + "%") if org_filter else text("1=1")
+        )
+        select = get_select()
+        db_sessions = get_session()
+        select_shefforg = (
+            select(Organizations, Shefforganizations)
+            .join_from(
+                Shefforganizations,
+                Organizations,
+                Organizations.IDshefforg == Shefforganizations.IDshefforg,
+                isouter=True,
+            )
+            .where(where_fio_filter)
+            .where(where_org_filter)
+        )
+        shefforg = db_sessions.execute(select_shefforg).all()
+        return render_template("resultTableRegSheffOrg.html", shefforg=shefforg)
 
 
 @pages.route("/admin/add-shefforg", methods=["GET", "POST"])  # добавление рук.организации

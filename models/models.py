@@ -1,5 +1,5 @@
 from sqlalchemy import Integer, String, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, mapped_column, relationship, column_property
 
 
 class Base(DeclarativeBase):
@@ -38,6 +38,7 @@ class Shefforganizations(Base):
     shefforgPhone = mapped_column(String(12), nullable=False)
     Login = mapped_column(String(100), nullable=False)
     Pass = mapped_column(String(100), nullable=False)
+    FullName = column_property(shefforgFirstname + " " + shefforgName + " " + shefforgFathername)
 
 
 class Organizations(Base):
@@ -49,6 +50,3 @@ class Organizations(Base):
     orgPostaddress = mapped_column(String(255), nullable=False)
     orgEmail = mapped_column(String(100), nullable=False)
     orgPhone = mapped_column(String(12), nullable=False)
-
-
-
