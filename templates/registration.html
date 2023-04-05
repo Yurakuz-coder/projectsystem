@@ -1,216 +1,144 @@
-<!doctype html>
-<html lang="ru">
+{% extends "base.html" %}
+{% block content %}
+<h1>Руководители организаций</h1>
+<br />
+<div class="btn-group" role="group">
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Добавить руководителя организации
+  </button>
+  <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
+    aria-controls="collapseTableBody">
+    Отобразить данные
+  </a>
+  <a class="btn btn-warning" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+    aria-controls="collapseFilters">
+    Добавить фильтры
+  </a>
+</div>
+<br />
+<div class="collapse" id="collapseFilters">
+  <br />
+  <input type="text" id="fioFilter" class="form-control" placeholder="Фильтр по ФИО" aria-label="fioFilter"
+    aria-describedby="basic-addon1">
+  <br />
+  <input type="text" id="orgFilter" class="form-control" placeholder="Фильтр по наименованию организации"
+    aria-label="orgFilter" aria-describedby="basic-addon1">
+  <br />
+  <button type="button" class="btn btn-warning" id="buttonFilter" onClick="applyFilters()">
+    Применить фильтры
+  </button>
+  <br />
+</div>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">
+      </th>
+      <th scope="col">
+        ФИО
+      </th>
+      <th scope="col">
+        Наименование организации
+      </th>
+      <th scope="col">
+        Юридический адрес
+      </th>
+      <th scope="col">
+        Электронный адрес
+      </th>
+      <th scope="col">
+        Должность
+      </th>
+      <th scope="col">
+        Сведения о документе
+      </th>
+      <th scope="col">
+        Телефон
+      </th>
+      <th scope="col">
+        Логин
+      </th>
+    </tr>
+  </thead>
+  <tbody class="collapse" id="collapseTableBody">
+    {% for el in shefforg %}
+    <tr>
+      <th scope="row"></th>
+      <th scope="row"> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
+        {{
+        el.Shefforganizations.shefforgFathername }}</th>
+      <th scope="row">{{ el.Organizations.orgName or '' }}</th>
+      <th scope="row">{{ el.Organizations.orgYuraddress }}</th>
+      <th scope="row">{{ el.Shefforganizations.shefforgEmail }}</th>
+      <th scope="row">{{ el.Shefforganizations.shefforgPositions }}</th>
+      <th scope="row">{{ el.Shefforganizations.shefforgDoc }}</th>
+      <th scope="row">{{ el.Shefforganizations.shefforgPhone }}</th>
+      <th scope="row">{{ el.Shefforganizations.Login }}</th>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<ol>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Регистрация руководителя огранизации | ИССПД</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="{{ url_for('static',filename='admin.css') }}">
-  <link rel="shortcut icon" href="{{ url_for('static',filename='icons.ico') }}" type="image/x-icon">
-</head>
-
-<body>
-  <header class="navbar navbar-dark col-md-3 col-lg-2 me-0 px-3 sticky-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-md-4 col-lg-3 me-0 px-0">Панель администратора</a>
-    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
-      data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-  </header>
-  <div class="container-fluid">
-    <div class="row">
-      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-        <br>
-        <div class="position-sticky pt-3">
-          <h5 align="center">{{ session['admin'][2]+' '+session['admin'][3]+' '+session['admin'][4] }}<br>{{
-            session['admin'][5] }}</h5>
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/admin/reg_shefforg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-file-earmark-person-fill" viewBox="0 0 16 16">
-                  <path
-                    d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm2 5.755V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-.245S4 12 8 12s5 1.755 5 1.755z" />
-                </svg>
-                Руководители организаций
-              </a>
-            </li>
-          </ul>
-          <div class="d-flex justify-content-center">
-            <form action="/exit" method="post">
-              <button type="submit" class="btn btn-danger">Выйти из системы</button>
-            </form>
+</ol>
+<!-- Button trigger modal -->
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Добавить руководителя организации</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="add-shefforg" method="post">
+          <div class="form-group">
+            <label for="shefforgFirstname" class="form-control-label">Фамилия</label>
+            <input type="text" class="form-control" id="shefforgFirstname" name="shefforgFirstname" required>
           </div>
-        </div>
-      </nav>
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <div class="chartjs-size-monitor">
-          <div class="chartjs-size-monitor-expand">
-            <div class=""></div>
+          <div class="form-group">
+            <label for="shefforgName" class="form-control-label">Имя</label>
+            <input type="text" class="form-control" id="shefforgName" name="shefforgName" required>
           </div>
-          <div class="chartjs-size-monitor-shrink">
-            <div class=""></div>
+          <div class="form-group">
+            <label for="shefforgFathername" class="form-control-label">Отчество (необязательное поле)</label>
+            <input type="text" class="form-control" id="shefforgFathername" name="shefforgFathername">
           </div>
-        </div>
-        <h1>Руководители организаций</h1>
-        <br />
-        <div class="btn-group" role="group">
-          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            Добавить руководителя организации
-          </button>
-          <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button"
-            aria-expanded="false" aria-controls="collapseTableBody">
-            Отобразить данные
-          </a>
-          <a class="btn btn-warning" data-bs-toggle="collapse" href="#collapseFilters" role="button"
-            aria-expanded="false" aria-controls="collapseFilters">
-            Добавить фильтры
-          </a>
-        </div>
-        <br />
-        <div class="collapse" id="collapseFilters">
-          <br />
-          <input type="text" id="fioFilter" class="form-control" placeholder="Фильтр по ФИО" aria-label="fioFilter"
-            aria-describedby="basic-addon1">
-          <br />
-          <input type="text" id="orgFilter" class="form-control" placeholder="Фильтр по наименованию организации"
-            aria-label="orgFilter" aria-describedby="basic-addon1">
-          <br />
-          <button type="button" class="btn btn-warning" id="buttonFilter" onClick="applyFilters()">
-            Применить фильтры
-          </button>
-          <br />
-        </div>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">
-              </th>
-              <th scope="col">
-                <div class="input-group mb-3">
-                  ФИО
-                </div>
-              </th>
-              <th scope="col">
-                <div class="input-group mb-3">
-                  Наименование организации
-                </div>
-              </th>
-              <th scope="col">
-                Юридический адрес
-              </th>
-              <th scope="col">
-                Электронный адрес
-              </th>
-              <th scope="col">
-                Должность
-              </th>
-              <th scope="col">
-                Сведения о документе
-              </th>
-              <th scope="col">
-                Телефон
-              </th>
-              <th scope="col">
-                Логин
-              </th>
-            </tr>
-          </thead>
-          <tbody class="collapse" id="collapseTableBody">
-            {% for el in shefforg %}
-            <tr>
-              <th scope="row"></th>
-              <th scope="row"> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
-                {{
-                el.Shefforganizations.shefforgFathername }}</th>
-              <th scope="row">{{ el.Organizations.orgName or '' }}</th>
-              <th scope="row">{{ el.Organizations.orgYuraddress }}</th>
-              <th scope="row">{{ el.Shefforganizations.shefforgEmail }}</th>
-              <th scope="row">{{ el.Shefforganizations.shefforgPositions }}</th>
-              <th scope="row">{{ el.Shefforganizations.shefforgDoc }}</th>
-              <th scope="row">{{ el.Shefforganizations.shefforgPhone }}</th>
-              <th scope="row">{{ el.Shefforganizations.Login }}</th>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        <ol>
-
-        </ol>
-        <!-- Button trigger modal -->
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Добавить руководителя организации</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <form action="add-shefforg" method="post">
-                  <div class="form-group">
-                    <label for="shefforgFirstname" class="form-control-label">Фамилия</label>
-                    <input type="text" class="form-control" id="shefforgFirstname" name="shefforgFirstname" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="shefforgName" class="form-control-label">Имя</label>
-                    <input type="text" class="form-control" id="shefforgName" name="shefforgName" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="shefforgFathername" class="form-control-label">Отчество (необязательное поле)</label>
-                    <input type="text" class="form-control" id="shefforgFathername" name="shefforgFathername">
-                  </div>
-                  <div class="form-group">
-                    <label for="shefforgPositions" class="form-control-label">Должность</label>
-                    <input type="text" class="form-control" id="shefforgPositions" name="shefforgPositions" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="shefforgDoc" class="form-control-label">Сведения о документе, устанавливающем
-                      полномочия</label>
-                    <textarea class="form-control" id="shefforgDoc" name="shefforgDoc" rows="2" required></textarea>
-                  </div>
-                  <div class="form-group">
-                    <label for="shefforgEmail" class="form-control-label">Электронная почта</label>
-                    <input type="email"
-                      pattern="^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$"
-                      class="form-control" id="shefforgEmail" name="shefforgEmail" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="shefforgPhone" class="form-control-label">Телефон в формате +7XXXXXXXXXX</label>
-                    <input type="tel" pattern="+7[0-9]{10}" class="form-control" id="shefforgPhone" name="shefforgPhone"
-                      required>
-                  </div>
-                  <div class="form-group">
-                    <label for="Login" class="form-control-label">Логин</label>
-                    <input type="text" class="form-control" id="Login" name="Login" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="Pass" class="form-control-label">Пароль</label>
-                    <input type="password" class="form-control" id="Pass" name="Pass" required>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                    <button type="submit" class="btn btn-primary">Сохранить</button>
-                  </div>
-                </form>
-              </div>
-            </div>
+          <div class="form-group">
+            <label for="shefforgPositions" class="form-control-label">Должность</label>
+            <input type="text" class="form-control" id="shefforgPositions" name="shefforgPositions" required>
           </div>
-        </div>
+          <div class="form-group">
+            <label for="shefforgDoc" class="form-control-label">Сведения о документе, устанавливающем
+              полномочия</label>
+            <textarea class="form-control" id="shefforgDoc" name="shefforgDoc" rows="2" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="shefforgEmail" class="form-control-label">Электронная почта</label>
+            <input type="email"
+              pattern="^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$"
+              class="form-control" id="shefforgEmail" name="shefforgEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="shefforgPhone" class="form-control-label">Телефон в формате +7XXXXXXXXXX</label>
+            <input type="tel" pattern="+7[0-9]{10}" class="form-control" id="shefforgPhone" name="shefforgPhone"
+              required>
+          </div>
+          <div class="form-group">
+            <label for="Login" class="form-control-label">Логин</label>
+            <input type="text" class="form-control" id="Login" name="Login" required>
+          </div>
+          <div class="form-group">
+            <label for="Pass" class="form-control-label">Пароль</label>
+            <input type="password" class="form-control" id="Pass" name="Pass" required>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-  </div>
-  </main>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
-    crossorigin="anonymous"></script>
-  <script src="{{ url_for('static', filename='reg_shefforg.js') }}"></script>
-</body>
-
-</html>
+</div>
+{% endblock content %}
