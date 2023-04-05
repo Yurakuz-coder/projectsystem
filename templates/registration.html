@@ -141,4 +141,38 @@
     </div>
   </div>
 </div>
+
+      <!-- Удаление руководителя организации -->
+          <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delst">
+            Удалить руководителя организации
+          </button>
+          <!-- Modal -->
+          <div class="modal fade" id="delst" tabindex="-1" aria-labelledby="delworkersLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="delstLabel">Удалить руководителя организации</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form action="delsheforg" method="post">
+                    <div class="form-group">
+                      <label for="delsheforg" class="form-select-label">Выберите руководителя организации</label>
+                      <select class="form-select" aria-label="Default select example" name="delsheforg">
+                        {% for el in shefforg %}
+                        <option value="{{ el.Shefforganizations.IDshefforg }}"> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
+                            {{ el.Shefforganizations.shefforgFathername }} - {{ el.Organizations.orgName or '' }} {{ el.Organizations.orgYuraddress }}
+                        </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                  </form>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
 {% endblock content %}

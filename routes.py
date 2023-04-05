@@ -114,3 +114,13 @@ def addshefforg():
         db_sessions.add(add)
         db_sessions.commit()
         return redirect("/admin/reg_shefforg")
+
+
+@pages.route("/admin/delsheforg", methods=["GET", "POST"])  # удаление рук.организации
+def delshefforg():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idshefforg = int(request.form['delsheforg'])
+        db_sessions.query(Shefforganizations).filter(Shefforganizations.IDshefforg == idshefforg).delete()
+        db_sessions.commit()
+        return redirect("/admin/reg_shefforg")
