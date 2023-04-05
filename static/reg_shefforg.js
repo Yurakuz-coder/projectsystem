@@ -1,8 +1,8 @@
 function applyFilters() {
-  const fioFilter = document.getElementById('fioFilter')
-  const orgFilter = document.getElementById('orgFilter')
-  if (!fioFilter.value || orgFilter.value) {
-    return
+  const fioFilter = document.getElementById("fioFilter").value;
+  const orgFilter = document.getElementById("orgFilter").value;
+  if (!fioFilter && !orgFilter) {
+    return;
   }
 
   $.ajax({
@@ -10,13 +10,13 @@ function applyFilters() {
     url: "/admin/reg_shefforg",
     dataType: "json",
     dataSrc: "data",
-    data: { fioFilter: fioFilter.value, orgFilter: orgFilter.value },
+    data: { fioFilter, orgFilter },
     success: function (data) {
-      console.log(1)
+      document.getElementById("collapseTableBody").innerHTML =
+        data.responseText;
     },
     error: function (err) {
-      console.log("error");
+      document.getElementById("collapseTableBody").innerHTML = err.responseText;
     },
   });
-
 }
