@@ -1,16 +1,14 @@
 {% extends "base.html" %}
+{% set active_page = "reg_shefforg" %}
 {% block content %}
 <h1>Руководители организаций</h1>
 <br />
 <div class="btn-group" role="group">
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Добавить руководителя организации
-  </button>
   <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
     aria-controls="collapseTableBody">
     Отобразить данные
   </a>
-  <a class="btn btn-warning" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+  <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
     aria-controls="collapseFilters">
     Добавить фильтры
   </a>
@@ -24,16 +22,19 @@
   <input type="text" id="orgFilter" class="form-control" placeholder="Фильтр по наименованию организации"
     aria-label="orgFilter" aria-describedby="basic-addon1">
   <br />
-  <button type="button" class="btn btn-warning" id="buttonFilter" onClick="applyFilters()">
-    Применить фильтры
-  </button>
+  <div class="btn-group" role="group">
+    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyFilters()">
+      Применить фильтры
+    </button>
+    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropFilter()">
+      Сбросить фильтр
+    </button>
+  </div>
   <br />
 </div>
 <table class="table table-hover">
   <thead>
     <tr>
-      <th scope="col">
-      </th>
       <th scope="col">
         ФИО
       </th>
@@ -61,21 +62,7 @@
     </tr>
   </thead>
   <tbody class="collapse" id="collapseTableBody">
-    {% for el in shefforg %}
-    <tr>
-      <th scope="row"></th>
-      <th scope="row"> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
-        {{
-        el.Shefforganizations.shefforgFathername }}</th>
-      <th scope="row">{{ el.Organizations.orgName or '' }}</th>
-      <th scope="row">{{ el.Organizations.orgYuraddress }}</th>
-      <th scope="row">{{ el.Shefforganizations.shefforgEmail }}</th>
-      <th scope="row">{{ el.Shefforganizations.shefforgPositions }}</th>
-      <th scope="row">{{ el.Shefforganizations.shefforgDoc }}</th>
-      <th scope="row">{{ el.Shefforganizations.shefforgPhone }}</th>
-      <th scope="row">{{ el.Shefforganizations.Login }}</th>
-    </tr>
-    {% endfor %}
+    {% include "resultTableRegSheffOrg.html" %}
   </tbody>
 </table>
 <ol>
@@ -141,67 +128,73 @@
     </div>
   </div>
 </div>
-
-      <!-- Удаление руководителя организации -->
-          <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delst">
-            Удалить руководителя организации
-          </button>
-          <!-- Modal -->
-          <div class="modal fade" id="delsheforganiz" tabindex="-1" aria-labelledby="delsheforganizLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="delsheforganizLabel">Удалить руководителя организации</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <form action="delsheforg" method="post">
-                    <div class="form-group">
-                      <label for="delsheforg" class="form-select-label">Выберите руководителя организации</label>
-                      <select class="form-select" aria-label="Default select example" name="delsheforg">
-                        {% for el in shefforg %}
-                        <option value="{{ el.Shefforganizations.IDshefforg }}"> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
-                            {{ el.Shefforganizations.shefforgFathername }} - {{ el.Organizations.orgName or '' }} {{ el.Organizations.orgYuraddress }}
-                        </option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                    <br>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                    <button type="submit" class="btn btn-danger">Удалить</button>
-                  </form>
-                </div>
-                </form>
-              </div>
-            </div>
+<div class="btn-group" role="group">
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Добавить руководителя организации
+  </button>
+  <!-- Редактировать руководителя организации -->
+  <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#redshefforganiz">
+    Редактировать руководителя организации
+  </button>
+  <!-- Удаление руководителя организации -->
+  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delsheforganiz">
+    Удалить руководителя организации
+  </button>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="delsheforganiz" tabindex="-1" aria-labelledby="delsheforganizLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="delsheforganizLabel">Удалить руководителя организации</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="delsheforg" method="post">
+          <div class="form-group">
+            <label for="delsheforg" class="form-select-label">Выберите руководителя организации</label>
+            <select class="form-select" aria-label="Default select example" name="delsheforg">
+              {% for el in shefforg %}
+              <option value="{{ el.Shefforganizations.IDshefforg }}"> {{ el.Shefforganizations.shefforgFirstname }} {{
+                el.Shefforganizations.shefforgName }}
+                {{ el.Shefforganizations.shefforgFathername }} - {{ el.Organizations.orgName or '' }} {{
+                el.Organizations.orgYuraddress }}
+              </option>
+              {% endfor %}
+            </select>
           </div>
-
-
-              <!-- Редактировать руководителя организации -->
-          <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#redshefforganiz">
-            Редактировать руководителя организации
-          </button>
-          <!-- Modal -->
-          <div class="modal fade" id="redshefforganiz" tabindex="-1" aria-labelledby="redshefforganizLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="redshefforganizLabel">Редактировать руководителя организации</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <form action="redshefforganiz" method="post">
-                    <div class="form-group">
-                      <label for="redshefforg" class="form-select-label">Выберите руководителя организации</label>
-                      <select class="form-select" aria-label="Default select example" name="redshefforg">
-                          {% for el in shefforg %}
-                        <option value="{{ el.Shefforganizations.IDshefforg }}"> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
-                            {{ el.Shefforganizations.shefforgFathername }} - {{ el.Organizations.orgName or '' }} {{ el.Organizations.orgYuraddress }}
-                        </option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                    <div class="form-group">
+          <br>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="redshefforganiz" tabindex="-1" aria-labelledby="redshefforganizLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="redshefforganizLabel">Редактировать руководителя организации</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="redshefforganiz" method="post">
+          <div class="form-group">
+            <label for="redshefforg" class="form-select-label">Выберите руководителя организации</label>
+            <select class="form-select" aria-label="Default select example" name="redshefforg">
+              {% for el in shefforg %}
+              <option value="{{ el.Shefforganizations.IDshefforg }}"> {{ el.Shefforganizations.shefforgFirstname }} {{
+                el.Shefforganizations.shefforgName }}
+                {{ el.Shefforganizations.shefforgFathername }} - {{ el.Organizations.orgName or '' }} {{
+                el.Organizations.orgYuraddress }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
             <label for="redshefforgFirstname" class="form-control-label">Фамилия</label>
             <input type="text" class="form-control" id="redshefforgFirstname" name="redshefforgFirstname">
           </div>
@@ -226,7 +219,7 @@
             <label for="redshefforgEmail" class="form-control-label">Электронная почта</label>
             <input type="email"
               pattern="^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$"
-              class="form-control" id="redshefforgEmail" name=redshefforgEmail">
+              class="form-control" id="redshefforgEmail" name="redshefforgEmail">
           </div>
           <div class="form-group">
             <label for="redshefforgPhone" class="form-control-label">Телефон в формате +7XXXXXXXXXX</label>
@@ -240,13 +233,13 @@
             <label for="redPass" class="form-control-label">Пароль</label>
             <input type="password" class="form-control" id="redPass" name="redPass">
           </div>
-                    <br>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                    <button type="submit" class="btn btn-primary">Сохранить</button>
-                  </form>
-                </div>
-                </form>
-              </div>
-            </div>
-          </div>
+          <br>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock content %}
