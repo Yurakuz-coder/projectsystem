@@ -32,7 +32,8 @@
                         session['admin'][5] }}</h5>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/admin/reg_shefforg">
+                            <a class="{{ 'nav-link active' if active_page == 'reg_shefforg' else 'nav-link' }}"
+                                aria-current="page" href="/admin/reg_shefforg">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                     class="bi bi-file-earmark-person-fill" viewBox="0 0 16 16">
                                     <path
