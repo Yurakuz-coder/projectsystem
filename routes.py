@@ -164,3 +164,9 @@ def redshefforg():
             npr.Pass = str(password)
         db_sessions.commit()
         return redirect("/admin/reg_shefforg")
+
+
+@pages.route("/admin/organization", methods=["GET", "POST"])  # админка-регистрация организации
+def organization():
+    return render_template("organization.html")
+
