@@ -1,8 +1,6 @@
 {% for el in shefforg %}
 <tr>
-    <td> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
-        {{
-        el.Shefforganizations.shefforgFatdername }}</td>
+    <td> {{ el.Shefforganizations.FullName }}</td>
     <td>{{ el.Organizations.orgName or '' }}</td>
     <td>{{ el.Organizations.orgYuraddress }}</td>
     <td>{{ el.Shefforganizations.shefforgEmail }}</td>
