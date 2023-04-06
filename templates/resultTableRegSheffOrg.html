@@ -1,18 +1,22 @@
 {% for el in shefforg %}
 <tr>
-    <th scope="row"></th>
-    <th scope="row"> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
+    <td> {{ el.Shefforganizations.shefforgFirstname }} {{ el.Shefforganizations.shefforgName }}
         {{
-        el.Shefforganizations.shefforgFathername }}</th>
-    <th scope="row">{{ el.Organizations.orgName or '' }}</th>
-    <th scope="row">{{ el.Organizations.orgYuraddress }}</th>
-    <th scope="row">{{ el.Shefforganizations.shefforgEmail }}</th>
-    <th scope="row">{{ el.Shefforganizations.shefforgPositions }}</th>
-    <th scope="row">{{ el.Shefforganizations.shefforgDoc }}</th>
-    <th scope="row">{{ el.Shefforganizations.shefforgPhone }}</th>
-    <th scope="row">{{ el.Shefforganizations.Login }}</th>
+        el.Shefforganizations.shefforgFatdername }}</td>
+    <td>{{ el.Organizations.orgName or '' }}</td>
+    <td>{{ el.Organizations.orgYuraddress }}</td>
+    <td>{{ el.Shefforganizations.shefforgEmail }}</td>
+    <td>{{ el.Shefforganizations.shefforgPositions }}</td>
+    <td>{{ el.Shefforganizations.shefforgDoc }}</td>
+    <td>{{ el.Shefforganizations.shefforgPhone }}</td>
+    <td>{{ el.Shefforganizations.Login }}</td>
 </tr>
 {% endfor %}
+
 {% if shefforg == [] %}
-<div> Данных не найдено </div>
+<tr>
+    <td colspan="8">
+        <div> Данных не найдено </div>
+    </td>
+</tr>
 {% endif %}
