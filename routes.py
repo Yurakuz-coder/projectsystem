@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, session, jsonify
 import hashlib
-from models.models import *
-from models.database import get_session, get_select
+from flask import Blueprint, render_template, request, redirect, session
 from sqlalchemy import text
+from models.models import Sheffofprojects, Organizations, Shefforganizations
+from models.database import get_session, get_select
 
 pages = Blueprint("pages", __name__, template_folder="templates")
 
@@ -56,7 +56,7 @@ def reg_shefforg():
             Organizations,
             Organizations.IDshefforg == Shefforganizations.IDshefforg,
             isouter=True,
-        )
+        ).order_by(Shefforganizations.FullName)
         shefforg = db_sessions.execute(select_shefforg).all()
         return render_template("registration.html", shefforg=shefforg)
     if request.method == "POST":
@@ -80,6 +80,7 @@ def reg_shefforg():
             )
             .where(where_fio_filter)
             .where(where_org_filter)
+            .order_by(Shefforganizations.FullName)
         )
         shefforg = db_sessions.execute(select_shefforg).all()
         return render_template("resultTableRegSheffOrg.html", shefforg=shefforg)
@@ -143,31 +144,23 @@ def redshefforg():
         npr = db_sessions.query(Shefforganizations).filter(Shefforganizations.IDshefforg == idshefforg).first()
         if str(firstname) != "":
             npr.shefforgFirstname = str(firstname)
-            db_sessions.commit()
         if str(name) != "":
             npr.shefforgName = str(name)
-            db_sessions.commit()
         if str(fathername) != "":
             npr.shefforgFathername = str(fathername)
-            db_sessions.commit()
         if str(pos) != "":
             npr.shefforgPositions = str(pos)
-            db_sessions.commit()
         if str(doc) != "":
             npr.shefforgDoc = str(doc)
-            db_sessions.commit()
         if str(em) != "":
             npr.shefforgEmail = str(em)
-            db_sessions.commit()
         if str(phone) != "":
             npr.shefforgPhone = str(phone)
-            db_sessions.commit()
         if str(login) != "":
             npr.Login = str(login)
-            db_sessions.commit()
         if str(password) != "":
             password = hashlib.md5(password.encode())
             password = password.hexdigest()
             npr.Pass = str(password)
-            db_sessions.commit()
+        db_sessions.commit()
         return redirect("/admin/reg_shefforg")
