@@ -2,8 +2,8 @@
 {% set active_page = "organization" %}
 {% block content %}
 <h1>Данные об организациях</h1>
-    <br />
-      <div class="btn-group" role="group">
+<br />
+<div class="btn-group" role="group">
   <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
     aria-controls="collapseTableBody">
     Отобразить данные
@@ -13,16 +13,16 @@
     Добавить фильтры
   </a>
 </div>
-    <br />
+<br />
 <div class="collapse" id="collapseFilters">
   <br />
-  <input type="text" id="fioFilter" class="form-control" placeholder="Фильтр по ФИО руководителя" aria-label="fioFilters"
-    aria-describedby="basic-addon1">
+  <input type="text" id="fioFilter" class="form-control" placeholder="Фильтр по ФИО руководителя"
+    aria-label="fioFilters" aria-describedby="basic-addon1">
   <br />
   <input type="text" id="orgFilter" class="form-control" placeholder="Фильтр по наименованию организации"
     aria-label="orgFilters" aria-describedby="basic-addon1">
   <br />
-    <input type="text" id="yuradressFilter" class="form-control" placeholder="Фильтр по юридическому адресу организации"
+  <input type="text" id="yuradressFilter" class="form-control" placeholder="Фильтр по юридическому адресу организации"
     aria-label="yuradressFilters" aria-describedby="basic-addon1">
   <br />
   <div class="btn-group" role="group">
@@ -36,19 +36,19 @@
   <br />
 </div>
 
- <table class="table table-hover">
+<table class="table table-hover">
   <thead>
     <tr>
       <th scope="col">
         Наименование организации
       </th>
-        <th scope="col">
+      <th scope="col">
         ФИО руководителя организации
       </th>
       <th scope="col">
         Юридический адрес
       </th>
-        <th scope="col">
+      <th scope="col">
         Почтовый адрес
       </th>
       <th scope="col">
@@ -64,17 +64,17 @@
   </tbody>
 </table>
 
-    <div class="btn-group" role="group">
+<div class="btn-group" role="group">
   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
     Добавить организацию
   </button>
 
-        <!-- Редактировать организацию -->
+  <!-- Редактировать организацию -->
   <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#redorganiz">
     Редактировать организацию
   </button>
 
-<!-- Удаление руководителя организации -->
+  <!-- Удаление руководителя организации -->
   <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delorganiz">
     Удалить организацию
   </button>
@@ -130,7 +130,7 @@
   </div>
 </div>
 
-    <!-- Modal -->
+<!-- Modal -->
 <div class="modal fade" id="delorganiz" tabindex="-1" aria-labelledby="delsheforganizLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -144,7 +144,8 @@
             <label for="delorg" class="form-select-label">Выберите организацию</label>
             <select class="form-select" aria-label="Default select example" name="delorg">
               {% for el in organizations %}
-              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - Юридический адрес: {{ el.Organizations.orgYuraddress }}
+              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - Юридический адрес: {{
+                el.Organizations.orgYuraddress }}
               </option>
               {% endfor %}
             </select>
@@ -156,10 +157,10 @@
       </div>
     </div>
   </div>
- </div>
+</div>
 
 
-        <!-- Modal -->
+<!-- Modal -->
 <div class="modal fade" id="redorganiz" tabindex="-1" aria-labelledby="delsheforganizLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -169,17 +170,18 @@
       </div>
       <div class="modal-body">
         <form action="redorganiz" method="post">
-             <label for="redorg" class="form-select-label">Выберите организацию</label>
-            <select class="form-select" aria-label="Default select example" name="redorg">
-              {% for el in organizations %}
-              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - Юридический адрес: {{ el.Organizations.orgYuraddress }}
-              </option>
-              {% endfor %}
-            </select>
-             <div class="form-group">
+          <label for="redorg" class="form-select-label">Выберите организацию</label>
+          <select class="form-select" aria-label="Default select example" name="redorg">
+            {% for el in organizations %}
+            <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - Юридический адрес: {{
+              el.Organizations.orgYuraddress }}
+            </option>
+            {% endfor %}
+          </select>
+          <div class="form-group">
             <label for="redsheforg" class="form-select-label">Выберите руководителя организации</label>
             <select class="form-select" aria-label="Default select example" name="redsheforg">
-                <option selected></option>
+              <option selected></option>
               {% for el in shefforg %}
               <option value="{{ el[1] }}"> {{ el[2] }} </option>
               {% endfor %}
@@ -215,5 +217,5 @@
       </div>
     </div>
   </div>
- </div>
+</div>
 {% endblock content %}
