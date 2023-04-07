@@ -3,6 +3,21 @@
 {% block content %}
 <h1>Данные об организациях</h1>
 
+    <div class="btn-group" role="group">
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Добавить организацию
+  </button>
+
+        <!-- Редактировать организацию -->
+  <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#redorganiz">
+    Редактировать организацию
+  </button>
+
+<!-- Удаление руководителя организации -->
+  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delorganiz">
+    Удалить организацию
+  </button>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -53,9 +68,32 @@
     </div>
   </div>
 </div>
-<div class="btn-group" role="group">
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Добавить организацию
-  </button>
-</div>
+
+    <!-- Modal -->
+<div class="modal fade" id="delorganiz" tabindex="-1" aria-labelledby="delsheforganizLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="delsheforganizLabel">Удалить организацию</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="delorg" method="post">
+          <div class="form-group">
+            <label for="delorg" class="form-select-label">Выберите организацию</label>
+            <select class="form-select" aria-label="Default select example" name="delorg">
+              {% for el in organizations %}
+              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - Юридический адрес: {{ el.Organizations.orgYuraddress }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <br>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+ </div>
 {% endblock content %}

@@ -181,6 +181,7 @@ def organization():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
+        select_org = select(Organizations).order_by(Organizations.orgName)
         select_shefforg = (
             select(
                 Organizations,
@@ -197,7 +198,8 @@ def organization():
             .order_by(Shefforganizations.FullName)
         )
         shefforg = db_sessions.execute(select_shefforg).all()
-        return render_template("organization.html", shefforg=shefforg)
+        organizations = db_sessions.execute(select_org).all()
+        return render_template("organization.html", shefforg=shefforg, organizations=organizations)
 
 
 @pages.route("/admin/add-org", methods=["GET", "POST"])  # добавление организации
@@ -219,5 +221,17 @@ def addorg():
             orgPhone=phone,
         )
         db_sessions.add(add)
+        db_sessions.commit()
+        return redirect("/admin/organization")
+
+
+@pages.route("/admin/delorg", methods=["GET", "POST"])  # удаление организации
+def delorg():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idorg = int(request.form["delorg"])
+        db_sessions.query(Organizations).filter(
+            Organizations.IDorg == idorg
+        ).delete()
         db_sessions.commit()
         return redirect("/admin/organization")
