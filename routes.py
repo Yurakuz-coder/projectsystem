@@ -51,12 +51,16 @@ def reg_shefforg():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_shefforg = select(Organizations, Shefforganizations).join_from(
-            Shefforganizations,
-            Organizations,
-            Organizations.IDshefforg == Shefforganizations.IDshefforg,
-            isouter=True,
-        ).order_by(Shefforganizations.FullName)
+        select_shefforg = (
+            select(Organizations, Shefforganizations)
+            .join_from(
+                Shefforganizations,
+                Organizations,
+                Organizations.IDshefforg == Shefforganizations.IDshefforg,
+                isouter=True,
+            )
+            .order_by(Shefforganizations.FullName)
+        )
         shefforg = db_sessions.execute(select_shefforg).all()
         return render_template("registration.html", shefforg=shefforg)
     if request.method == "POST":
@@ -121,8 +125,10 @@ def addshefforg():
 def delshefforg():
     if request.method == "POST":
         db_sessions = get_session()
-        idshefforg = int(request.form['delsheforg'])
-        db_sessions.query(Shefforganizations).filter(Shefforganizations.IDshefforg == idshefforg).delete()
+        idshefforg = int(request.form["delsheforg"])
+        db_sessions.query(Shefforganizations).filter(
+            Shefforganizations.IDshefforg == idshefforg
+        ).delete()
         db_sessions.commit()
         return redirect("/admin/reg_shefforg")
 
@@ -131,7 +137,7 @@ def delshefforg():
 def redshefforg():
     if request.method == "POST":
         db_sessions = get_session()
-        idshefforg = int(request.form['redshefforg'])
+        idshefforg = int(request.form["redshefforg"])
         firstname = request.form["redshefforgFirstname"]
         name = request.form["redshefforgName"]
         fathername = request.form["redshefforgFathername"]
@@ -141,7 +147,11 @@ def redshefforg():
         phone = request.form["redshefforgPhone"]
         login = request.form["redLogin"]
         password = request.form["redPass"]
-        npr = db_sessions.query(Shefforganizations).filter(Shefforganizations.IDshefforg == idshefforg).first()
+        npr = (
+            db_sessions.query(Shefforganizations)
+            .filter(Shefforganizations.IDshefforg == idshefforg)
+            .first()
+        )
         if str(firstname) != "":
             npr.shefforgFirstname = str(firstname)
         if str(name) != "":
@@ -171,12 +181,20 @@ def organization():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_shefforg = select(Organizations, Shefforganizations.IDshefforg, Shefforganizations.FullName).join_from(
-            Shefforganizations,
-            Organizations,
-            Organizations.IDshefforg == Shefforganizations.IDshefforg,
-            isouter=True,
-        ).filter(Organizations.IDshefforg.is_(None)).order_by(Shefforganizations.FullName)
+        select_shefforg = (
+            select(
+                Organizations,
+                Shefforganizations.IDshefforg,
+                Shefforganizations.FullName,
+            )
+            .join_from(
+                Shefforganizations,
+                Organizations,
+                Organizations.IDshefforg == Shefforganizations.IDshefforg,
+                isouter=True,
+            )
+            .filter(Organizations.IDshefforg.is_(None))
+            .order_by(Shefforganizations.FullName)
+        )
         shefforg = db_sessions.execute(select_shefforg).all()
-        return render_template("organization.html", shefforg = shefforg)
-
+        return render_template("organization.html", shefforg=shefforg)

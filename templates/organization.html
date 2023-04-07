@@ -18,7 +18,7 @@
             <label for="addsheforg" class="form-select-label">Выберите руководителя организации</label>
             <select class="form-select" aria-label="Default select example" name="addsheforg">
               {% for el in shefforg %}
-              <option value="{{ el.IDshefforg }}"> {{ el.Fullname }} </option>
+              <option value="{{ el[1] }}"> {{ el[2] }} </option>
               {% endfor %}
             </select>
           </div>
