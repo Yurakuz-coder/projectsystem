@@ -262,7 +262,7 @@ def organization():
         shefforg = db_sessions.execute(select_shefforg).all()
         organizations = db_sessions.execute(select_org).all()
         orgsheff = db_sessions.execute(select_orgsheff).all()
-        return render_template("organization.html", shefforg=shefforg, organizations=organizations, orgsheff=orgsheff)
+        return render_template("resultTableOrg.html", shefforg=shefforg, organizations=organizations, orgsheff=orgsheff)
 
 
 @pages.route("/admin/add-org", methods=["GET", "POST"])  # добавление организации
