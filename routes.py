@@ -198,3 +198,26 @@ def organization():
         )
         shefforg = db_sessions.execute(select_shefforg).all()
         return render_template("organization.html", shefforg=shefforg)
+
+
+@pages.route("/admin/add-org", methods=["GET", "POST"])  # добавление организации
+def addorg():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idorg = int(request.form["addsheforg"])
+        name = str(request.form["orgName"])
+        yur = str(request.form["orgYuraddress"])
+        adres = str(request.form["orgPostaddress"])
+        em = str(request.form["orgEmail"])
+        phone = str(request.form["orgPhone"])
+        add = Organizations(
+            IDshefforg=idorg,
+            orgName=name,
+            orgYuraddress=yur,
+            orgPostaddress=adres,
+            orgEmail=em,
+            orgPhone=phone,
+        )
+        db_sessions.add(add)
+        db_sessions.commit()
+        return redirect("/admin/organization")
