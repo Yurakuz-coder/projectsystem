@@ -213,6 +213,56 @@ def organization():
         organizations = db_sessions.execute(select_org).all()
         orgsheff = db_sessions.execute(select_orgsheff).all()
         return render_template("organization.html", shefforg=shefforg, organizations=organizations, orgsheff=orgsheff)
+    if request.method == "POST":
+        fio_filters = request.form["fioFilters"]
+        org_filters = request.form["orgFilters"]
+        yuradress_filters = request.form["yuradressFilters"]
+        where_fio_filters = (
+            Shefforganizations.FullName.ilike("%" + fio_filters + "%") if fio_filters else text("1=1")
+        )
+        where_org_filters = (
+            Organizations.orgName.ilike("%" + org_filters + "%") if org_filters else text("1=1")
+        )
+        where_yuradress_filters = (
+            Organizations.orgYuraddress.ilike("%" + yuradress_filters + "%") if yuradress_filters else text("1=1")
+        )
+        select = get_select()
+        db_sessions = get_session()
+        select_orgsheff = (
+            select(
+                Organizations,
+                Shefforganizations,
+            )
+                .join_from(
+                Shefforganizations,
+                Organizations,
+                Organizations.IDshefforg == Shefforganizations.IDshefforg,
+            )
+                .where(where_fio_filters)
+                .where(where_org_filters)
+                .where(where_yuradress_filters)
+                .order_by(Organizations.orgName)
+        )
+        select_org = select(Organizations).order_by(Organizations.orgName)
+        select_shefforg = (
+            select(
+                Organizations,
+                Shefforganizations.IDshefforg,
+                Shefforganizations.FullName,
+            )
+                .join_from(
+                Shefforganizations,
+                Organizations,
+                Organizations.IDshefforg == Shefforganizations.IDshefforg,
+                isouter=True,
+            )
+                .filter(Organizations.IDshefforg.is_(None))
+                .order_by(Shefforganizations.FullName)
+        )
+        shefforg = db_sessions.execute(select_shefforg).all()
+        organizations = db_sessions.execute(select_org).all()
+        orgsheff = db_sessions.execute(select_orgsheff).all()
+        return render_template("organization.html", shefforg=shefforg, organizations=organizations, orgsheff=orgsheff)
 
 
 @pages.route("/admin/add-org", methods=["GET", "POST"])  # добавление организации
