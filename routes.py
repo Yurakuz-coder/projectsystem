@@ -206,14 +206,14 @@ def organization():
 def addorg():
     if request.method == "POST":
         db_sessions = get_session()
-        idorg = int(request.form["addsheforg"])
+        idsheforg = int(request.form["addsheforg"])
         name = str(request.form["orgName"])
         yur = str(request.form["orgYuraddress"])
         adres = str(request.form["orgPostaddress"])
         em = str(request.form["orgEmail"])
         phone = str(request.form["orgPhone"])
         add = Organizations(
-            IDshefforg=idorg,
+            IDshefforg=idsheforg,
             orgName=name,
             orgYuraddress=yur,
             orgPostaddress=adres,
@@ -235,3 +235,33 @@ def delorg():
         ).delete()
         db_sessions.commit()
         return redirect("/admin/organization")
+
+
+@pages.route("/admin/redorganiz", methods=["GET", "POST"])  # редактирование организации
+def redorg():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idorg = int(request.form["redorg"])
+        idsheforg = request.form["redsheforg"]
+        name = request.form["redorgName"]
+        yur = request.form["redorgYuraddress"]
+        adres = request.form["redorgPostaddress"]
+        em = request.form["redorgEmail"]
+        phone = request.form["redorgPhone"]
+        npr = (db_sessions.query(Organizations).filter(Organizations.IDorg == idorg).first())
+        if str(idsheforg) != "":
+            npr.IDshefforg = int(idsheforg)
+        if str(name) != "":
+            npr.orgName = str(name)
+        if str(yur) != "":
+            npr.orgYuraddress= str(yur)
+        if str(adres) != "":
+            npr.orgPostaddress = str(adres)
+        if str(em) != "":
+            npr.orgEmail = str(em)
+        if str(phone) != "":
+            npr.orgPhone = str(phone)
+        db_sessions.commit()
+        return redirect("/admin/organization")
+
+
