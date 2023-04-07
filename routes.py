@@ -168,5 +168,15 @@ def redshefforg():
 
 @pages.route("/admin/organization", methods=["GET", "POST"])  # админка-регистрация организации
 def organization():
-    return render_template("organization.html")
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        select_shefforg = select(Organizations, Shefforganizations.IDshefforg, Shefforganizations.FullName).join_from(
+            Shefforganizations,
+            Organizations,
+            Organizations.IDshefforg == Shefforganizations.IDshefforg,
+            isouter=True,
+        ).filter(Organizations.IDshefforg.is_(None)).order_by(Shefforganizations.FullName)
+        shefforg = db_sessions.execute(select_shefforg).all()
+        return render_template("organization.html", shefforg = shefforg)
 
