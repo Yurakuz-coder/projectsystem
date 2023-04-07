@@ -328,3 +328,7 @@ def redorg():
         return redirect("/admin/organization")
 
 
+@pages.route("/admin/contracts", methods=["GET", "POST"])  # Договоры об организации проектного обучения
+def contracts():
+    return render_template("contracts.html")
+

@@ -1,6 +1,6 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 03.04.2023 23:23:37
+-- Дата скрипта: 07.04.2023 21:17:15
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
@@ -88,8 +88,8 @@ CREATE TABLE shefforganizations (
   UNIQUE INDEX UK_shefforganizations_Login (Login, Pass)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 2
-AVG_ROW_LENGTH = 16384
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Руководители организаций';
@@ -207,7 +207,8 @@ CREATE TABLE organizations (
     REFERENCES shefforganizations(IDshefforg) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 5
+AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Организации';
@@ -560,7 +561,8 @@ INSERT INTO positions VALUES
 -- Вывод данных для таблицы shefforganizations
 --
 INSERT INTO shefforganizations VALUES
-(1, 'Кузнецов', 'Юрий', 'Александрович', 'директор', 'Доверенность', 'iurij.kuznetsov2011@yandex.ru', '+79131973415', 'Kuz', 'd8578edf8458ce06fbc5bb76a58c5ca4');
+(1, 'Кузнецов', 'Юрий', 'Александрович', 'начальник', 'Доверенность', 'iurij.kuznetsov2011@yandex.ru', '+7913197341', 'Admin', '9e727fdd3aec8274f46685441900280d'),
+(3, 'Борисов', 'Алишер', 'Александрович', 'директор', 'доверенность', '432@yandex.ru', '+72334561231', 'Boris', '4dbf44c6b1be736ee92ef90090452fc2');
 
 -- 
 -- Вывод данных для таблицы specializations
@@ -595,8 +597,9 @@ INSERT INTO shefforganizations VALUES
 -- 
 -- Вывод данных для таблицы organizations
 --
-
--- Таблица projectsystem.organizations не содержит данных
+INSERT INTO organizations VALUES
+(1, 1, 'ООО "Праздник 1"', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 2', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 2', 'sibir124@hotmail.com', '+73913132244'),
+(4, 3, 'ТО КГКУ УСЗН', 'Красноярск', 'Красноярск', 'uszn21@mail.ru', '+73913123345');
 
 -- 
 -- Вывод данных для таблицы sheffofprojects
