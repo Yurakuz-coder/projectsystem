@@ -1,7 +1,7 @@
 function applyorgFilters() {
-  const fioFilters = document.getElementById("fioFilters").value;
-  const orgFilters = document.getElementById("orgFilters").value;
-  const yuradressFilters = document.getElementById("yuradressFilters").value;
+  const fioFilters = document.getElementById("fioFilter").value;
+  const orgFilters = document.getElementById("orgFilter").value;
+  const yuradressFilters = document.getElementById("yuradressFilter").value;
   if (!fioFilters && !orgFilters && !yuradressFilters) {
     return;
   }
@@ -15,7 +15,7 @@ function droporgFilters() {
 function getData(fioFilters, orgFilters, yuradressFilters) {
   $.ajax({
     type: "POST",
-    url: "/admin//admin/organization",
+    url: "/admin/organization",
     dataSrc: "data",
     data: { fioFilters, orgFilters, yuradressFilters },
     success: function (data) {
