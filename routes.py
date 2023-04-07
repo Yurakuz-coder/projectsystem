@@ -182,6 +182,18 @@ def organization():
         select = get_select()
         db_sessions = get_session()
         select_org = select(Organizations).order_by(Organizations.orgName)
+        select_orgsheff = (
+            select(
+                Organizations,
+                Shefforganizations,
+            )
+            .join_from(
+                Shefforganizations,
+                Organizations,
+                Organizations.IDshefforg == Shefforganizations.IDshefforg,
+            )
+            .order_by(Organizations.orgName)
+        )
         select_shefforg = (
             select(
                 Organizations,
@@ -199,7 +211,8 @@ def organization():
         )
         shefforg = db_sessions.execute(select_shefforg).all()
         organizations = db_sessions.execute(select_org).all()
-        return render_template("organization.html", shefforg=shefforg, organizations=organizations)
+        orgsheff = db_sessions.execute(select_orgsheff).all()
+        return render_template("organization.html", shefforg=shefforg, organizations=organizations, orgsheff=orgsheff)
 
 
 @pages.route("/admin/add-org", methods=["GET", "POST"])  # добавление организации
