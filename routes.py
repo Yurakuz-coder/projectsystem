@@ -1,9 +1,14 @@
+from datetime import datetime, date
+from os import path
 import hashlib
-from flask import Blueprint, render_template, request, redirect, session
+import locale
+from docxtpl import DocxTemplate
+from flask import Blueprint, render_template, request, redirect, session, send_file
 from sqlalchemy import text
-from models.models import Sheffofprojects, Organizations, Shefforganizations
+from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts
 from models.database import get_session, get_select
 
+locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
 pages = Blueprint("pages", __name__, template_folder="templates")
 
 
@@ -329,6 +334,122 @@ def redorg():
 
 
 @pages.route("/admin/contracts", methods=["GET", "POST"])  # Договоры об организации проектного обучения
-def contracts():
-    return render_template("contracts.html")
+def route_contracts():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        select_org = select(Organizations).order_by(Organizations.orgName)
+        select_contracts = select(Contracts).order_by(Contracts.IDcontracts)
+        contracts = db_sessions.execute(select_contracts).all()
+        organizations = db_sessions.execute(select_org).all()
+
+        return render_template("contracts.html", contracts=contracts, organizations=organizations)
+    if request.method == "POST":
+        date_filters = request.form["dateContractFilter"]
+        org_filters = request.form["orgFilters"]
+        number_filters = request.form["numberContractFilter"]
+        where_org_filters = (
+            Organizations.orgName.ilike("%" + org_filters + "%") if org_filters else text("1=1")
+        )
+        where_date_filters = (
+            Contracts.contractsStart.ilike(date_filters) if date_filters else text("1=1")
+        )
+        where_number_filters = (
+            Contracts.contractsNumber.ilike("%" + number_filters + "%") if number_filters else text("1=1")
+        )
+        select = get_select()
+        db_sessions = get_session()
+        select_contracts = (
+            select(
+                Contracts
+                )
+                .join(Organizations)
+                .where(where_number_filters)
+                .where(where_date_filters)
+                .where(where_org_filters)
+                .order_by(Contracts.IDcontracts)
+        )
+        contracts = db_sessions.execute(select_contracts).all()
+        return render_template("resultTableContracts.html", contracts=contracts)
+
+@pages.route("/admin/addContract", methods=["POST"])  # добавление организации
+def add_contract():
+    if request.method == "POST":
+        db_sessions = get_session()
+        id_org = int(request.form["addorg"])
+        contract_number = int(request.form["contractNumber"])
+        contract_start_date = datetime.strptime(request.form["contractStart"], '%Y-%m-%d').date()
+        contract_end_date = datetime.strptime(request.form["contractEnd"], '%Y-%m-%d').date()
+        add = Contracts(
+            IDorg=id_org,
+            contractsNumber=contract_number,
+            contractsStart=contract_start_date,
+            contractsFinish=contract_end_date,
+            contractsPattern='test',
+            contractsFull='full'
+        )
+        db_sessions.add(add)
+        db_sessions.commit()
+        return redirect("/admin/contracts")
+
+
+@pages.route("/admin/delContract", methods=["POST"])  # удаление организации
+def del_contract():
+    if request.method == "POST":
+        db_sessions = get_session()
+        id_contract = int(request.form["delContract"])
+        db_sessions.query(Contracts).filter(
+            Contracts.IDcontracts == id_contract
+        ).delete()
+        db_sessions.commit()
+        return redirect("/admin/contracts")
+
+
+@pages.route("/admin/modifyContract", methods=["POST"])  # редактирование организации
+def modify_contract():
+    if request.method == "POST":
+        db_sessions = get_session()
+        id_contract = int(request.form["modifyContract"])
+        id_org = int(request.form["addorg"])
+        contract_number = int(request.form["contractNumber"])
+        contract_start_date = str(request.form["contractStart"])
+        contract_end_date = str(request.form["contractEnd"])
+        npr = (db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first())
+        if str(id_org) != "":
+            npr.IDorg = int(id_org)
+        if str(contract_number) != "":
+            npr.contractsNumber = int(contract_number)
+        if str(contract_start_date) != "":
+            npr.contractsStart= str(contract_start_date)
+        if str(contract_end_date) != "":
+            npr.contractsFinish = str(contract_end_date)
+        db_sessions.commit()
+        return redirect("/admin/contracts")
+
+@pages.route('/getDocument', methods=['GET'])
+def send_document():
+    args = request.args
+    id_contract = args.get('idContract')
+    db_sessions = get_session()
+    contract = db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
+    context = {}
+    if not contract:
+        return
+    context['contract_number'] = contract.contractsNumber
+    context['org_name'] = contract.organizations.orgName
+    context['contract_end_date'] = contract.contractsFinish.strftime("%d %B %Y")
+    context['org_ur_address'] = contract.organizations.orgYuraddress
+    context['org_postal_address'] = contract.organizations.orgPostaddress
+    context['contract_start_date'] = contract.contractsStart.strftime("«%d» %B %Y г.")
+    filename = 'Договор ' + str(contract.contractsNumber) + '_' + date.today().strftime("%d_%B_%Y") + '.doc'
+    file_path = path.join('documents', filename)
+    doc = DocxTemplate('./documents/contract_template.docx')
+
+    doc.render(context)
+
+    doc.save(file_path)
+
+    return send_file(file_path, mimetype='multipart/form-data', as_attachment=True)
+
+
 

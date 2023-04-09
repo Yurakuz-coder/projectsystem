@@ -1,0 +1,27 @@
+{% for el in contracts %}
+<tr>
+  <td>{{ el.Contracts.organizations.orgName }}</td>
+  <td> {{ el.Contracts.organizations.orgYuraddress }}</td>
+  <td>{{ el.Contracts.contractsNumber }}</td>
+  <td>{{ el.Contracts.contractsStart }}</td>
+  <td>{{ el.Contracts.contractsFinish }}</td>
+  <td><a href="/getDocument?idContract={{ el.Contracts.IDcontracts }}" role="button"
+      class="btn btn-primary">Скачать</button></td>
+  <td>
+    <button type="submit" class="btn btn-success" onclick="getDocument()">Загрузить</button>
+    <br />
+    <input id="uploader{{ el.Contracts.IDcontracts }}" onchange="const id = this.id;uploadFile(id)"
+      accept=".doc,.docx,.pdf" type="file" class="btn btn-primary">Скачать</button>
+    <br />
+    <button type="submit" class="btn btn-danger" onclick="window.open('test.doc')">Удалить</button>
+  </td>
+</tr>
+{% endfor %}
+
+{% if contracts == [] %}
+<tr>
+  <td colspan="7">
+    <div> Данных не найдено </div>
+  </td>
+</tr>
+{% endif %}

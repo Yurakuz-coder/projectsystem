@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, ForeignKey
+from sqlalchemy import Integer, String, ForeignKey, Date
 from sqlalchemy.orm import DeclarativeBase, mapped_column, relationship, column_property
 
 
@@ -50,3 +50,15 @@ class Organizations(Base):
     orgPostaddress = mapped_column(String(255), nullable=False)
     orgEmail = mapped_column(String(100), nullable=False)
     orgPhone = mapped_column(String(12), nullable=False)
+
+class Contracts(Base):
+    __tablename__ = "projectsudycontracts"
+    IDcontracts = mapped_column(Integer, primary_key=True)
+    IDorg = mapped_column(ForeignKey("organizations.IDorg"))
+    contractsNumber = mapped_column(Integer, nullable=False)
+    contractsStart = mapped_column(Date, nullable=False)
+    contractsFinish = mapped_column(Date, nullable=False)
+    contractsPattern = mapped_column(String(1000), nullable=False)
+    contractsFull = mapped_column(String(1000), nullable=False)
+    contractsSigned = mapped_column(String(1000), nullable=False)
+    organizations = relationship("Organizations", foreign_keys=[IDorg])
