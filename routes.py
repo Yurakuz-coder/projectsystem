@@ -441,18 +441,30 @@ def create_and_send_document():
     id_contract = args.get("idContract")
 
     db_sessions = get_session()
-    contract = db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
+    select = text('''SELECT p.contractsNumber, o.orgName, p.contractsFinish, o.orgYuraddress, o.orgPostaddress, p.contractsStart, CONCAT(s.shefforgPositions, ' ', s.shefforgFirstname, ' ', SUBSTR(s.shefforgName, 1, 1), '. ', SUBSTR(s.shefforgFathername, 1, 1), '.') as pos_and_fio, s.shefforgDoc, concat(s.shefforgFirstname, ' ', SUBSTR(s.shefforgName, 1, 1), '. ', SUBSTR(s.shefforgFathername, 1, 1), '.') as fio, s.shefforgPositions
+        FROM projectsudycontracts p
+            inner join organizations o on ( o.IDorg = p.IDorg )
+            inner join shefforganizations s on ( s.IDshefforg = o.IDshefforg)
+        WHERE
+            p.IDcontracts = :id_contract
+        ''')
+
+    contract = db_sessions.execute(select, {'id_contract': id_contract}).first()
 
     if not contract:
         return
 
     context = {}
-    context["contract_number"] = contract.contractsNumber
-    context["org_name"] = contract.organizations.orgName
-    context["contract_end_date"] = contract.contractsFinish.strftime("%d %B %Y")
-    context["org_ur_address"] = contract.organizations.orgYuraddress
-    context["org_postal_address"] = contract.organizations.orgPostaddress
-    context["contract_start_date"] = contract.contractsStart.strftime("«%d» %B %Y г.")
+    context["contract_number"] = contract[0]
+    context["org_name"] = contract[1]
+    context["contract_end_date"] = get_date(contract[2].strftime("%d.%m.%Y"))
+    context["org_ur_address"] = contract[3]
+    context["org_postal_address"] = contract[4]
+    context["contract_start_date"] = get_date(contract[5].strftime("%d.%m.%Y")) + ' г.'
+    context["position_and_fio"] = contract[6]
+    context["document"] = contract[7]
+    context["fio"] = contract[8]
+    context["position"] = contract[9]
     filename = (
         "Договор "
         + str(contract.contractsNumber)
@@ -468,6 +480,14 @@ def create_and_send_document():
     doc.save(file_path)
 
     return send_file(file_path, mimetype="multipart/form-data", as_attachment=True)
+
+def get_date(date):
+    month_list = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
+           'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря']
+    date_list = date.split('.')
+    return ('«' + date_list[0] + '» ' +
+        month_list[int(date_list[1]) - 1] + ' ' +
+        date_list[2])
 
 
 # получить подписанный договор
