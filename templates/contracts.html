@@ -94,7 +94,8 @@
             <label for="addorg" class="form-select-label">Выберите организацию</label>
             <select class="form-select" aria-label="Default select example" name="addorg">
               {% for el in organizations %}
-              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} </option>
+              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - {{
+                el.Organizations.orgYuraddress }} </option>
               {% endfor %}
             </select>
           </div>
@@ -133,8 +134,10 @@
           <div class="form-group">
             <label for="delContract" class="form-select-label">Выберите договор</label>
             <select class="form-select" aria-label="Default select example" name="delContract">
-              {% for el in contracts %}
-              <option value="{{ el.Contracts.IDcontracts }}"> Номер договора: {{ el.Contracts.contractsNumber }}
+              {% for el in contracts_order %}
+              <option value="{{ el.Contracts.IDcontracts }}"> Название организации: {{
+                el.Contracts.organizations.orgName }} Номер договора: {{ el.Contracts.contractsNumber }} - {{
+                el.Contracts.contractsStart }}
               </option>
               {% endfor %}
             </select>
@@ -161,8 +164,10 @@
           <div class="form-group">
             <label for="modifyContract" class="form-select-label">Выберите договор</label>
             <select class="form-select" aria-label="Default select example" name="modifyContract">
-              {% for el in contracts %}
-              <option value="{{ el.Contracts.IDcontracts }}"> Номер договора: {{ el.Contracts.contractsNumber }}
+              {% for el in contracts_order %}
+              <option value="{{ el.Contracts.IDcontracts }}"> Название организации: {{
+                el.Contracts.organizations.orgName }} Номер договора: {{ el.Contracts.contractsNumber }} - {{
+                el.Contracts.contractsStart }}
               </option>
               {% endfor %}
             </select>
@@ -171,7 +176,8 @@
             <label for="addorg" class="form-select-label">Выберите организацию</label>
             <select class="form-select" aria-label="Default select example" name="addorg">
               {% for el in organizations %}
-              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} </option>
+              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - {{
+                el.Organizations.orgYuraddress }}</option>
               {% endfor %}
             </select>
           </div>
