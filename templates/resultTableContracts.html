@@ -5,15 +5,20 @@
   <td>{{ el.Contracts.contractsNumber }}</td>
   <td>{{ el.Contracts.contractsStart }}</td>
   <td>{{ el.Contracts.contractsFinish }}</td>
-  <td><a href="/getDocument?idContract={{ el.Contracts.IDcontracts }}" role="button"
+  <td><a href="/getContract?idContract={{ el.Contracts.IDcontracts }}" role="button"
       class="btn btn-primary">Скачать</button></td>
   <td>
-    <button type="submit" class="btn btn-success" onclick="getDocument()">Загрузить</button>
-    <br />
-    <input id="uploader{{ el.Contracts.IDcontracts }}" onchange="const id = this.id;uploadFile(id)"
-      accept=".doc,.docx,.pdf" type="file" class="btn btn-primary">Скачать</button>
-    <br />
-    <button type="submit" class="btn btn-danger" onclick="window.open('test.doc')">Удалить</button>
+    <a href="/getContractSigned?idContract={{ el.Contracts.IDcontracts }}" role="button"
+      aria-disabled="{{ el.Contracts.contractsSigned is none }}"
+      class="btn btn-primary {{ 'disabled' if el.Contracts.contractsSigned is none else '' }}">Скачать</a>
+    <div class="input-group mb-3">
+      <button class="btn btn-outline-secondary" value="{{ el.Contracts.IDcontracts }}" type="button"
+        onclick="uploadFile(this.value)" id="button-upload{{ el.Contracts.IDcontracts }}">Загрузить</button>
+      <input type="file" accept=".doc,.docx,.pdf" class="form-control" id="input-upload{{ el.Contracts.IDcontracts }}"
+        aria-describedby="button-upload{{ el.Contracts.IDcontracts }}" aria-label="Upload">
+    </div>
+    <button {% if el.Contracts.contractsSigned is none %} disabled {% endif %} class="btn btn-danger"
+      value="{{ el.Contracts.IDcontracts }}" onclick="deleteFile(this.value)">Удалить</button>
   </td>
 </tr>
 {% endfor %}

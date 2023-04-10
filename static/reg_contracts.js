@@ -1,15 +1,18 @@
 function applyContractsFilters() {
-  const dateContractFilter = document.getElementById("dateContractFilter").value;
+  const dateContractFilter =
+    document.getElementById("dateContractFilter").value;
   const orgFilters = document.getElementById("orgFilter").value;
-  const numberContractFilter = document.getElementById("numberContractFilter").value;
+  const numberContractFilter = document.getElementById(
+    "numberContractFilter"
+  ).value;
   if (!dateContractFilter && !orgFilters && !numberContractFilter) {
     return;
   }
-  getData(dateContractFilter, orgFilters, numberContractFilter)
+  getData(dateContractFilter, orgFilters, numberContractFilter);
 }
 
 function dropContractFilters() {
-  getData(null, null, null)
+  getData(null, null, null);
 }
 
 function getData(dateContractFilter, orgFilters, numberContractFilter) {
@@ -19,26 +22,56 @@ function getData(dateContractFilter, orgFilters, numberContractFilter) {
     dataSrc: "data",
     data: { dateContractFilter, orgFilters, numberContractFilter },
     success: function (data) {
-      const table = document.getElementById("collapseTableBody")
+      const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;
-      table.className = 'collapse show'
+      table.className = "collapse show";
     },
     error: function (err) {
-      console.log(err)
+      console.log(err);
     },
+  });
+}
+
+function getDocument(id) {
+  $.ajax({
+    type: "GET",
+    data: { contractId: id },
+    url: "/getContractSigned",
   });
 }
 
 function uploadFile(id) {
   const formData = new FormData();
-  const file = document.getElementById(id)
-  formData.append("file", file)
+  const button = document.getElementById("button-upload" + id);
+  const file = document.getElementById("input-upload" + id).files[0];
+  if (!file) return;
+  formData.append("file", file);
+  formData.append("contract_id", id);
   $.ajax({
-    type: 'POST',
-    files: file,
-    body: formData,
-    headers: {
-      "Content-Type": file.contentType
+    type: "POST",
+    processData: false,
+    contentType: false,
+    data: formData,
+    url: "/uploadContractSigned",
+    success: function (data) {
+      const table = document.getElementById("collapseTableBody");
+      table.innerHTML = data;
     },
-  })
+    error: function () {
+      button.innerHTML = "Файл не загружен!";
+    },
+  });
+}
+
+function deleteFile(id) {
+  $.ajax({
+    type: "POST",
+    dataSrc: "data",
+    data: { idContract: id },
+    url: "/deleteContractSigned",
+    success: function (data) {
+      const table = document.getElementById("collapseTableBody");
+      table.innerHTML = data;
+    },
+  });
 }
