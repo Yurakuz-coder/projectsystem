@@ -7,7 +7,9 @@ from flask import Blueprint, render_template, request, redirect, session, send_f
 from sqlalchemy import text
 from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts
 from models.database import get_session, get_select
+from pymorphy2 import MorphAnalyzer
 
+morph = MorphAnalyzer()
 locale.setlocale(locale.LC_ALL, "ru_RU.UTF-8")
 pages = Blueprint("pages", __name__, template_folder="templates")
 
@@ -443,7 +445,7 @@ def create_and_send_document():
     id_contract = args.get("idContract")
 
     db_sessions = get_session()
-    select = text('''SELECT p.contractsNumber, o.orgName, p.contractsFinish, o.orgYuraddress, o.orgPostaddress, p.contractsStart, CONCAT(s.shefforgPositions, ' ', s.shefforgFirstname, ' ', SUBSTR(s.shefforgName, 1, 1), '. ', SUBSTR(s.shefforgFathername, 1, 1), '.') as pos_and_fio, s.shefforgDoc, concat(s.shefforgFirstname, ' ', SUBSTR(s.shefforgName, 1, 1), '. ', SUBSTR(s.shefforgFathername, 1, 1), '.') as fio, s.shefforgPositions
+    select = text('''SELECT p.contractsNumber, o.orgName, p.contractsFinish, o.orgYuraddress, o.orgPostaddress, p.contractsStart, s.shefforgDoc, s.shefforgFirstname as firstName, s.shefforgName as name, s.shefforgFathername as surname, s.shefforgPositions
         FROM projectsudycontracts p
             inner join organizations o on ( o.IDorg = p.IDorg )
             inner join shefforganizations s on ( s.IDshefforg = o.IDshefforg)
@@ -463,10 +465,15 @@ def create_and_send_document():
     context["org_ur_address"] = contract[3]
     context["org_postal_address"] = contract[4]
     context["contract_start_date"] = get_date(contract[5].strftime("%d.%m.%Y")) + ' г.'
-    context["position_and_fio"] = contract[6]
-    context["document"] = contract[7]
-    context["fio"] = contract[8]
-    context["position"] = contract[9]
+    document = [value for value in morph.parse(contract[6]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
+    first_name = [value for value in morph.parse(contract[7]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
+    name = [value for value in morph.parse(contract[8]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
+    sur_name = [value for value in morph.parse(contract[9]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
+    position = [value for value in morph.parse(contract[10]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
+    context["document"] = document
+    context["fio"] = contract[7] + ' ' + contract[8][0] + '. ' + contract[9][0] + '.'
+    context["position"] = contract[10].capitalize()
+    context["position_and_fio"] = position + ' ' + first_name.capitalize() + ' ' + name.capitalize() + ' ' + sur_name.capitalize()
     filename = (
         "Договор "
         + str(contract.contractsNumber)
