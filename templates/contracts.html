@@ -135,8 +135,7 @@
             <label for="delContract" class="form-select-label">Выберите договор</label>
             <select class="form-select" aria-label="Default select example" name="delContract">
               {% for el in contracts_order %}
-              <option value="{{ el.Contracts.IDcontracts }}"> Название организации: {{
-                el.Contracts.organizations.orgName }} Номер договора: {{ el.Contracts.contractsNumber }} - {{
+              <option value="{{ el.Contracts.IDcontracts }}"> {{ el.Contracts.organizations.orgName }} - № {{ el.Contracts.contractsNumber }} от {{
                 el.Contracts.contractsStart }}
               </option>
               {% endfor %}
@@ -165,8 +164,8 @@
             <label for="modifyContract" class="form-select-label">Выберите договор</label>
             <select class="form-select" aria-label="Default select example" name="modifyContract">
               {% for el in contracts_order %}
-              <option value="{{ el.Contracts.IDcontracts }}"> Название организации: {{
-                el.Contracts.organizations.orgName }} Номер договора: {{ el.Contracts.contractsNumber }} - {{
+              <option value="{{ el.Contracts.IDcontracts }}"> {{
+                el.Contracts.organizations.orgName }} - № {{ el.Contracts.contractsNumber }} от {{
                 el.Contracts.contractsStart }}
               </option>
               {% endfor %}
@@ -175,6 +174,7 @@
           <div class="form-group">
             <label for="addorg" class="form-select-label">Выберите организацию</label>
             <select class="form-select" aria-label="Default select example" name="addorg">
+            <option selected></option>
               {% for el in organizations %}
               <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - {{
                 el.Organizations.orgYuraddress }}</option>
@@ -184,15 +184,15 @@
           <div class="form-group">
             <label for="contractNumber" class="form-control-label">Номер договора</label>
             <input class="form-control" id="contractNumber" name="contractNumber" type="number" min="0" step="1"
-              oninput="validity.valid||(value='');" required></textarea>
+              oninput="validity.valid||(value='');" ></textarea>
           </div>
           <div class="form-group">
             <label for="contractStart" class="form-control-label">Дата заключения</label>
-            <input class="form-control" id="contractStart" name="contractStart" type="date" required></textarea>
+            <input class="form-control" id="contractStart" name="contractStart" type="date"></textarea>
           </div>
           <div class="form-group">
             <label for="contractEnd" class="form-control-label">Дата окончания</label>
-            <input class="form-control" id="contractEnd" name="contractEnd" type="date" required></textarea>
+            <input class="form-control" id="contractEnd" name="contractEnd" type="date" ></textarea>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>

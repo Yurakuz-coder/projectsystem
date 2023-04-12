@@ -420,11 +420,11 @@ def del_contract():
 def modify_contract():
     if request.method == "POST":
         db_sessions = get_session()
-        id_contract = int(request.form["modifyContract"])
-        id_org = int(request.form["addorg"])
-        contract_number = int(request.form["contractNumber"])
-        contract_start_date = str(request.form["contractStart"])
-        contract_end_date = str(request.form["contractEnd"])
+        id_contract = request.form["modifyContract"]
+        id_org = request.form["addorg"]
+        contract_number = request.form["contractNumber"]
+        contract_start_date = request.form["contractStart"]
+        contract_end_date = request.form["contractEnd"]
         npr = db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
         if str(id_org) != "":
             npr.IDorg = int(id_org)
