@@ -35,37 +35,38 @@
   </div>
   <br />
 </div>
-
-<table class="table table-hover">
-  <thead>
-    <tr>
-      <th scope="col">
-        Наименование организации
-      </th>
-      <th scope="col">
-        Юридический адрес
-      </th>
-      <th scope="col">
-        Номер договора
-      </th>
-      <th scope="col">
-        Дата заключения договора
-      </th>
-      <th scope="col">
-        Срок действия договора
-      </th>
-      <th scope="col">
-        Электронная версия договора
-      </th>
-      <th scope="col">
-        Подписанная версия договора
-      </th>
-    </tr>
-  </thead>
-  <tbody class="collapse" id="collapseTableBody">
-    {% include "resultTableContracts.html" %}
-  </tbody>
-</table>
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">
+          Наименование организации
+        </th>
+        <th scope="col">
+          Юридический адрес
+        </th>
+        <th scope="col">
+          Номер договора
+        </th>
+        <th scope="col">
+          Дата заключения договора
+        </th>
+        <th scope="col">
+          Срок действия договора
+        </th>
+        <th scope="col">
+          Электронная версия договора
+        </th>
+        <th scope="col">
+          Подписанная версия договора
+        </th>
+      </tr>
+    </thead>
+    <tbody class="collapse" id="collapseTableBody">
+      {% include "resultTableContracts.html" %}
+    </tbody>
+  </table>
+</div>
 
 <div class="btn-group" role="group">
   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
@@ -135,7 +136,8 @@
             <label for="delContract" class="form-select-label">Выберите договор</label>
             <select class="form-select" aria-label="Default select example" name="delContract">
               {% for el in contracts_order %}
-              <option value="{{ el.Contracts.IDcontracts }}"> {{ el.Contracts.organizations.orgName }} - № {{ el.Contracts.contractsNumber }} от {{
+              <option value="{{ el.Contracts.IDcontracts }}"> {{ el.Contracts.organizations.orgName }} - № {{
+                el.Contracts.contractsNumber }} от {{
                 el.Contracts.contractsStart }}
               </option>
               {% endfor %}
@@ -174,7 +176,7 @@
           <div class="form-group">
             <label for="addorg" class="form-select-label">Выберите организацию</label>
             <select class="form-select" aria-label="Default select example" name="addorg">
-            <option selected></option>
+              <option selected></option>
               {% for el in organizations %}
               <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - {{
                 el.Organizations.orgYuraddress }}</option>
@@ -184,7 +186,7 @@
           <div class="form-group">
             <label for="contractNumber" class="form-control-label">Номер договора</label>
             <input class="form-control" id="contractNumber" name="contractNumber" type="number" min="0" step="1"
-              oninput="validity.valid||(value='');" ></textarea>
+              oninput="validity.valid||(value='');"></textarea>
           </div>
           <div class="form-group">
             <label for="contractStart" class="form-control-label">Дата заключения</label>
@@ -192,7 +194,7 @@
           </div>
           <div class="form-group">
             <label for="contractEnd" class="form-control-label">Дата окончания</label>
-            <input class="form-control" id="contractEnd" name="contractEnd" type="date" ></textarea>
+            <input class="form-control" id="contractEnd" name="contractEnd" type="date"></textarea>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
