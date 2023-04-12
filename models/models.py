@@ -62,3 +62,11 @@ class Contracts(Base):
     contractsFull = mapped_column(String(1000), nullable=False)
     contractsSigned = mapped_column(String(1000), nullable=False)
     organizations = relationship("Organizations", foreign_keys=[IDorg])
+
+
+class Specializations(Base):
+    __tablename__ = "specializations"
+    IDspec = mapped_column(Integer, primary_key=True)
+    specShifr = mapped_column(String(20), nullable=False)
+    specNapravlenie = mapped_column(String(255), nullable=False)
+    specNapravlennost = mapped_column(String(255), nullable=False)
