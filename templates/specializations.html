@@ -96,4 +96,46 @@
     </div>
   </div>
 </div>
+
+
+<div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalModifyLabel">Редактировать специализацию</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="modifySpecialization" method="post">
+          <div class="form-group">
+            <label for="modifySpecialization" class="form-select-label">Выберите специализацию</label>
+            <select class="form-select" aria-label="Default select example" name="modifySpecialization">
+              {% for el in specializations %}
+              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{ el.Specializations.specNapravlenie }} - {{
+                el.Specializations.specNapravlennost }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+         <div class="form-group">
+            <label for="redspecShifr" class="form-control-label">Шифр</label>
+            <input class="form-control" pattern="[0-9]{2}.[0-9]{2}.[0-9]{2}" id="redspecShifr" name="redspecShifr"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="redspecNapravlenie" class="form-control-label">Направление</label>
+            <input class="form-control" id="redspecNapravlenie" name="redspecNapravlenie"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="redspecNapravlennost" class="form-control-label">Направленность</label>
+            <input class="form-control" id="redspecNapravlennost" name="redspecNapravlennost"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}

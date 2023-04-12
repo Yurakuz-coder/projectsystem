@@ -420,7 +420,7 @@ def del_contract():
 def modify_contract():
     if request.method == "POST":
         db_sessions = get_session()
-        id_contract = request.form["modifyContract"]
+        id_contract = int(request.form["modifyContract"])
         id_org = request.form["addorg"]
         contract_number = request.form["contractNumber"]
         contract_start_date = request.form["contractStart"]
@@ -582,3 +582,22 @@ def del_spec():
     db_sessions.query(Specializations).filter(Specializations.IDspec == id_spec).delete()
     db_sessions.commit()
     return redirect("/admin/specializations")
+
+
+@pages.route("/admin/modifySpecialization", methods=["POST"])  # редактирование специализации
+def modify_spec():
+    if request.method == "POST":
+        db_sessions = get_session()
+        id_spec = int(request.form["modifySpecialization"])
+        shifr = request.form["redspecShifr"]
+        napr = request.form["redspecNapravlenie"]
+        napravlennost = request.form["redspecNapravlennost"]
+        npr = db_sessions.query(Specializations).filter(Specializations.IDspec == id_spec).first()
+        if str(shifr) != "":
+            npr.specShifr = str(shifr)
+        if str(napr) != "":
+            npr.specNapravlenie = str(napr)
+        if str(napravlennost) != "":
+            npr.specNapravlennost = str(napravlennost)
+        db_sessions.commit()
+        return redirect("/admin/specializations")
