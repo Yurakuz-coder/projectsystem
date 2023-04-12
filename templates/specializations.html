@@ -3,7 +3,35 @@
 {% block content %}
 <h1>Специализации</h1>
 <br />
-
+<div class="btn-group" role="group">
+  <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
+    aria-controls="collapseTableBody">
+    Отобразить данные
+  </a>
+  <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+    aria-controls="collapseFilters">
+    Добавить фильтры
+  </a>
+</div>
+<br />
+    <div class="collapse" id="collapseFilters">
+  <br />
+  <input type="text" id="shifrFilter" class="form-control" placeholder="Фильтр по шифру"
+    aria-label="shifrFilter" aria-describedby="basic-addon1">
+  <br />
+  <input type="text" id="napravFilter" class="form-control" placeholder="Фильтр по направлению"
+    aria-label="napravFilter" aria-describedby="basic-addon1">
+  <br />
+    <div class="btn-group" role="group">
+    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applySpecFilters()">
+      Применить фильтры
+    </button>
+    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropSpecFilters()">
+      Сбросить фильтр
+    </button>
+  </div>
+  <br />
+</div>
     <table class="table table-hover">
   <thead>
     <tr>

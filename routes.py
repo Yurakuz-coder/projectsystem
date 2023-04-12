@@ -556,6 +556,27 @@ def specializations():
         select_spec = select(Specializations).order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
         specializations = db_sessions.execute(select_spec).all()
         return render_template("specializations.html", specializations=specializations)
+    if request.method == "POST":
+        shifr_filters = request.form.get("shifrFilter")
+        napr_filters = request.form.get("napravFilter")
+        where_shifr_filters = (
+            Specializations.specShifr.ilike("%" + shifr_filters + "%") if shifr_filters else text("1=1")
+        )
+        where_napr_filters = (
+            Specializations.specNapravlenie.ilike("%" + napr_filters + "%")
+            if napr_filters
+            else text("1=1")
+        )
+        select = get_select()
+        db_sessions = get_session()
+        select_spec = (
+            select(Specializations)
+            .where(where_shifr_filters)
+            .where(where_napr_filters)
+            .order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
+        )
+        specializations = db_sessions.execute(select_spec).all()
+        return render_template("resultTableSpecializations.html", specializations=specializations)
 
 
 @pages.route("/admin/addSpecialization", methods=["POST"])  # добавление специализации

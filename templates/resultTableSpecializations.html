@@ -1,0 +1,15 @@
+{% for el in specializations %}
+<tr>
+    <td> {{ el.Specializations.specShifr }}</td>
+    <td>{{ el.Specializations.specNapravlenie }}</td>
+    <td>{{ el.Specializations.specNapravlennost }}</td>
+</tr>
+{% endfor %}
+
+{% if specializations == [] %}
+<tr>
+    <td colspan="8">
+        <div> Данных не найдено </div>
+    </td>
+</tr>
+{% endif %}
