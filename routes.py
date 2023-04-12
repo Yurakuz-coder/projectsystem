@@ -546,3 +546,9 @@ def delete_document():
     contract.contractsSigned = None
     db_sessions.commit()
     return redirect("/admin/contracts", code=307)
+
+
+@pages.route( "/admin/specializations", methods=["GET", "POST"])  # Договоры об организации проектного обучения
+def specializations():
+    if request.method == "GET":
+        return render_template("specializations.html")
