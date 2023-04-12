@@ -5,7 +5,7 @@ import locale
 from docxtpl import DocxTemplate
 from flask import Blueprint, render_template, request, redirect, session, send_file
 from sqlalchemy import text
-from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts
+from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations
 from models.database import get_session, get_select
 from pymorphy2 import MorphAnalyzer
 
@@ -552,3 +552,20 @@ def delete_document():
 def specializations():
     if request.method == "GET":
         return render_template("specializations.html")
+
+
+@pages.route("/admin/addSpecialization", methods=["POST"])  # добавление договора
+def add_spec():
+    if request.method == "POST":
+        db_sessions = get_session()
+        shifr = str(request.form["specShifr"])
+        napravlenie = str(request.form["specNapravlenie"])
+        napravlennost = str(request.form["specNapravlennost"])
+        add = Specializations(
+            specShifr=shifr,
+            specNapravlenie=napravlenie,
+            specNapravlennost=napravlennost,
+        )
+        db_sessions.add(add)
+        db_sessions.commit()
+        return redirect("/admin/specializations")
