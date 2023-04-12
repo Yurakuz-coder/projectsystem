@@ -548,13 +548,17 @@ def delete_document():
     return redirect("/admin/contracts", code=307)
 
 
-@pages.route( "/admin/specializations", methods=["GET", "POST"])  # Договоры об организации проектного обучения
+@pages.route( "/admin/specializations", methods=["GET", "POST"])  # Специализации
 def specializations():
     if request.method == "GET":
-        return render_template("specializations.html")
+        select = get_select()
+        db_sessions = get_session()
+        select_spec = select(Specializations).order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
+        specializations = db_sessions.execute(select_spec).all()
+        return render_template("specializations.html", specializations=specializations)
 
 
-@pages.route("/admin/addSpecialization", methods=["POST"])  # добавление договора
+@pages.route("/admin/addSpecialization", methods=["POST"])  # добавление специализации
 def add_spec():
     if request.method == "POST":
         db_sessions = get_session()
@@ -569,3 +573,12 @@ def add_spec():
         db_sessions.add(add)
         db_sessions.commit()
         return redirect("/admin/specializations")
+
+
+@pages.route("/admin/delSpecialization", methods=["POST"])  # удаление специализации
+def del_spec():
+    db_sessions = get_session()
+    id_spec = int(request.form["delSpecialization"])
+    db_sessions.query(Specializations).filter(Specializations.IDspec == id_spec).delete()
+    db_sessions.commit()
+    return redirect("/admin/specializations")

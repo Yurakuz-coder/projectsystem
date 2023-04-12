@@ -67,4 +67,33 @@
     </div>
   </div>
 </div>
+
+
+    <div class="modal fade" id="modalDel" tabindex="-1" aria-labelledby="modalDelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDelLabel">Удалить специализацию</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="delSpecialization" method="post">
+          <div class="form-group">
+            <label for="delSpecialization" class="form-select-label">Выберите специализацию</label>
+            <select class="form-select" aria-label="Default select example" name="delSpecialization">
+              {% for el in specializations %}
+              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{ el.Specializations.specNapravlenie }} - {{
+                el.Specializations.specNapravlennost }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <br>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
