@@ -14,15 +14,15 @@
   </a>
 </div>
 <br />
-    <div class="collapse" id="collapseFilters">
+<div class="collapse" id="collapseFilters">
   <br />
-  <input type="text" id="shifrFilter" class="form-control" placeholder="Фильтр по шифру"
-    aria-label="shifrFilter" aria-describedby="basic-addon1">
+  <input type="text" id="shifrFilter" class="form-control" placeholder="Фильтр по шифру" aria-label="shifrFilter"
+    aria-describedby="basic-addon1">
   <br />
   <input type="text" id="napravFilter" class="form-control" placeholder="Фильтр по направлению"
     aria-label="napravFilter" aria-describedby="basic-addon1">
   <br />
-    <div class="btn-group" role="group">
+  <div class="btn-group" role="group">
     <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applySpecFilters()">
       Применить фильтры
     </button>
@@ -32,16 +32,16 @@
   </div>
   <br />
 </div>
-    <table class="table table-hover">
+<table class="table table-hover">
   <thead>
     <tr>
       <th scope="col">
         Шифр
       </th>
-        <th scope="col">
+      <th scope="col">
         Направление
       </th>
-        <th scope="col">
+      <th scope="col">
         Направленность
       </th>
     </tr>
@@ -51,7 +51,7 @@
   </tbody>
 </table>
 
-    <div class="btn-group" role="group">
+<div class="btn-group" role="group">
   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
     Добавить специализацию
   </button>
@@ -65,7 +65,7 @@
   </button>
 </div>
 
-    <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -76,7 +76,8 @@
         <form action="addSpecialization" method="post">
           <div class="form-group">
             <label for="specShifr" class="form-control-label">Шифр</label>
-            <input class="form-control" pattern="[0-9]{2}.[0-9]{2}.[0-9]{2}" id="specShifr" name="specShifr" required></textarea>
+            <input class="form-control" pattern="[0-9]{2}\.[0-9]{2}\.[0-9]{2}" id="specShifr" name="specShifr"
+              required></textarea>
           </div>
           <div class="form-group">
             <label for="specNapravlenie" class="form-control-label">Направление</label>
@@ -97,7 +98,7 @@
 </div>
 
 
-    <div class="modal fade" id="modalDel" tabindex="-1" aria-labelledby="modalDelLabel" aria-hidden="true">
+<div class="modal fade" id="modalDel" tabindex="-1" aria-labelledby="modalDelLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -110,7 +111,8 @@
             <label for="delSpecialization" class="form-select-label">Выберите специализацию</label>
             <select class="form-select" aria-label="Default select example" name="delSpecialization">
               {% for el in specializations %}
-              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{ el.Specializations.specNapravlenie }} - {{
+              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
+                el.Specializations.specNapravlenie }} - {{
                 el.Specializations.specNapravlennost }}
               </option>
               {% endfor %}
@@ -139,15 +141,17 @@
             <label for="modifySpecialization" class="form-select-label">Выберите специализацию</label>
             <select class="form-select" aria-label="Default select example" name="modifySpecialization">
               {% for el in specializations %}
-              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{ el.Specializations.specNapravlenie }} - {{
+              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
+                el.Specializations.specNapravlenie }} - {{
                 el.Specializations.specNapravlennost }}
               </option>
               {% endfor %}
             </select>
           </div>
-         <div class="form-group">
+          <div class="form-group">
             <label for="redspecShifr" class="form-control-label">Шифр</label>
-            <input class="form-control" pattern="[0-9]{2}.[0-9]{2}.[0-9]{2}" id="redspecShifr" name="redspecShifr"></textarea>
+            <input class="form-control" pattern="[0-9]{2}.[0-9]{2}.[0-9]{2}" id="redspecShifr"
+              name="redspecShifr"></textarea>
           </div>
           <div class="form-group">
             <label for="redspecNapravlenie" class="form-control-label">Направление</label>
