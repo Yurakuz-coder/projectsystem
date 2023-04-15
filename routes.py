@@ -5,7 +5,7 @@ import locale
 from docxtpl import DocxTemplate
 from flask import Blueprint, render_template, request, redirect, session, send_file
 from sqlalchemy import text
-from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations
+from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations, Formstuding, Groups
 from models.database import get_session, get_select
 from pymorphy2 import MorphAnalyzer
 
@@ -627,4 +627,12 @@ def modify_spec():
 @pages.route( "/admin/groups", methods=["GET", "POST"])  #Группы
 def groups():
     if request.method == "GET":
-        return render_template("groups.html")
+        select = get_select()
+        db_sessions = get_session()
+        select_formst = select(Formstuding).order_by(Formstuding.form_stName)
+        select_groups = select(Groups).order_by(Groups.groupsName)
+        select_spec = select(Specializations).order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
+        formst = db_sessions.execute(select_formst).all()
+        specializations = db_sessions.execute(select_spec).all()
+        groups = db_sessions.execute(select_groups).all()
+        return render_template("groups.html", formst=formst, specializations=specializations, groups=groups)
