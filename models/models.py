@@ -70,3 +70,18 @@ class Specializations(Base):
     specShifr = mapped_column(String(20), nullable=False)
     specNapravlenie = mapped_column(String(255), nullable=False)
     specNapravlennost = mapped_column(String(255), nullable=False)
+
+
+class Formstuding(Base):
+    __tablename__ = "form_studing"
+    IDform_st = mapped_column(Integer, primary_key=True)
+    form_stName = mapped_column(String(100), nullable=False)
+
+
+class Groups(Base):
+    __tablename__ = "groups"
+    IDgroups = mapped_column(Integer, primary_key=True)
+    groupsName = mapped_column(String(10), nullable=False)
+    groupsYear = mapped_column(Integer, nullable=False)
+    IDform_st = mapped_column(ForeignKey("form_studing.IDform_st"))
+    IDspec = mapped_column(ForeignKey("specializations.IDspec"))

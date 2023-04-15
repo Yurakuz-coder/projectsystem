@@ -622,3 +622,9 @@ def modify_spec():
             npr.specNapravlennost = str(napravlennost)
         db_sessions.commit()
         return redirect("/admin/specializations")
+
+
+@pages.route( "/admin/groups", methods=["GET", "POST"])  #Группы
+def groups():
+    if request.method == "GET":
+        return render_template("groups.html")
