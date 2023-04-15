@@ -124,8 +124,8 @@
       <div class="modal-body">
         <form action="modifyGroup" method="post">
            <div class="form-group">
-            <label for="modifyGroup" class="form-select-label">Выберите группу</label>
-            <select class="form-select" aria-label="Default select example" name="modifyGroup">
+            <label for="modifyGroups" class="form-select-label">Выберите группу</label>
+            <select class="form-select" aria-label="Default select example" name="modifyGroups">
               {% for el in groups %}
               <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} </option>
               {% endfor %}

@@ -636,3 +636,53 @@ def groups():
         specializations = db_sessions.execute(select_spec).all()
         groups = db_sessions.execute(select_groups).all()
         return render_template("groups.html", formst=formst, specializations=specializations, groups=groups)
+
+
+@pages.route( "/admin/addGroup", methods=["POST"])  #Добавить группы
+def addgroups():
+    db_sessions = get_session()
+    grname = str(request.form["groupsName"])
+    gryear = int(request.form["groupsYear"])
+    formst = int(request.form["form_st"])
+    spec = int(request.form["spec"])
+    add = Groups(
+            groupsName=grname,
+            groupsYear=gryear,
+            IDform_st=formst,
+            IDspec=spec,
+        )
+    db_sessions.add(add)
+    db_sessions.commit()
+    return redirect("/admin/groups")
+
+
+@pages.route( "/admin/delGroup", methods=["POST"])  #Удалить группы
+def delgroups():
+    db_sessions = get_session()
+    id_gr = int(request.form["delGroup"])
+    db_sessions.query(Groups).filter(Groups.IDgroups == id_gr).delete()
+    db_sessions.commit()
+    return redirect("/admin/groups")
+
+
+@pages.route( "/admin/modifyGroup", methods=["POST"])  #Редактировать группы
+def redgroups():
+    db_sessions = get_session()
+    id_gr = int(request.form["modifyGroups"])
+    grname = request.form["redgroupsName"]
+    gryear = request.form["redgroupsYear"]
+    formst = request.form["redform_st"]
+    spec = request.form["redspec"]
+    npr = db_sessions.query(Groups).filter(Groups.IDgroups == id_gr).first()
+    if str(grname) != "":
+        npr.groupsName = str(grname)
+    if str(gryear) != "":
+        npr.groupsYear = int(gryear)
+    if str(formst) != "":
+        npr.IDform_st = int(formst)
+    if str(spec) != "":
+        npr.IDspec = int(spec)
+    db_sessions.commit()
+    return redirect("/admin/groups")
+
+
