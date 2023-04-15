@@ -70,6 +70,7 @@ class Specializations(Base):
     specShifr = mapped_column(String(20), nullable=False)
     specNapravlenie = mapped_column(String(255), nullable=False)
     specNapravlennost = mapped_column(String(255), nullable=False)
+    FullSpec = column_property(specShifr + " " + specNapravlenie + " - " + specNapravlennost)
 
 
 class Formstuding(Base):

@@ -629,13 +629,15 @@ def groups():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
+        select_tablegr = select(Groups, Formstuding.form_stName, Specializations.FullSpec).join_from(Formstuding, Groups, Groups.IDform_st == Formstuding.IDform_st).join_from(Specializations, Groups, Groups.IDspec == Specializations.IDspec).order_by(Specializations.FullSpec, Groups.groupsName, Groups.groupsYear, Formstuding.form_stName)
         select_formst = select(Formstuding).order_by(Formstuding.form_stName)
         select_groups = select(Groups).order_by(Groups.groupsName)
         select_spec = select(Specializations).order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
         formst = db_sessions.execute(select_formst).all()
         specializations = db_sessions.execute(select_spec).all()
         groups = db_sessions.execute(select_groups).all()
-        return render_template("groups.html", formst=formst, specializations=specializations, groups=groups)
+        groups_table = db_sessions.execute(select_tablegr).all()
+        return render_template("groups.html", formst=formst, specializations=specializations, groups=groups, groups_table=groups_table)
 
 
 @pages.route( "/admin/addGroup", methods=["POST"])  #Добавить группы
