@@ -1,7 +1,7 @@
 function applySpecFilters() {
   const shifrFilters = document.getElementById("shifrFilter").value;
   const naprFilters = document.getElementById("napravFilter").value;
-  if (!shifrFilters && !naprFilters ) {
+  if (!shifrFilters && !naprFilters) {
     return;
   }
   getData(shifrFilters, naprFilters)
@@ -11,7 +11,6 @@ function applySpecFilters() {
 function dropSpecFilters() {
   getData(null, null)
 }
-
 
 function getData(shifrFilters, naprFilters) {
   $.ajax({
@@ -26,6 +25,27 @@ function getData(shifrFilters, naprFilters) {
     },
     error: function (err) {
       console.log(err)
+    },
+  });
+}
+
+function uploadCsvSpecFile() {
+  const formData = new FormData();
+  const button = document.getElementById("button-upload-csv");
+  const file = document.getElementById("input-upload-csv").files[0];
+  if (!file) return;
+  formData.append("file", file);
+  $.ajax({
+    type: "POST",
+    processData: false,
+    contentType: false,
+    data: formData,
+    url: "/admin/csvSpec",
+    success: function () {
+      button.innerHTML = "Файл загружен!";
+    },
+    error: function () {
+      button.innerHTML = "Файл не загружен!";
     },
   });
 }

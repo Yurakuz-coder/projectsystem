@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from os import path
+from os import path, remove
 import hashlib
 import locale
 from docxtpl import DocxTemplate
@@ -8,6 +8,7 @@ from sqlalchemy import text
 from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations, Formstuding, Groups
 from models.database import get_session, get_select
 from pymorphy2 import MorphAnalyzer
+import csv
 
 morph = MorphAnalyzer()
 locale.setlocale(locale.LC_ALL, "ru_RU.UTF-8")
@@ -713,3 +714,51 @@ def redgroups():
     return redirect("/admin/groups")
 
 
+#Загрузка csv в специализации
+@pages.route('/admin/csvSpec', methods=['POST'])
+def insert_csv_spec():
+    try:
+        upload_file = request.files.get("file")
+        file_path = path.join("documents", upload_file.filename)
+        upload_file.save(file_path)
+        with open(file_path, encoding='utf-8') as file:
+            db_sessions = get_session()
+            reader = csv.DictReader(file, delimiter=";")
+            for row in reader:
+                add = Specializations(
+                    specShifr=row['Шифр'],
+                    specNapravlenie=row['Направление'],
+                    specNapravlennost=row['Направленность'],
+                )
+                db_sessions.add(add)
+                db_sessions.commit()
+        return '', 200
+    finally:
+        remove(file_path)
+
+#Загрузка csv в группы
+@pages.route('/admin/csvGroup', methods=['POST'])
+def insert_csv_group():
+    try:
+        upload_file = request.files.get("file")
+        file_path = path.join("documents", upload_file.filename)
+        upload_file.save(file_path)
+        with open(file_path, encoding='utf-8') as file:
+            db_sessions = get_session()
+            select = get_select()
+            reader = csv.DictReader(file, delimiter=";")
+            for row in reader:
+                napr = row['Направление'].split()
+                idform_st = db_sessions.execute(select(Formstuding.IDform_st).where(Formstuding.form_stName == row['Форма обучения'])).first()
+                idspec = db_sessions.execute(select(Specializations.IDspec).where(Specializations.specShifr == napr[0]).where(Specializations.specNapravlenie == napr[1]).where(Specializations.specNapravlennost == napr[2])).first()
+                add = Groups(
+                    groupsName=row['Название группы'],
+                    groupsYear=row['Год набора'],
+                    IDform_st=idform_st[0],
+                    IDspec=idspec[0],
+                )
+                db_sessions.add(add)
+                db_sessions.commit()
+        return '', 200
+    finally:
+        remove(file_path)
