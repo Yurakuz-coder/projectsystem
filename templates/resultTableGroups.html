@@ -1,9 +1,9 @@
 {% for el in groups_table %}
 <tr>
-    <td> {{ el.Group.groupsName }}</td>
+    <td> {{ el.Groups.groupsName }}</td>
     <td>{{ el.Groups.groupsYear }}</td>
-    <td>{{ el.Formstuding.form_stName }}</td>
-    <td>{{ el.Specializations.FullSpec }}</td>
+    <td>{{ el[1] }}</td>
+    <td>{{ el[2] }}</td>
 </tr>
 {% endfor %}
 

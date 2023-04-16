@@ -629,7 +629,7 @@ def groups():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_tablegr = select(Groups, Formstuding.form_stName, Specializations.FullSpec).join_from(Formstuding, Groups, Groups.IDform_st == Formstuding.IDform_st).join_from(Specializations, Groups, Groups.IDspec == Specializations.IDspec).order_by(Specializations.FullSpec, Groups.groupsName, Groups.groupsYear, Formstuding.form_stName)
+        select_tablegr = select(Groups, Formstuding.form_stName, Specializations.FullSpec).join(Formstuding).join(Specializations).order_by(Specializations.FullSpec, Groups.groupsName, Groups.groupsYear, Formstuding.form_stName)
         select_formst = select(Formstuding).order_by(Formstuding.form_stName)
         select_groups = select(Groups).order_by(Groups.groupsName)
         select_spec = select(Specializations).order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
@@ -638,6 +638,31 @@ def groups():
         groups = db_sessions.execute(select_groups).all()
         groups_table = db_sessions.execute(select_tablegr).all()
         return render_template("groups.html", formst=formst, specializations=specializations, groups=groups, groups_table=groups_table)
+
+    if request.method == "POST":
+        form_education = request.form.get("formEducation")
+        direct_study = request.form.get("directStudy")
+        year_study = request.form.get("yearStudy")
+        where_form_education = (
+            Formstuding.form_stName.ilike("%" + form_education + "%") if form_education else text("1=1")
+        )
+        where_direct_study = (
+            Specializations.specNapravlenie.ilike("%" + direct_study + "%")
+            if direct_study
+            else text("1=1")
+        )
+        where_year_study = (
+            Groups.groupsYear.ilike("%" + year_study + "%")
+            if year_study
+            else text("1=1")
+        )
+        select = get_select()
+        db_sessions = get_session()
+        select_group = (
+            select(Groups, Formstuding.form_stName, Specializations.FullSpec).join(Formstuding).join(Specializations).where(where_form_education).where(where_direct_study).where(where_year_study).order_by(Specializations.FullSpec, Groups.groupsName, Groups.groupsYear, Formstuding.form_stName)
+        )
+        groups_table = db_sessions.execute(select_group).all()
+        return render_template("resultTableGroups.html", groups_table=groups_table)
 
 
 @pages.route( "/admin/addGroup", methods=["POST"])  #Добавить группы
