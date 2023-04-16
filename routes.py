@@ -748,7 +748,7 @@ def insert_csv_group():
             select = get_select()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
-                napr = row['Направление'].split()
+                napr = row['Направление'].split("-")
                 idform_st = db_sessions.execute(select(Formstuding.IDform_st).where(Formstuding.form_stName == row['Форма обучения'])).first()
                 idspec = db_sessions.execute(select(Specializations.IDspec).where(Specializations.specShifr == napr[0]).where(Specializations.specNapravlenie == napr[1]).where(Specializations.specNapravlennost == napr[2])).first()
                 add = Groups(
