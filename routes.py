@@ -762,3 +762,9 @@ def insert_csv_group():
         return '', 200
     finally:
         remove(file_path)
+
+
+@pages.route( "/admin/students", methods=["GET", "POST"])  #Студенты
+def students():
+    if request.method == "GET":
+        return render_template("students.html")

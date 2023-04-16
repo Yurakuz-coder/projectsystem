@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% set active_page = "students" %}
+{% block content %}
+<h1>Студенты</h1>
+<br />
+    <div class="btn-group" role="group">
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+    Добавить студента
+  </button>
+
+  <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">
+    Редактировать студента
+  </button>
+
+  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDel">
+    Удалить студента
+  </button>
+</div>
+{% endblock content %}
