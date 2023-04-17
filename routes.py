@@ -856,3 +856,33 @@ def modifyStudent():
         npr.Pass = str(password)
     db_sessions.commit()
     return redirect("/admin/students")
+
+
+@pages.route('/admin/csvStud', methods=['POST'])
+def insert_csv_stud():
+    try:
+        upload_file = request.files.get("file")
+        file_path = path.join("documents", upload_file.filename)
+        upload_file.save(file_path)
+        with open(file_path, encoding='utf-8') as file:
+            db_sessions = get_session()
+            reader = csv.DictReader(file, delimiter=";")
+            for row in reader:
+                password = row['Пароль']
+                password = hashlib.md5(password.encode())
+                password = password.hexdigest()
+                add = Students(
+                    studentsFirstname=row['Фамилия'],
+                    studentsName=row['Имя'],
+                    studentsFathername=row['Отчество'],
+                    studentsStudbook=row['№ зачетной книжки'],
+                    studentsPhone=row['Телефон'],
+                    studentsEmail=row['Электронная почта'],
+                    Login=row['Логин'],
+                    Pass=password,
+                )
+                db_sessions.add(add)
+                db_sessions.commit()
+        return '', 200
+    finally:
+        remove(file_path)
