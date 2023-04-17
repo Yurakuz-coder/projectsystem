@@ -5,7 +5,7 @@ import locale
 from docxtpl import DocxTemplate
 from flask import Blueprint, render_template, request, redirect, session, send_file
 from sqlalchemy import text
-from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations, Formstuding, Groups
+from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations, Formstuding, Groups, Students, Studentsingroups
 from models.database import get_session, get_select
 from pymorphy2 import MorphAnalyzer
 import csv
@@ -767,4 +767,92 @@ def insert_csv_group():
 @pages.route( "/admin/students", methods=["GET", "POST"])  #Студенты
 def students():
     if request.method == "GET":
-        return render_template("students.html")
+        select = get_select()
+        db_sessions = get_session()
+        select_redstud = select(Students.IDstudents, Students.FullName, Students.studentsStudbook).order_by(Students.FullName)
+        select_studnotgroup = (select(Students.IDstudents, Students.FullName, Students.studentsStudbook, Studentsingroups)
+                               .join_from(
+            Students,
+            Studentsingroups,
+            Studentsingroups.IDstudents == Students.IDstudents,
+            isouter=True,
+        )
+                               .filter(Studentsingroups.IDgroups.is_(None))
+                               .order_by(Students.FullName)
+                               )
+        studnotgroup = db_sessions.execute(select_studnotgroup).all()
+        redstud = db_sessions.execute(select_redstud).all()
+        return render_template("students.html", studnotgroup=studnotgroup, redstud=redstud)
+
+
+@pages.route( "/admin/addStudents", methods=["POST"])  #Добавить студента
+def addstudents():
+    if request.method == "POST":
+        db_sessions = get_session()
+        fname = str(request.form["studentsFirstname"])
+        name = str(request.form["studentsName"])
+        lname = str(request.form["studentsFathername"])
+        book = int(request.form["studentsStudbook"])
+        tel = str(request.form["studentsPhone"])
+        em = str(request.form["studentsEmail"])
+        login = str(request.form["Login"])
+        password = str(request.form["Pass"])
+        passw = hashlib.md5(password.encode())
+        passw = passw.hexdigest()
+        add = Students(
+            studentsFirstname=fname,
+            studentsName=name,
+            studentsFathername=lname,
+            studentsStudbook=book,
+            studentsPhone=tel,
+            studentsEmail=em,
+            Login=login,
+            Pass=passw,
+        )
+        db_sessions.add(add)
+        db_sessions.commit()
+        return redirect("/admin/students")
+
+
+@pages.route( "/admin/delStudent", methods=["POST"])  #Удалить студента
+def delstudents():
+    db_sessions = get_session()
+    id_st = int(request.form["delStudent"])
+    db_sessions.query(Students).filter(Students.IDstudents == id_st).delete()
+    db_sessions.commit()
+    return redirect("/admin/students")
+
+
+@pages.route( "/admin/modifyStudent", methods=["POST"])  #Редактировать студента
+def modifyStudent():
+    db_sessions = get_session()
+    id_stud = int(request.form["redStudents"])
+    fname = request.form["redstudentsFirstname"]
+    name = request.form["redstudentsName"]
+    lname = request.form["redstudentsFathername"]
+    book = request.form["redstudentsStudbook"]
+    tel = request.form["redstudentsPhone"]
+    em = request.form["redstudentsEmail"]
+    login = request.form["redLogin"]
+    password = request.form["redPass"]
+    npr = db_sessions.query(Students).filter(Students.IDstudents == id_stud).first()
+    if str(fname) != "":
+        npr.studentsFirstname = str(fname)
+    if str(name) != "":
+        npr.studentsName = str(name)
+    if str(lname) != "":
+        npr.studentsFathername = str(lname)
+    if str(book) != "":
+        npr.studentsStudbook = int(book)
+    if str(tel) != "":
+        npr.studentsPhone = str(tel)
+    if str(em) != "":
+        npr.studentsEmail = str(em)
+    if str(login) != "":
+        npr.Login = str(login)
+    if str(password) != "":
+        password = hashlib.md5(password.encode())
+        password = password.hexdigest()
+        npr.Pass = str(password)
+    db_sessions.commit()
+    return redirect("/admin/students")

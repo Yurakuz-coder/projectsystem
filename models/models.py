@@ -86,3 +86,24 @@ class Groups(Base):
     groupsYear = mapped_column(Integer, nullable=False)
     IDform_st = mapped_column(ForeignKey("form_studing.IDform_st"))
     IDspec = mapped_column(ForeignKey("specializations.IDspec"))
+
+
+class Students(Base):
+    __tablename__ = "students"
+    IDstudents = mapped_column(Integer, primary_key=True)
+    studentsFirstname = mapped_column(String(255), nullable=False)
+    studentsName = mapped_column(String(255), nullable=False)
+    studentsFathername = mapped_column(String(255))
+    studentsStudbook = mapped_column(Integer, nullable=False)
+    studentsPhone = mapped_column(String(12), nullable=False)
+    studentsEmail = mapped_column(String(100), nullable=False)
+    Login = mapped_column(String(100), nullable=False)
+    Pass = mapped_column(String(100), nullable=False)
+    FullName = column_property(studentsFirstname + " " + studentsName + " " + studentsFathername)
+
+
+class Studentsingroups(Base):
+    __tablename__ = "studentsingroups"
+    IDstingr = mapped_column(Integer, primary_key=True)
+    IDstudents = mapped_column(ForeignKey("students.IDstudents"))
+    IDgroups = mapped_column(ForeignKey("groups.IDgroups"))
