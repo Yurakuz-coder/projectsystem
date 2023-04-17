@@ -1,6 +1,6 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 07.04.2023 21:17:15
+-- Дата скрипта: 17.04.2023 23:10:31
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
@@ -30,7 +30,8 @@ CREATE TABLE form_studing (
   UNIQUE INDEX UK_form_studing_form_stName (form_stName)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Формы обучения';
@@ -107,7 +108,8 @@ CREATE TABLE specializations (
   UNIQUE INDEX UK_specializations (specShifr, specNapravlenie, specNapravlennost)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 6
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Специализации';
@@ -143,6 +145,32 @@ AUTO_INCREMENT = 1
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Стадии работы';
+
+--
+-- Описание для таблицы students
+--
+DROP TABLE IF EXISTS students;
+CREATE TABLE students (
+  IDstudents INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  studentsFirstname VARCHAR(255) NOT NULL,
+  studentsName VARCHAR(255) NOT NULL,
+  studentsFathername VARCHAR(255) DEFAULT NULL,
+  studentsStudbook INT(9) NOT NULL,
+  studentsPhone VARCHAR(12) NOT NULL,
+  studentsEmail VARCHAR(100) NOT NULL,
+  Login VARCHAR(100) NOT NULL,
+  Pass VARCHAR(100) NOT NULL,
+  PRIMARY KEY (IDstudents),
+  UNIQUE INDEX UK_students (Login, Pass),
+  UNIQUE INDEX UK_students_studentsStudbook (studentsStudbook),
+  UNIQUE INDEX UK_students2 (studentsFirstname, studentsName, studentsFathername, studentsStudbook)
+)
+ENGINE = INNODB
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 8192
+CHARACTER SET utf8
+COLLATE utf8_general_ci
+COMMENT = 'Студенты';
 
 --
 -- Описание для таблицы competensions
@@ -183,7 +211,8 @@ CREATE TABLE groups (
     REFERENCES specializations(IDspec) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 6
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Группы';
@@ -284,44 +313,38 @@ CREATE TABLE projectsudycontracts (
   contractsFull VARCHAR(1000) NOT NULL,
   contractsSigned VARCHAR(1000) DEFAULT NULL,
   PRIMARY KEY (IDcontracts),
-  INDEX IDX_projectsudycontracts_contractsFinish (contractsFinish),
-  INDEX IDX_projectsudycontracts_contractsStart (contractsStart),
-  UNIQUE INDEX UK_projectsudycontracts_contractsNumber (contractsNumber),
+  INDEX IDX_projectsudycontracts_IDorg (IDorg),
+  UNIQUE INDEX UK_projectsudycontracts_contractsNumber (contractsNumber, contractsStart, contractsFinish),
   CONSTRAINT FK_projectsudycontracts_organizations_IDorg FOREIGN KEY (IDorg)
     REFERENCES organizations(IDorg) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 10
+AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Договоры об организации проектного обучения';
 
 --
--- Описание для таблицы students
+-- Описание для таблицы studentsingroups
 --
-DROP TABLE IF EXISTS students;
-CREATE TABLE students (
-  IDstudents INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS studentsingroups;
+CREATE TABLE studentsingroups (
+  IDstingr INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  IDstudents INT(11) UNSIGNED NOT NULL,
   IDgroups INT(11) UNSIGNED NOT NULL,
-  studentsFirstname VARCHAR(255) NOT NULL,
-  studentsName VARCHAR(255) NOT NULL,
-  studentsFathername VARCHAR(255) DEFAULT NULL,
-  studentsPhone VARCHAR(12) NOT NULL,
-  studentsEmail VARCHAR(100) NOT NULL,
-  Login VARCHAR(100) NOT NULL,
-  Pass VARCHAR(100) NOT NULL,
-  PRIMARY KEY (IDstudents),
-  INDEX IDX_students_IDgroups (IDgroups),
-  UNIQUE INDEX UK_students (Login, Pass),
-  UNIQUE INDEX UK_students2 (IDgroups, studentsFirstname, studentsName, studentsFathername),
-  CONSTRAINT FK_students_groups_IDgroups FOREIGN KEY (IDgroups)
-    REFERENCES groups(IDgroups) ON DELETE RESTRICT ON UPDATE RESTRICT
+  PRIMARY KEY (IDstingr),
+  CONSTRAINT FK_studentsingroups_groups_IDgroups FOREIGN KEY (IDgroups)
+    REFERENCES groups(IDgroups) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT FK_studentsingroups_students_IDstudents FOREIGN KEY (IDstudents)
+    REFERENCES students(IDstudents) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 2
+AVG_ROW_LENGTH = 16384
 CHARACTER SET utf8
 COLLATE utf8_general_ci
-COMMENT = 'Студенты';
+COMMENT = 'Студенты в группах';
 
 --
 -- Описание для таблицы passportofprojects
@@ -539,8 +562,10 @@ COMMENT = 'Студенты в проекте';
 -- 
 -- Вывод данных для таблицы form_studing
 --
-
--- Таблица projectsystem.form_studing не содержит данных
+INSERT INTO form_studing VALUES
+(3, 'заочная'),
+(1, 'очная'),
+(2, 'очно-заочная');
 
 -- 
 -- Вывод данных для таблицы levels
@@ -567,8 +592,10 @@ INSERT INTO shefforganizations VALUES
 -- 
 -- Вывод данных для таблицы specializations
 --
-
--- Таблица projectsystem.specializations не содержит данных
+INSERT INTO specializations VALUES
+(4, '09.04.01', 'Информатика и вычислительная техника', 'Интеллектуальные системы'),
+(3, '09.04.02', 'Информационные системы и технологии', 'Мультимедиатехнологии'),
+(5, '09.04.02', 'Информационные системы и технологии', 'Управление данными');
 
 -- 
 -- Вывод данных для таблицы stadiaofprojects
@@ -583,6 +610,13 @@ INSERT INTO shefforganizations VALUES
 -- Таблица projectsystem.stadiaofworks не содержит данных
 
 -- 
+-- Вывод данных для таблицы students
+--
+INSERT INTO students VALUES
+(1, 'Тимофеев1', 'Сергей1', 'Николаевич1', 211344568, '+79082209565', 'e.star00@mail.ru', '211344568', 'c31bd08e7e0daa03867403a22449b82b'),
+(3, 'Кузнецов', 'Юрий', 'Александрович', 211231003, '+79121973415', 'iu@yandex.ru', '211231003', '5d41402abc4b2a76b9719d911017c592');
+
+-- 
 -- Вывод данных для таблицы competensions
 --
 
@@ -591,8 +625,10 @@ INSERT INTO shefforganizations VALUES
 -- 
 -- Вывод данных для таблицы groups
 --
-
--- Таблица projectsystem.groups не содержит данных
+INSERT INTO groups VALUES
+(3, 'МИФ22-01', 2022, 1, 3),
+(4, 'МИД21-01', 2021, 1, 5),
+(5, 'МИИ21-01', 2021, 1, 4);
 
 -- 
 -- Вывод данных для таблицы organizations
@@ -616,14 +652,15 @@ INSERT INTO sheffofprojects VALUES
 -- 
 -- Вывод данных для таблицы projectsudycontracts
 --
-
--- Таблица projectsystem.projectsudycontracts не содержит данных
+INSERT INTO projectsudycontracts VALUES
+(7, 4, 122, '2023-04-13', '2024-04-15', 'test', 'full', NULL),
+(9, 1, 123, '2023-04-13', '2024-04-15', 'test', 'full', NULL);
 
 -- 
--- Вывод данных для таблицы students
+-- Вывод данных для таблицы studentsingroups
 --
-
--- Таблица projectsystem.students не содержит данных
+INSERT INTO studentsingroups VALUES
+(1, 1, 5);
 
 -- 
 -- Вывод данных для таблицы passportofprojects
