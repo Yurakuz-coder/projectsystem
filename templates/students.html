@@ -4,6 +4,62 @@
 <h1>Студенты</h1>
 <br />
     <div class="btn-group" role="group">
+  <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
+    aria-controls="collapseTableBody">
+    Отобразить данные
+  </a>
+  <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+    aria-controls="collapseFilters">
+    Добавить фильтры
+  </a>
+</div>
+<br />
+<div class="collapse" id="collapseFilters">
+  <br />
+  <input type="text" id="fio" class="form-control" placeholder="Фильтр по ФИО"
+    aria-label="fio" aria-describedby="basic-addon1">
+  <br />
+  <input type="text" id="grname" class="form-control" placeholder="Фильтр по группе"
+    aria-label="grname" aria-describedby="basic-addon1">
+  <br />
+  <div class="btn-group" role="group">
+    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyStudentsFilters()">
+      Применить фильтры
+    </button>
+    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropStudentsFilters()">
+      Сбросить фильтр
+    </button>
+  </div>
+  <br />
+</div>
+    <table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">
+        ФИО
+      </th>
+        <th scope="col">
+        Группа
+      </th>
+      <th scope="col">
+        № зачетной книжки
+      </th>
+        <th scope="col">
+        Телефон
+      </th>
+         <th scope="col">
+        Электронная почта
+      </th>
+        <th scope="col">
+        Логин
+      </th>
+    </tr>
+  </thead>
+  <tbody class="collapse" id="collapseTableBody">
+    {% include "resultTableStudents.html" %}
+  </tbody>
+</table>
+    <div class="btn-group" role="group">
   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
     Добавить студента
   </button>

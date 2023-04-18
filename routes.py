@@ -769,6 +769,11 @@ def students():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
+        select_student = (select(Students.IDstudents, Students.FullName, Students.studentsStudbook, Students.studentsPhone, Students.studentsEmail, Students.Login, Studentsingroups, Groups.groupsName)
+                          .join_from(Students, Studentsingroups, Studentsingroups.IDstudents == Students.IDstudents, isouter=True,)
+                          .join_from(Studentsingroups, Groups, Studentsingroups.IDgroups == Groups.IDgroups, isouter=True,)
+                          .order_by(Groups.groupsName, Students.FullName)
+                          )
         select_redstud = select(Students.IDstudents, Students.FullName, Students.studentsStudbook).order_by(Students.FullName)
         select_studnotgroup = (select(Students.IDstudents, Students.FullName, Students.studentsStudbook, Studentsingroups)
                                .join_from(
@@ -782,7 +787,45 @@ def students():
                                )
         studnotgroup = db_sessions.execute(select_studnotgroup).all()
         redstud = db_sessions.execute(select_redstud).all()
-        return render_template("students.html", studnotgroup=studnotgroup, redstud=redstud)
+        student = db_sessions.execute(select_student).all()
+        return render_template("students.html", studnotgroup=studnotgroup, redstud=redstud, student=student)
+    if request.method == "POST":
+        fio = request.form.get("fio")
+        grname = request.form.get("grname")
+        where_fio = (
+            Students.FullName.ilike("%" + fio + "%") if fio else text("1=1")
+        )
+        where_grname = (
+            Groups.groupsName.ilike("%" + grname + "%") if grname else text("1=1")
+        )
+        select = get_select()
+        db_sessions = get_session()
+        select_student = (
+            select(Students.IDstudents, Students.FullName, Students.studentsStudbook, Students.studentsPhone,
+                   Students.studentsEmail, Students.Login, Studentsingroups, Groups.groupsName)
+            .join_from(Students, Studentsingroups, Studentsingroups.IDstudents == Students.IDstudents, isouter=True, )
+            .join_from(Studentsingroups, Groups, Studentsingroups.IDgroups == Groups.IDgroups, isouter=True, )
+            .where(where_fio)
+            .where(where_grname)
+            .order_by(Groups.groupsName, Students.FullName)
+            )
+        select_redstud = select(Students.IDstudents, Students.FullName, Students.studentsStudbook).order_by(
+            Students.FullName)
+        select_studnotgroup = (
+            select(Students.IDstudents, Students.FullName, Students.studentsStudbook, Studentsingroups)
+            .join_from(
+                Students,
+                Studentsingroups,
+                Studentsingroups.IDstudents == Students.IDstudents,
+                isouter=True,
+            )
+            .filter(Studentsingroups.IDgroups.is_(None))
+            .order_by(Students.FullName)
+            )
+        studnotgroup = db_sessions.execute(select_studnotgroup).all()
+        redstud = db_sessions.execute(select_redstud).all()
+        student = db_sessions.execute(select_student).all()
+        return render_template("resultTableStudents.html", studnotgroup=studnotgroup, redstud=redstud, student=student)
 
 
 @pages.route( "/admin/addStudents", methods=["POST"])  #Добавить студента

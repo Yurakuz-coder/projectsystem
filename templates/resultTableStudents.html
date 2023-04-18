@@ -1,0 +1,18 @@
+{% for el in student %}
+<tr>
+    <td> {{ el[1] }}</td>
+    <td>{{ el[7] or '' }}</td>
+    <td>{{ el[2] }}</td>
+    <td>{{ el[3] }}</td>
+    <td>{{ el[4] }}</td>
+    <td>{{ el[5] }}</td>
+</tr>
+{% endfor %}
+
+{% if student == [] %}
+<tr>
+    <td colspan="8">
+        <div> Данных не найдено </div>
+    </td>
+</tr>
+{% endif %}
