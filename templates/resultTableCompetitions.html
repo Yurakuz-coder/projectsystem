@@ -1,0 +1,14 @@
+{% for el in competitions %}
+<tr>
+    <td>{{ el.Competensions.competensionsShifr }}</td>
+    <td> {{ el.Competensions.competensionsFull }}</td>
+</tr>
+{% endfor %}
+
+{% if competitions == [] %}
+<tr>
+    <td colspan="8">
+        <div> Данных не найдено </div>
+    </td>
+</tr>
+{% endif %}

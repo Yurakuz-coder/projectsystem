@@ -3,4 +3,32 @@
 {% block content %}
 <h1>Компетенции учебных планов</h1>
 <br />
+    <label for="spec" class="form-select-label">Выберите специализацию</label>
+            <select class="form-select" aria-label="Default select example" id="spec" name="spec">
+              {% for el in spec %}
+              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
+                el.Specializations.specNapravlenie }} - {{
+                el.Specializations.specNapravlennost }}</option>
+              {% endfor %}
+            </select>
+    <br />
+  <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
+    aria-controls="collapseTableBody" onClick="applySpec()">
+    Отобразить данные
+  </a>
+    <table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">
+        Код компетенции
+      </th>
+      <th scope="col">
+        Содержание компетенции
+      </th>
+    </tr>
+  </thead>
+  <tbody class="collapse" id="collapseTableBody">
+    {% include "resultTableCompetitions.html" %}
+  </tbody>
+</table>
 {% endblock content %}

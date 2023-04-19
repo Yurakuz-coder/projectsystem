@@ -5,7 +5,7 @@ import locale
 from docxtpl import DocxTemplate
 from flask import Blueprint, render_template, request, redirect, session, send_file
 from sqlalchemy import text
-from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations, Formstuding, Groups, Students, Studentsingroups
+from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations, Formstuding, Groups, Students, Studentsingroups, Competensions
 from models.database import get_session, get_select
 from pymorphy2 import MorphAnalyzer
 import csv
@@ -934,4 +934,19 @@ def insert_csv_stud():
 @pages.route( "/admin/competitions", methods=["GET", "POST"])  #Компетенции учебных планов
 def competitions():
     if request.method == "GET":
-        return render_template("competitions.html")
+        select = get_select()
+        db_sessions = get_session()
+        select_sp = select(Specializations).order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
+        spec = db_sessions.execute(select_sp).all()
+        return render_template("competitions.html", spec=spec)
+    if request.method == "POST":
+        spec = int(request.form["spec"])
+        select = get_select()
+        db_sessions = get_session()
+        select_competitions = (
+            select(Competensions)
+            .filter(Competensions.IDspec == spec)
+            .order_by(Competensions.competensionsShifr)
+        )
+        competitions = db_sessions.execute(select_competitions).all()
+        return render_template("resultTableCompetitions.html", competitions=competitions)

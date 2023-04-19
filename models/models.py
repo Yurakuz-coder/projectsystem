@@ -107,3 +107,12 @@ class Studentsingroups(Base):
     IDstingr = mapped_column(Integer, primary_key=True)
     IDstudents = mapped_column(ForeignKey("students.IDstudents"))
     IDgroups = mapped_column(ForeignKey("groups.IDgroups"))
+
+
+class Competensions(Base):
+    __tablename__ = "competensions"
+    IDcompetensions = mapped_column(Integer, primary_key=True)
+    IDspec = mapped_column(ForeignKey("specializations.IDspec"))
+    competensionsShifr = mapped_column(String(7), nullable=False)
+    competensionsFull = mapped_column(String, nullable=False)
+
