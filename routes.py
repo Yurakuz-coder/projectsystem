@@ -929,3 +929,9 @@ def insert_csv_stud():
         return '', 200
     finally:
         remove(file_path)
+
+
+@pages.route( "/admin/competitions", methods=["GET", "POST"])  #Компетенции учебных планов
+def competitions():
+    if request.method == "GET":
+        return render_template("competitions.html")
