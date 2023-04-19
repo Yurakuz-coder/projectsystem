@@ -944,10 +944,12 @@ def competitions():
         select = get_select()
         db_sessions = get_session()
         select_competitions = (
-            select(Competensions)
+            select(Competensions, Specializations.FullSpec)
+            .join(Specializations)
             .filter(Competensions.IDspec == spec)
             .order_by(Competensions.competensionsShifr)
         )
+        print(select_competitions)
         competitions = db_sessions.execute(select_competitions).all()
         return render_template("resultTableCompetitions.html", competitions=competitions)
 
