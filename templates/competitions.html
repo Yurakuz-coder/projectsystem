@@ -31,4 +31,57 @@
     {% include "resultTableCompetitions.html" %}
   </tbody>
 </table>
+
+    <div class="btn-group" role="group">
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+    Добавить компетенцию
+  </button>
+
+  <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">
+    Редактировать компетенцию
+  </button>
+
+  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDel">
+    Удалить компетенцию
+  </button>
+</div>
+
+
+    <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAddLabel">Добавить компетенцию</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="addCompetition" method="post">
+          <div class="form-group">
+             <label for="specialization" class="form-select-label">Выберите специализацию</label>
+            <select class="form-select" aria-label="Default select example" name="specialization">
+              {% for el in spec %}
+              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
+                el.Specializations.specNapravlenie }} - {{
+                el.Specializations.specNapravlennost }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        <div class="form-group">
+          <label for="competensionsShifr" class="form-control-label">Код компетенции</label>
+            <input class="form-control" id="competensionsShifr" name="competensionsShifr" required></textarea>
+          </div>
+        <div class="form-group">
+            <label for="competensionsFull" class="form-control-label">Содержание компетенции</label>
+            <textarea class="form-control" id="competensionsFull" name="competensionsFull" rows="10" required></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}

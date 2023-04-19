@@ -950,3 +950,20 @@ def competitions():
         )
         competitions = db_sessions.execute(select_competitions).all()
         return render_template("resultTableCompetitions.html", competitions=competitions)
+
+
+@pages.route( "/admin/addCompetition", methods=["POST"])  #Добавить компетенцию учебного плана
+def addcompetitions():
+    db_sessions = get_session()
+    id_spec = int(request.form["specialization"])
+    cod = str(request.form["competensionsShifr"])
+    full = str(request.form["competensionsFull"])
+    add = Competensions(
+        IDspec=id_spec,
+        competensionsShifr=cod,
+        competensionsFull=full,
+    )
+    db_sessions.add(add)
+    db_sessions.commit()
+    return redirect("/admin/competitions")
+
