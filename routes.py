@@ -5,10 +5,12 @@ import locale
 from docxtpl import DocxTemplate
 from flask import Blueprint, render_template, request, redirect, session, send_file
 from sqlalchemy import text
-from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations, Formstuding, Groups, Students, Studentsingroups, Competensions
-from models.database import get_session, get_select
 from pymorphy2 import MorphAnalyzer
 import csv
+import re
+from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations, Formstuding, Groups, Students, Studentsingroups, Competensions
+from models.database import get_session, get_select
+
 
 morph = MorphAnalyzer()
 locale.setlocale(locale.LC_ALL, "ru_RU.UTF-8")
@@ -725,6 +727,9 @@ def insert_csv_spec():
             db_sessions = get_session()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
+                pattern = re.match(r'^[0-9]{2}\.[0-9]{2}\.[0-9]{2}$', row['Шифр'])
+                if not pattern:
+                    return 'Ошибка при валидации шифра ' + row['Шифр'], 400
                 add = Specializations(
                     specShifr=row['Шифр'],
                     specNapravlenie=row['Направление'],
@@ -914,6 +919,12 @@ def insert_csv_stud():
                 password = row['Пароль']
                 password = hashlib.md5(password.encode())
                 password = password.hexdigest()
+                pattern_email = re.match(r'^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$', row['Электронная почта'])
+                pattern_phone = re.match(r'^\+7[0-9]{10}$', row['Телефон'])
+                if not pattern_email:
+                    return 'Неверный формат почты (' + row['Электронная почта'] + ')', 400
+                if not pattern_phone:
+                    return 'Неверный формат телефона (' + row['Телефон'] + ')', 400
                 add = Students(
                     studentsFirstname=row['Фамилия'],
                     studentsName=row['Имя'],

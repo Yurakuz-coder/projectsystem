@@ -43,8 +43,8 @@ function uploadCsvStudFile() {
     success: function () {
       button.innerHTML = "Файл загружен!";
     },
-    error: function () {
-      button.innerHTML = "Файл не загружен!";
+    error: function (data) {
+      button.innerHTML = "Файл не загружен! - " + data?.responseText;
     },
   });
 }
