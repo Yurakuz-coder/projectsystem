@@ -23,11 +23,22 @@ function getDataGroupsMembers(group) {
   });
 }
 
+window.onload = function () {
+  onLoadStudents('add')
+  onLoadStudents('modify')
+  onLoadStudents('delete')
+};
+
+function onLoadStudents(op) {
+  const idGroup = document.getElementById(op + 'Group').value
+  getStudentsGroup(idGroup, op)
+}
+
 function getStudentsGroup(idGroup, op) {
   $.ajax({
     type: "GET",
     url: "/admin/getStudentsGroup",
-    data: { idGroup },
+    data: { idGroup, op },
     success: function (data) {
       const select = document.getElementById(op + "Student");
       const button = document.getElementById(op + "ModalButton");

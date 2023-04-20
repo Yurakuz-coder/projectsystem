@@ -65,11 +65,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="addStudentToGroup" method="post">
+                <form action="addGroupMember" method="post">
                     <div class="form-group">
+
                         <label for="group" class="form-select-label">Выберите группу</label>
                         <select class="form-select" aria-label="Default select example" name="group"
-                            onchange="getStudentsGroup(this.value, 'add')">
+                            onchange="getStudentsGroup(this.value, 'add')" id="addGroup" required>
                             {% for el in groups %}
                             <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{
                                 el.Groups.groupsYear }}</option>
@@ -78,26 +79,13 @@
                     </div>
                     <div class="form-group">
                         <label for="student" class="form-control-label">Выберите студента</label>
-                        <select class="form-select {{ 'disable' if not students else '' }}"
-                            disabled="{{ 'true' if not students else 'false' }}" aria-label="Default select example"
-                            id='addStudent' name="student">
-                            {% for el in students %}
-                            {% if el[1] != id_group %}
-                            {% set not_null = '1' %}
-                            <option value="{{ el.Students.IDstudents }}">{{ el.Students.FullName }} #{{
-                                el.Students.studentsStudbook }}</option>
-                            {% endif %}
-                            {% endfor %}
-
-                            {% if not_null != 1 %}
-                            <option value="0">Студенты не найдены</option>
-                            {% endif %}
+                        <select class="form-select" aria-label="Default select example" id='addStudent' name="student"
+                            required onload="onLoadStudents('add')">
                         </select>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary"
-                            disabled="{{ 'true' if not_null != 1 else 'false' }}" id="addModalButton">Сохранить</button>
+                        <button type="submit" class="btn btn-primary" id="addModalButton">Сохранить</button>
                     </div>
                 </form>
             </div>
@@ -113,11 +101,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="modifyStudentToGroup" method="post">
+                <form action="modifyGroupMember" method="post">
                     <div class="form-group">
                         <label for="group" class="form-select-label">Выберите группу</label>
                         <select class="form-select" aria-label="Default select example" name="oldGroup"
-                            onchange="getStudentsGroup(this.value, 'modify')">
+                            onchange="getStudentsGroup(this.value, 'modify')" id="modifyGroup" required>
                             {% for el in groups %}
                             <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{
                                 el.Groups.groupsYear }}</option>
@@ -126,23 +114,13 @@
                     </div>
                     <div class="form-group">
                         <label for="student" class="form-control-label">Выберите студента</label>
-                        <select class="form-select" disabled="{{ 'true' if not students else 'false' }}"
-                            aria-label="Default select example" id='modifyStudent' name="student">
-                            {% for el in students %}
-                            {% if el[1] == id_group %}
-                            {% set not_null = '1' %}
-                            <option value="{{ el.Students.IDstudents }}">{{ el.Students.FullName }} #{{
-                                el.Students.studentsStudbook }}</option>
-                            {% endif %}
-                            {% endfor %}
-                            {% if not_null != 1 %}
-                            <option value="0">Студенты не найдены</option>
-                            {% endif %}
+                        <select class="form-select" aria-label="Default select example" id='modifyStudent'
+                            name="student" required onload="onLoadStudents('modify')">
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="group" class="form-select-label">Выберите новую группу</label>
-                        <select class="form-select" aria-label="Default select example" name="newGroup">
+                        <select class="form-select" aria-label="Default select example" name="newGroup" required>
                             {% for el in groups %}
                             <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{
                                 el.Groups.groupsYear }}</option>
@@ -151,9 +129,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary"
-                            disabled="{{ 'true' if not_null != 1 else 'false' }}"
-                            id="modifyModalButton">Сохранить</button>
+                        <button type="submit" class="btn btn-primary" id="modifyModalButton">Сохранить</button>
                     </div>
                 </form>
             </div>
@@ -169,11 +145,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="deleteStudentToGroup" method="post">
+                <form action="deleteGroupMember" method="post">
                     <div class="form-group">
                         <label for="group" class="form-select-label">Выберите группу</label>
                         <select class="form-select" aria-label="Default select example" name="group"
-                            onchange="getStudentsGroup(this.value, 'delete')">
+                            onchange="getStudentsGroup(this.value, 'delete')" id="deleteGroup" required>
                             {% for el in groups %}
 
                             <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{
@@ -184,25 +160,13 @@
                     </div>
                     <div class="form-group">
                         <label for="student" class="form-control-label">Выберите студента</label>
-                        <select class="form-select" disabled="{{ 'true' if not students else 'false' }}"
-                            aria-label="Default select example" id='deleteStudent' name="student">
-                            {% for el in students %}
-                            {% if el[1] != id_group %}
-                            {% set not_null = '1' %}
-                            <option value="{{ el.Students.IDstudents }}">{{ el.Students.FullName }} #{{
-                                el.Students.studentsStudbook }}</option>
-                            {% endif %}
-                            {% endfor %}
-                            {% if not_null != 1 %}
-                            <option value="0">Студенты не найдены</option>
-                            {% endif %}
+                        <select class="form-select" aria-label="Default select example" id='deleteStudent'
+                            name="student" required onload="onLoadStudents('delete')">
                         </select>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary"
-                            disabled="{{ 'true' if not not_null != 1 else 'false' }}"
-                            id="deleteModalButton">Сохранить</button>
+                        <button type="submit" class="btn btn-primary" id="deleteModalButton">Сохранить</button>
                     </div>
                 </form>
             </div>

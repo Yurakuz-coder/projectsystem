@@ -108,9 +108,6 @@ class Studentsingroups(Base):
     IDstingr = mapped_column(Integer, primary_key=True)
     IDstudents = mapped_column(ForeignKey("students.IDstudents"))
     IDgroups = mapped_column(ForeignKey("groups.IDgroups"))
-    student = relationship("Students", foreign_keys=[IDstudents])
-    group = relationship("Groups", foreign_keys=[IDgroups])
-
 
 class Competensions(Base):
     __tablename__ = "competensions"
