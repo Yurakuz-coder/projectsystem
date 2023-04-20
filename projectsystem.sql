@@ -1,6 +1,6 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 17.04.2023 23:10:31
+-- Дата скрипта: 20.04.2023 23:53:02
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
@@ -147,32 +147,6 @@ COLLATE utf8_general_ci
 COMMENT = 'Стадии работы';
 
 --
--- Описание для таблицы students
---
-DROP TABLE IF EXISTS students;
-CREATE TABLE students (
-  IDstudents INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  studentsFirstname VARCHAR(255) NOT NULL,
-  studentsName VARCHAR(255) NOT NULL,
-  studentsFathername VARCHAR(255) DEFAULT NULL,
-  studentsStudbook INT(9) NOT NULL,
-  studentsPhone VARCHAR(12) NOT NULL,
-  studentsEmail VARCHAR(100) NOT NULL,
-  Login VARCHAR(100) NOT NULL,
-  Pass VARCHAR(100) NOT NULL,
-  PRIMARY KEY (IDstudents),
-  UNIQUE INDEX UK_students (Login, Pass),
-  UNIQUE INDEX UK_students_studentsStudbook (studentsStudbook),
-  UNIQUE INDEX UK_students2 (studentsFirstname, studentsName, studentsFathername, studentsStudbook)
-)
-ENGINE = INNODB
-AUTO_INCREMENT = 4
-AVG_ROW_LENGTH = 8192
-CHARACTER SET utf8
-COLLATE utf8_general_ci
-COMMENT = 'Студенты';
-
---
 -- Описание для таблицы competensions
 --
 DROP TABLE IF EXISTS competensions;
@@ -188,7 +162,8 @@ CREATE TABLE competensions (
     REFERENCES specializations(IDspec) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Компетенции учебного плана';
@@ -326,25 +301,33 @@ COLLATE utf8_general_ci
 COMMENT = 'Договоры об организации проектного обучения';
 
 --
--- Описание для таблицы studentsingroups
+-- Описание для таблицы students
 --
-DROP TABLE IF EXISTS studentsingroups;
-CREATE TABLE studentsingroups (
-  IDstingr INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  IDstudents INT(11) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS students;
+CREATE TABLE students (
+  IDstudents INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   IDgroups INT(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (IDstingr),
-  CONSTRAINT FK_studentsingroups_groups_IDgroups FOREIGN KEY (IDgroups)
-    REFERENCES groups(IDgroups) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT FK_studentsingroups_students_IDstudents FOREIGN KEY (IDstudents)
-    REFERENCES students(IDstudents) ON DELETE RESTRICT ON UPDATE RESTRICT
+  studentsFirstname VARCHAR(255) NOT NULL,
+  studentsName VARCHAR(255) NOT NULL,
+  studentsFathername VARCHAR(255) DEFAULT NULL,
+  studentsStudbook INT(9) NOT NULL,
+  studentsPhone VARCHAR(12) NOT NULL,
+  studentsEmail VARCHAR(100) NOT NULL,
+  Login VARCHAR(100) NOT NULL,
+  Pass VARCHAR(100) NOT NULL,
+  PRIMARY KEY (IDstudents),
+  INDEX IDX_students_IDgroups (IDgroups),
+  UNIQUE INDEX UK_students (Login, Pass),
+  UNIQUE INDEX UK_students_studentsStudbook (studentsStudbook),
+  UNIQUE INDEX UK_students2 (IDgroups, studentsFirstname, studentsName, studentsFathername, studentsStudbook),
+  CONSTRAINT FK_students_groups_IDgroups FOREIGN KEY (IDgroups)
+    REFERENCES groups(IDgroups) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 2
-AVG_ROW_LENGTH = 16384
+AUTO_INCREMENT = 1
 CHARACTER SET utf8
 COLLATE utf8_general_ci
-COMMENT = 'Студенты в группах';
+COMMENT = 'Студенты';
 
 --
 -- Описание для таблицы passportofprojects
@@ -610,17 +593,12 @@ INSERT INTO specializations VALUES
 -- Таблица projectsystem.stadiaofworks не содержит данных
 
 -- 
--- Вывод данных для таблицы students
---
-INSERT INTO students VALUES
-(1, 'Тимофеев1', 'Сергей1', 'Николаевич1', 211344568, '+79082209565', 'e.star00@mail.ru', '211344568', 'c31bd08e7e0daa03867403a22449b82b'),
-(3, 'Кузнецов', 'Юрий', 'Александрович', 211231003, '+79121973415', 'iu@yandex.ru', '211231003', '5d41402abc4b2a76b9719d911017c592');
-
--- 
 -- Вывод данных для таблицы competensions
 --
-
--- Таблица projectsystem.competensions не содержит данных
+INSERT INTO competensions VALUES
+(1, 4, 'ПК-1', 'Способен критически воспринимать информацию'),
+(2, 3, 'ПК-1', 'Способен думать'),
+(3, 4, 'ПК-2', 'Плавать');
 
 -- 
 -- Вывод данных для таблицы groups
@@ -657,10 +635,10 @@ INSERT INTO projectsudycontracts VALUES
 (9, 1, 123, '2023-04-13', '2024-04-15', 'test', 'full', NULL);
 
 -- 
--- Вывод данных для таблицы studentsingroups
+-- Вывод данных для таблицы students
 --
-INSERT INTO studentsingroups VALUES
-(1, 1, 5);
+
+-- Таблица projectsystem.students не содержит данных
 
 -- 
 -- Вывод данных для таблицы passportofprojects
