@@ -51,6 +51,7 @@ class Organizations(Base):
     orgEmail = mapped_column(String(100), nullable=False)
     orgPhone = mapped_column(String(12), nullable=False)
 
+
 class Contracts(Base):
     __tablename__ = "projectsudycontracts"
     IDcontracts = mapped_column(Integer, primary_key=True)
@@ -107,6 +108,8 @@ class Studentsingroups(Base):
     IDstingr = mapped_column(Integer, primary_key=True)
     IDstudents = mapped_column(ForeignKey("students.IDstudents"))
     IDgroups = mapped_column(ForeignKey("groups.IDgroups"))
+    student = relationship("Students", foreign_keys=[IDstudents])
+    group = relationship("Groups", foreign_keys=[IDgroups])
 
 
 class Competensions(Base):
@@ -115,4 +118,3 @@ class Competensions(Base):
     IDspec = mapped_column(ForeignKey("specializations.IDspec"))
     competensionsShifr = mapped_column(String(7), nullable=False)
     competensionsFull = mapped_column(String, nullable=False)
-

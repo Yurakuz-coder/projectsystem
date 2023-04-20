@@ -8,14 +8,14 @@ function applyContractsFilters() {
   if (!dateContractFilter && !orgFilters && !numberContractFilter) {
     return;
   }
-  getData(dateContractFilter, orgFilters, numberContractFilter);
+  getDataContract(dateContractFilter, orgFilters, numberContractFilter);
 }
 
 function dropContractFilters() {
-  getData(null, null, null);
+  getDataContract(null, null, null);
 }
 
-function getData(dateContractFilter, orgFilters, numberContractFilter) {
+function getDataContract(dateContractFilter, orgFilters, numberContractFilter) {
   $.ajax({
     type: "POST",
     url: "/admin/contracts",

@@ -4,26 +4,26 @@ function applyStudentsFilters() {
   if (!fio && !grname) {
     return;
   }
-  getData(fio, grname)
+  getDataStudents(fio, grname);
 }
 
 function dropStudentsFilters() {
-  getData(null, null)
+  getDataStudents(null, null);
 }
 
-function getData(fio, grname) {
+function getDataStudents(fio, grname) {
   $.ajax({
     type: "POST",
     url: "/admin/students",
     dataSrc: "data",
     data: { fio, grname },
     success: function (data) {
-      const table = document.getElementById("collapseTableBody")
+      const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;
-      table.className = 'collapse show'
+      table.className = "collapse show";
     },
     error: function (err) {
-      console.log(err)
+      console.log(err);
     },
   });
 }

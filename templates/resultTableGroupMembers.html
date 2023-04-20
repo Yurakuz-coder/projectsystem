@@ -1,0 +1,18 @@
+{% for el in students %}
+<tr>
+    <td>{{ el.Students.FullName }}</td>
+    <td>{{ el[1] }}</td>
+    <td> {{ el.Students.studentsStudbook }}</td>
+    <td> {{ el.Students.studentsPhone }}</td>
+    <td> {{ el.Students.studentsEmail }}</td>
+    <td> {{ el.Students.Login }}</td>
+</tr>
+{% endfor %}
+
+{% if students == [] %}
+<tr>
+    <td colspan="6">
+        <div> Данных не найдено </div>
+    </td>
+</tr>
+{% endif %}

@@ -3,14 +3,24 @@ from os import path, remove
 import hashlib
 import locale
 from docxtpl import DocxTemplate
-from flask import Blueprint, render_template, request, redirect, session, send_file
+from flask import Blueprint, render_template, request, redirect, session, send_file, jsonify
 from sqlalchemy import text
 from pymorphy2 import MorphAnalyzer
 import csv
 import re
-from models.models import Sheffofprojects, Organizations, Shefforganizations, Contracts, Specializations, Formstuding, Groups, Students, Studentsingroups, Competensions
+from models.models import (
+    Sheffofprojects,
+    Organizations,
+    Shefforganizations,
+    Contracts,
+    Specializations,
+    Formstuding,
+    Groups,
+    Students,
+    Studentsingroups,
+    Competensions,
+)
 from models.database import get_session, get_select
-
 
 morph = MorphAnalyzer()
 locale.setlocale(locale.LC_ALL, "ru_RU.UTF-8")
@@ -352,13 +362,24 @@ def route_contracts():
         select = get_select()
         db_sessions = get_session()
         select_org = select(Organizations).order_by(Organizations.orgName)
-        select_contracts = select(Contracts).order_by(Contracts.contractsNumber, Contracts.contractsStart)
-        select_contracts_order = select(Contracts).join(Organizations).order_by(Organizations.orgName, Contracts.contractsNumber, Contracts.contractsStart)
+        select_contracts = select(Contracts).order_by(
+            Contracts.contractsNumber, Contracts.contractsStart
+        )
+        select_contracts_order = (
+            select(Contracts)
+            .join(Organizations)
+            .order_by(Organizations.orgName, Contracts.contractsNumber, Contracts.contractsStart)
+        )
         contracts = db_sessions.execute(select_contracts).all()
         organizations = db_sessions.execute(select_org).all()
         contracts_order = db_sessions.execute(select_contracts_order).all()
 
-        return render_template("contracts.html", contracts=contracts, organizations=organizations, contracts_order=contracts_order)
+        return render_template(
+            "contracts.html",
+            contracts=contracts,
+            organizations=organizations,
+            contracts_order=contracts_order,
+        )
     if request.method == "POST":
         date_filters = request.form.get("dateContractFilter")
         org_filters = request.form.get("orgFilters")
@@ -448,15 +469,17 @@ def create_and_send_document():
     id_contract = args.get("idContract")
 
     db_sessions = get_session()
-    select = text('''SELECT p.contractsNumber, o.orgName, p.contractsFinish, o.orgYuraddress, o.orgPostaddress, p.contractsStart, s.shefforgDoc, s.shefforgFirstname as firstName, s.shefforgName as name, s.shefforgFathername as surname, s.shefforgPositions
+    select = text(
+        """SELECT p.contractsNumber, o.orgName, p.contractsFinish, o.orgYuraddress, o.orgPostaddress, p.contractsStart, s.shefforgDoc, s.shefforgFirstname as firstName, s.shefforgName as name, s.shefforgFathername as surname, s.shefforgPositions
         FROM projectsudycontracts p
             inner join organizations o on ( o.IDorg = p.IDorg )
             inner join shefforganizations s on ( s.IDshefforg = o.IDshefforg)
         WHERE
             p.IDcontracts = :id_contract
-        ''')
+        """
+    )
 
-    contract = db_sessions.execute(select, {'id_contract': id_contract}).first()
+    contract = db_sessions.execute(select, {"id_contract": id_contract}).first()
 
     if not contract:
         return
@@ -467,16 +490,64 @@ def create_and_send_document():
     context["contract_end_date"] = get_date(contract[2].strftime("%d.%m.%Y"))
     context["org_ur_address"] = contract[3]
     context["org_postal_address"] = contract[4]
-    context["contract_start_date"] = get_date(contract[5].strftime("%d.%m.%Y")) + ' г.'
-    document = [value for value in morph.parse(contract[6]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
-    first_name = [value for value in morph.parse(contract[7]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
-    name = [value for value in morph.parse(contract[8]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
-    sur_name = [value for value in morph.parse(contract[9]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
-    position = [value for value in morph.parse(contract[10]) if value.tag.number == 'sing' and value.tag.POS == 'NOUN' ][0].inflect({'gent'}).word
+    context["contract_start_date"] = get_date(contract[5].strftime("%d.%m.%Y")) + " г."
+    document = (
+        [
+            value
+            for value in morph.parse(contract[6])
+            if value.tag.number == "sing" and value.tag.POS == "NOUN"
+        ][0]
+        .inflect({"gent"})
+        .word
+    )
+    first_name = (
+        [
+            value
+            for value in morph.parse(contract[7])
+            if value.tag.number == "sing" and value.tag.POS == "NOUN"
+        ][0]
+        .inflect({"gent"})
+        .word
+    )
+    name = (
+        [
+            value
+            for value in morph.parse(contract[8])
+            if value.tag.number == "sing" and value.tag.POS == "NOUN"
+        ][0]
+        .inflect({"gent"})
+        .word
+    )
+    sur_name = (
+        [
+            value
+            for value in morph.parse(contract[9])
+            if value.tag.number == "sing" and value.tag.POS == "NOUN"
+        ][0]
+        .inflect({"gent"})
+        .word
+    )
+    position = (
+        [
+            value
+            for value in morph.parse(contract[10])
+            if value.tag.number == "sing" and value.tag.POS == "NOUN"
+        ][0]
+        .inflect({"gent"})
+        .word
+    )
     context["document"] = document
-    context["fio"] = contract[7] + ' ' + contract[8][0] + '. ' + contract[9][0] + '.'
+    context["fio"] = contract[7] + " " + contract[8][0] + ". " + contract[9][0] + "."
     context["position"] = contract[10].capitalize()
-    context["position_and_fio"] = position + ' ' + first_name.capitalize() + ' ' + name.capitalize() + ' ' + sur_name.capitalize()
+    context["position_and_fio"] = (
+        position
+        + " "
+        + first_name.capitalize()
+        + " "
+        + name.capitalize()
+        + " "
+        + sur_name.capitalize()
+    )
     filename = (
         "Договор "
         + str(contract.contractsNumber)
@@ -493,13 +564,24 @@ def create_and_send_document():
 
     return send_file(file_path, mimetype="multipart/form-data", as_attachment=True)
 
+
 def get_date(date):
-    month_list = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
-           'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря']
-    date_list = date.split('.')
-    return ('«' + date_list[0] + '» ' +
-        month_list[int(date_list[1]) - 1] + ' ' +
-        date_list[2])
+    month_list = [
+        "Января",
+        "Февраля",
+        "Марта",
+        "Апреля",
+        "Мая",
+        "Июня",
+        "Июля",
+        "Августа",
+        "Сентября",
+        "Октября",
+        "Ноября",
+        "Декабря",
+    ]
+    date_list = date.split(".")
+    return "«" + date_list[0] + "» " + month_list[int(date_list[1]) - 1] + " " + date_list[2]
 
 
 # получить подписанный договор
@@ -551,19 +633,25 @@ def delete_document():
     return redirect("/admin/contracts", code=307)
 
 
-@pages.route( "/admin/specializations", methods=["GET", "POST"])  # Специализации
+@pages.route("/admin/specializations", methods=["GET", "POST"])  # Специализации
 def specializations():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_spec = select(Specializations).order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
+        select_spec = select(Specializations).order_by(
+            Specializations.specShifr,
+            Specializations.specNapravlenie,
+            Specializations.specNapravlennost,
+        )
         specializations = db_sessions.execute(select_spec).all()
         return render_template("specializations.html", specializations=specializations)
     if request.method == "POST":
         shifr_filters = request.form.get("shifrFilters")
         napr_filters = request.form.get("naprFilters")
         where_shifr_filters = (
-            Specializations.specShifr.ilike("%" + shifr_filters + "%") if shifr_filters else text("1=1")
+            Specializations.specShifr.ilike("%" + shifr_filters + "%")
+            if shifr_filters
+            else text("1=1")
         )
         where_napr_filters = (
             Specializations.specNapravlenie.ilike("%" + napr_filters + "%")
@@ -576,7 +664,11 @@ def specializations():
             select(Specializations)
             .where(where_shifr_filters)
             .where(where_napr_filters)
-            .order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
+            .order_by(
+                Specializations.specShifr,
+                Specializations.specNapravlenie,
+                Specializations.specNapravlennost,
+            )
         )
         specializations = db_sessions.execute(select_spec).all()
         return render_template("resultTableSpecializations.html", specializations=specializations)
@@ -627,27 +719,49 @@ def modify_spec():
         return redirect("/admin/specializations")
 
 
-@pages.route( "/admin/groups", methods=["GET", "POST"])  #Группы
+@pages.route("/admin/groups", methods=["GET", "POST"])  # Группы
 def groups():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_tablegr = select(Groups, Formstuding.form_stName, Specializations.FullSpec).join(Formstuding).join(Specializations).order_by(Specializations.FullSpec, Groups.groupsName, Groups.groupsYear, Formstuding.form_stName)
+        select_tablegr = (
+            select(Groups, Formstuding.form_stName, Specializations.FullSpec)
+            .join(Formstuding)
+            .join(Specializations)
+            .order_by(
+                Specializations.FullSpec,
+                Groups.groupsName,
+                Groups.groupsYear,
+                Formstuding.form_stName,
+            )
+        )
         select_formst = select(Formstuding).order_by(Formstuding.form_stName)
         select_groups = select(Groups).order_by(Groups.groupsName)
-        select_spec = select(Specializations).order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
+        select_spec = select(Specializations).order_by(
+            Specializations.specShifr,
+            Specializations.specNapravlenie,
+            Specializations.specNapravlennost,
+        )
         formst = db_sessions.execute(select_formst).all()
         specializations = db_sessions.execute(select_spec).all()
         groups = db_sessions.execute(select_groups).all()
         groups_table = db_sessions.execute(select_tablegr).all()
-        return render_template("groups.html", formst=formst, specializations=specializations, groups=groups, groups_table=groups_table)
+        return render_template(
+            "groups.html",
+            formst=formst,
+            specializations=specializations,
+            groups=groups,
+            groups_table=groups_table,
+        )
 
     if request.method == "POST":
         form_education = request.form.get("formEducation")
         direct_study = request.form.get("directStudy")
         year_study = request.form.get("yearStudy")
         where_form_education = (
-            Formstuding.form_stName.ilike("%" + form_education + "%") if form_education else text("1=1")
+            Formstuding.form_stName.ilike("%" + form_education + "%")
+            if form_education
+            else text("1=1")
         )
         where_direct_study = (
             Specializations.specNapravlenie.ilike("%" + direct_study + "%")
@@ -655,20 +769,29 @@ def groups():
             else text("1=1")
         )
         where_year_study = (
-            Groups.groupsYear.ilike("%" + year_study + "%")
-            if year_study
-            else text("1=1")
+            Groups.groupsYear.ilike("%" + year_study + "%") if year_study else text("1=1")
         )
         select = get_select()
         db_sessions = get_session()
         select_group = (
-            select(Groups, Formstuding.form_stName, Specializations.FullSpec).join(Formstuding).join(Specializations).where(where_form_education).where(where_direct_study).where(where_year_study).order_by(Specializations.FullSpec, Groups.groupsName, Groups.groupsYear, Formstuding.form_stName)
+            select(Groups, Formstuding.form_stName, Specializations.FullSpec)
+            .join(Formstuding)
+            .join(Specializations)
+            .where(where_form_education)
+            .where(where_direct_study)
+            .where(where_year_study)
+            .order_by(
+                Specializations.FullSpec,
+                Groups.groupsName,
+                Groups.groupsYear,
+                Formstuding.form_stName,
+            )
         )
         groups_table = db_sessions.execute(select_group).all()
         return render_template("resultTableGroups.html", groups_table=groups_table)
 
 
-@pages.route( "/admin/addGroup", methods=["POST"])  #Добавить группы
+@pages.route("/admin/addGroup", methods=["POST"])  # Добавить группы
 def addgroups():
     db_sessions = get_session()
     grname = str(request.form["groupsName"])
@@ -676,17 +799,17 @@ def addgroups():
     formst = int(request.form["form_st"])
     spec = int(request.form["spec"])
     add = Groups(
-            groupsName=grname,
-            groupsYear=gryear,
-            IDform_st=formst,
-            IDspec=spec,
-        )
+        groupsName=grname,
+        groupsYear=gryear,
+        IDform_st=formst,
+        IDspec=spec,
+    )
     db_sessions.add(add)
     db_sessions.commit()
     return redirect("/admin/groups")
 
 
-@pages.route( "/admin/delGroup", methods=["POST"])  #Удалить группы
+@pages.route("/admin/delGroup", methods=["POST"])  # Удалить группы
 def delgroups():
     db_sessions = get_session()
     id_gr = int(request.form["delGroup"])
@@ -695,7 +818,7 @@ def delgroups():
     return redirect("/admin/groups")
 
 
-@pages.route( "/admin/modifyGroup", methods=["POST"])  #Редактировать группы
+@pages.route("/admin/modifyGroup", methods=["POST"])  # Редактировать группы
 def redgroups():
     db_sessions = get_session()
     id_gr = int(request.form["modifyGroups"])
@@ -716,108 +839,106 @@ def redgroups():
     return redirect("/admin/groups")
 
 
-#Загрузка csv в специализации
-@pages.route('/admin/csvSpec', methods=['POST'])
+# Загрузка csv в специализации
+@pages.route("/admin/csvSpec", methods=["POST"])
 def insert_csv_spec():
     try:
         upload_file = request.files.get("file")
         file_path = path.join("documents", upload_file.filename)
         upload_file.save(file_path)
-        with open(file_path, encoding='utf-8') as file:
+        with open(file_path, encoding="utf-8") as file:
             db_sessions = get_session()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
-                pattern = re.match(r'^[0-9]{2}\.[0-9]{2}\.[0-9]{2}$', row['Шифр'])
+                pattern = re.match(r"^[0-9]{2}\.[0-9]{2}\.[0-9]{2}$", row["Шифр"])
                 if not pattern:
-                    return 'Ошибка при валидации шифра ' + row['Шифр'], 400
+                    return "Ошибка при валидации шифра " + row["Шифр"], 400
                 add = Specializations(
-                    specShifr=row['Шифр'],
-                    specNapravlenie=row['Направление'],
-                    specNapravlennost=row['Направленность'],
+                    specShifr=row["Шифр"],
+                    specNapravlenie=row["Направление"],
+                    specNapravlennost=row["Направленность"],
                 )
                 db_sessions.add(add)
                 db_sessions.commit()
-        return '', 200
+        return "", 200
     finally:
         remove(file_path)
 
-#Загрузка csv в группы
-@pages.route('/admin/csvGroup', methods=['POST'])
+
+# Загрузка csv в группы
+@pages.route("/admin/csvGroup", methods=["POST"])
 def insert_csv_group():
     try:
         upload_file = request.files.get("file")
         file_path = path.join("documents", upload_file.filename)
         upload_file.save(file_path)
-        with open(file_path, encoding='utf-8') as file:
+        with open(file_path, encoding="utf-8") as file:
             db_sessions = get_session()
             select = get_select()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
-                napr = row['Направление'].split("-")
-                idform_st = db_sessions.execute(select(Formstuding.IDform_st).where(Formstuding.form_stName == row['Форма обучения'])).first()
-                idspec = db_sessions.execute(select(Specializations.IDspec).where(Specializations.specShifr == napr[0]).where(Specializations.specNapravlenie == napr[1]).where(Specializations.specNapravlennost == napr[2])).first()
+                napr = row["Направление"].split("-")
+                idform_st = db_sessions.execute(
+                    select(Formstuding.IDform_st).where(
+                        Formstuding.form_stName == row["Форма обучения"]
+                    )
+                ).first()
+                idspec = db_sessions.execute(
+                    select(Specializations.IDspec)
+                    .where(Specializations.specShifr == napr[0])
+                    .where(Specializations.specNapravlenie == napr[1])
+                    .where(Specializations.specNapravlennost == napr[2])
+                ).first()
                 add = Groups(
-                    groupsName=row['Название группы'],
-                    groupsYear=row['Год набора'],
+                    groupsName=row["Название группы"],
+                    groupsYear=row["Год набора"],
                     IDform_st=idform_st[0],
                     IDspec=idspec[0],
                 )
                 db_sessions.add(add)
                 db_sessions.commit()
-        return '', 200
+        return "", 200
     finally:
         remove(file_path)
 
 
-@pages.route( "/admin/students", methods=["GET", "POST"])  #Студенты
+@pages.route("/admin/students", methods=["GET", "POST"])  # Студенты
 def students():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_student = (select(Students.IDstudents, Students.FullName, Students.studentsStudbook, Students.studentsPhone, Students.studentsEmail, Students.Login, Studentsingroups, Groups.groupsName)
-                          .join_from(Students, Studentsingroups, Studentsingroups.IDstudents == Students.IDstudents, isouter=True,)
-                          .join_from(Studentsingroups, Groups, Studentsingroups.IDgroups == Groups.IDgroups, isouter=True,)
-                          .order_by(Groups.groupsName, Students.FullName)
-                          )
-        select_redstud = select(Students.IDstudents, Students.FullName, Students.studentsStudbook).order_by(Students.FullName)
-        select_studnotgroup = (select(Students.IDstudents, Students.FullName, Students.studentsStudbook, Studentsingroups)
-                               .join_from(
-            Students,
-            Studentsingroups,
-            Studentsingroups.IDstudents == Students.IDstudents,
-            isouter=True,
-        )
-                               .filter(Studentsingroups.IDgroups.is_(None))
-                               .order_by(Students.FullName)
-                               )
-        studnotgroup = db_sessions.execute(select_studnotgroup).all()
-        redstud = db_sessions.execute(select_redstud).all()
-        student = db_sessions.execute(select_student).all()
-        return render_template("students.html", studnotgroup=studnotgroup, redstud=redstud, student=student)
-    if request.method == "POST":
-        fio = request.form.get("fio")
-        grname = request.form.get("grname")
-        where_fio = (
-            Students.FullName.ilike("%" + fio + "%") if fio else text("1=1")
-        )
-        where_grname = (
-            Groups.groupsName.ilike("%" + grname + "%") if grname else text("1=1")
-        )
-        select = get_select()
-        db_sessions = get_session()
         select_student = (
-            select(Students.IDstudents, Students.FullName, Students.studentsStudbook, Students.studentsPhone,
-                   Students.studentsEmail, Students.Login, Studentsingroups, Groups.groupsName)
-            .join_from(Students, Studentsingroups, Studentsingroups.IDstudents == Students.IDstudents, isouter=True, )
-            .join_from(Studentsingroups, Groups, Studentsingroups.IDgroups == Groups.IDgroups, isouter=True, )
-            .where(where_fio)
-            .where(where_grname)
-            .order_by(Groups.groupsName, Students.FullName)
+            select(
+                Students.IDstudents,
+                Students.FullName,
+                Students.studentsStudbook,
+                Students.studentsPhone,
+                Students.studentsEmail,
+                Students.Login,
+                Studentsingroups,
+                Groups.groupsName,
             )
-        select_redstud = select(Students.IDstudents, Students.FullName, Students.studentsStudbook).order_by(
-            Students.FullName)
+            .join_from(
+                Students,
+                Studentsingroups,
+                Studentsingroups.IDstudents == Students.IDstudents,
+                isouter=True,
+            )
+            .join_from(
+                Studentsingroups,
+                Groups,
+                Studentsingroups.IDgroups == Groups.IDgroups,
+                isouter=True,
+            )
+            .order_by(Groups.groupsName, Students.FullName)
+        )
+        select_redstud = select(
+            Students.IDstudents, Students.FullName, Students.studentsStudbook
+        ).order_by(Students.FullName)
         select_studnotgroup = (
-            select(Students.IDstudents, Students.FullName, Students.studentsStudbook, Studentsingroups)
+            select(
+                Students.IDstudents, Students.FullName, Students.studentsStudbook, Studentsingroups
+            )
             .join_from(
                 Students,
                 Studentsingroups,
@@ -826,14 +947,72 @@ def students():
             )
             .filter(Studentsingroups.IDgroups.is_(None))
             .order_by(Students.FullName)
-            )
+        )
         studnotgroup = db_sessions.execute(select_studnotgroup).all()
         redstud = db_sessions.execute(select_redstud).all()
         student = db_sessions.execute(select_student).all()
-        return render_template("resultTableStudents.html", studnotgroup=studnotgroup, redstud=redstud, student=student)
+        return render_template(
+            "students.html", studnotgroup=studnotgroup, redstud=redstud, student=student
+        )
+    if request.method == "POST":
+        fio = request.form.get("fio")
+        grname = request.form.get("grname")
+        where_fio = Students.FullName.ilike("%" + fio + "%") if fio else text("1=1")
+        where_grname = Groups.groupsName.ilike("%" + grname + "%") if grname else text("1=1")
+        select = get_select()
+        db_sessions = get_session()
+        select_student = (
+            select(
+                Students.IDstudents,
+                Students.FullName,
+                Students.studentsStudbook,
+                Students.studentsPhone,
+                Students.studentsEmail,
+                Students.Login,
+                Studentsingroups,
+                Groups.groupsName,
+            )
+            .join_from(
+                Students,
+                Studentsingroups,
+                Studentsingroups.IDstudents == Students.IDstudents,
+                isouter=True,
+            )
+            .join_from(
+                Studentsingroups,
+                Groups,
+                Studentsingroups.IDgroups == Groups.IDgroups,
+                isouter=True,
+            )
+            .where(where_fio)
+            .where(where_grname)
+            .order_by(Groups.groupsName, Students.FullName)
+        )
+        select_redstud = select(
+            Students.IDstudents, Students.FullName, Students.studentsStudbook
+        ).order_by(Students.FullName)
+        select_studnotgroup = (
+            select(
+                Students.IDstudents, Students.FullName, Students.studentsStudbook, Studentsingroups
+            )
+            .join_from(
+                Students,
+                Studentsingroups,
+                Studentsingroups.IDstudents == Students.IDstudents,
+                isouter=True,
+            )
+            .filter(Studentsingroups.IDgroups.is_(None))
+            .order_by(Students.FullName)
+        )
+        studnotgroup = db_sessions.execute(select_studnotgroup).all()
+        redstud = db_sessions.execute(select_redstud).all()
+        student = db_sessions.execute(select_student).all()
+        return render_template(
+            "resultTableStudents.html", studnotgroup=studnotgroup, redstud=redstud, student=student
+        )
 
 
-@pages.route( "/admin/addStudents", methods=["POST"])  #Добавить студента
+@pages.route("/admin/addStudents", methods=["POST"])  # Добавить студента
 def addstudents():
     if request.method == "POST":
         db_sessions = get_session()
@@ -862,7 +1041,7 @@ def addstudents():
         return redirect("/admin/students")
 
 
-@pages.route( "/admin/delStudent", methods=["POST"])  #Удалить студента
+@pages.route("/admin/delStudent", methods=["POST"])  # Удалить студента
 def delstudents():
     db_sessions = get_session()
     id_st = int(request.form["delStudent"])
@@ -871,7 +1050,7 @@ def delstudents():
     return redirect("/admin/students")
 
 
-@pages.route( "/admin/modifyStudent", methods=["POST"])  #Редактировать студента
+@pages.route("/admin/modifyStudent", methods=["POST"])  # Редактировать студента
 def modifyStudent():
     db_sessions = get_session()
     id_stud = int(request.form["redStudents"])
@@ -906,48 +1085,55 @@ def modifyStudent():
     return redirect("/admin/students")
 
 
-@pages.route('/admin/csvStud', methods=['POST'])
+@pages.route("/admin/csvStud", methods=["POST"])
 def insert_csv_stud():
     try:
         upload_file = request.files.get("file")
         file_path = path.join("documents", upload_file.filename)
         upload_file.save(file_path)
-        with open(file_path, encoding='utf-8') as file:
+        with open(file_path, encoding="utf-8") as file:
             db_sessions = get_session()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
-                password = row['Пароль']
+                password = row["Пароль"]
                 password = hashlib.md5(password.encode())
                 password = password.hexdigest()
-                pattern_email = re.match(r'^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$', row['Электронная почта'])
-                pattern_phone = re.match(r'^\+7[0-9]{10}$', row['Телефон'])
+                pattern_email = re.match(
+                    r"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$",
+                    row["Электронная почта"],
+                )
+                pattern_phone = re.match(r"^\+7[0-9]{10}$", row["Телефон"])
                 if not pattern_email:
-                    return 'Неверный формат почты (' + row['Электронная почта'] + ')', 400
+                    return "Неверный формат почты (" + row["Электронная почта"] + ")", 400
                 if not pattern_phone:
-                    return 'Неверный формат телефона (' + row['Телефон'] + ')', 400
+                    return "Неверный формат телефона (" + row["Телефон"] + ")", 400
                 add = Students(
-                    studentsFirstname=row['Фамилия'],
-                    studentsName=row['Имя'],
-                    studentsFathername=row['Отчество'],
-                    studentsStudbook=row['№ зачетной книжки'],
-                    studentsPhone=row['Телефон'],
-                    studentsEmail=row['Электронная почта'],
-                    Login=row['Логин'],
+                    studentsFirstname=row["Фамилия"],
+                    studentsName=row["Имя"],
+                    studentsFathername=row["Отчество"],
+                    studentsStudbook=row["№ зачетной книжки"],
+                    studentsPhone=row["Телефон"],
+                    studentsEmail=row["Электронная почта"],
+                    Login=row["Логин"],
                     Pass=password,
                 )
                 db_sessions.add(add)
                 db_sessions.commit()
-        return '', 200
+        return "", 200
     finally:
         remove(file_path)
 
 
-@pages.route( "/admin/competitions", methods=["GET", "POST"])  #Компетенции учебных планов
+@pages.route("/admin/competitions", methods=["GET", "POST"])  # Компетенции учебных планов
 def competitions():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_sp = select(Specializations).order_by(Specializations.specShifr, Specializations.specNapravlenie, Specializations.specNapravlennost)
+        select_sp = select(Specializations).order_by(
+            Specializations.specShifr,
+            Specializations.specNapravlenie,
+            Specializations.specNapravlennost,
+        )
         spec = db_sessions.execute(select_sp).all()
         return render_template("competitions.html", spec=spec)
     if request.method == "POST":
@@ -965,7 +1151,7 @@ def competitions():
         return render_template("resultTableCompetitions.html", competitions=competitions)
 
 
-@pages.route( "/admin/addCompetition", methods=["POST"])  #Добавить компетенцию учебного плана
+@pages.route("/admin/addCompetition", methods=["POST"])  # Добавить компетенцию учебного плана
 def addcompetitions():
     db_sessions = get_session()
     id_spec = int(request.form["specialization"])
@@ -980,3 +1166,66 @@ def addcompetitions():
     db_sessions.commit()
     return redirect("/admin/competitions")
 
+
+# Учащиеся в группе
+@pages.route("/admin/group-members", methods=["GET", "POST"])
+def group_members():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        select_group = select(Groups).order_by(Groups.groupsName)
+        groups = db_sessions.execute(select_group).all()
+        id_group = groups[0].Groups.IDgroups
+        select_students = (
+            select(Students, Studentsingroups.IDgroups)
+            .join(Studentsingroups)
+            .order_by(Students.FullName)
+        )
+        students = db_sessions.execute(select_students).all()
+        return render_template(
+            "group-members.html", groups=groups, students=students, id_group=id_group
+        )
+    if request.method == "POST":
+        id_group = request.form["group"]
+        select = get_select()
+        db_sessions = get_session()
+        select_students = (
+            select(Students, Groups.groupsName)
+            .join_from(
+                Students,
+                Studentsingroups,
+                Studentsingroups.IDstudents == Students.IDstudents,
+                isouter=True,
+            )
+            .join_from(
+                Studentsingroups,
+                Groups,
+                Studentsingroups.IDgroups == Groups.IDgroups,
+                isouter=True,
+            )
+            .filter(Studentsingroups.IDgroups == id_group)
+            .order_by(Students.FullName)
+        )
+        students = db_sessions.execute(select_students).all()
+        return render_template("resultTableGroupMembers.html", students=students)
+
+
+@pages.route("/admin/getStudentsGroup", methods=["GET"])
+def get_students_group():
+    args = request.args
+    id_group = args.get("idGroup")
+    select = get_select()
+    db_sessions = get_session()
+    select_students = (
+        select(Students.IDstudents, Students.FullName, Students.studentsStudbook)
+        .join_from(
+            Students,
+            Studentsingroups,
+            Studentsingroups.IDstudents == Students.IDstudents,
+            isouter=True,
+        )
+        .filter(Studentsingroups.IDgroups != id_group)
+        .order_by(Students.FullName)
+    )
+    students = db_sessions.execute(select_students).all()
+    return jsonify([dict(row._mapping) for row in students]), 200

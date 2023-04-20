@@ -4,27 +4,26 @@ function applySpecFilters() {
   if (!shifrFilters && !naprFilters) {
     return;
   }
-  getData(shifrFilters, naprFilters)
+  getDataSpec(shifrFilters, naprFilters);
 }
-
 
 function dropSpecFilters() {
-  getData(null, null)
+  getDataSpec(null, null);
 }
 
-function getData(shifrFilters, naprFilters) {
+function getDataSpec(shifrFilters, naprFilters) {
   $.ajax({
     type: "POST",
     url: "/admin/specializations",
     dataSrc: "data",
     data: { shifrFilters, naprFilters },
     success: function (data) {
-      const table = document.getElementById("collapseTableBody")
+      const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;
-      table.className = 'collapse show'
+      table.className = "collapse show";
     },
     error: function (err) {
-      console.log(err)
+      console.log(err);
     },
   });
 }

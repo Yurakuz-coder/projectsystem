@@ -4,26 +4,26 @@ function applyFilters() {
   if (!fioFilter && !orgFilter) {
     return;
   }
-  getData(fioFilter, orgFilter)
+  getDataSheffOrg(fioFilter, orgFilter);
 }
 
 function dropFilter() {
-  getData(null, null)
+  getDataSheffOrg(null, null);
 }
 
-function getData(fioFilter, orgFilter) {
+function getDataSheffOrg(fioFilter, orgFilter) {
   $.ajax({
     type: "POST",
     url: "/admin/reg_shefforg",
     dataSrc: "data",
     data: { fioFilter, orgFilter },
     success: function (data) {
-      const table = document.getElementById("collapseTableBody")
+      const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;
-      table.className = 'collapse show'
+      table.className = "collapse show";
     },
     error: function (err) {
-      console.log(err)
+      console.log(err);
     },
   });
 }
