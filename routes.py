@@ -915,19 +915,12 @@ def students():
                 Students.studentsPhone,
                 Students.studentsEmail,
                 Students.Login,
-                Studentsingroups,
                 Groups.groupsName,
             )
             .join_from(
                 Students,
-                Studentsingroups,
-                Studentsingroups.IDstudents == Students.IDstudents,
-                isouter=True,
-            )
-            .join_from(
-                Studentsingroups,
                 Groups,
-                Studentsingroups.IDgroups == Groups.IDgroups,
+                Students.IDgroups == Groups.IDgroups,
                 isouter=True,
             )
             .order_by(Groups.groupsName, Students.FullName)
@@ -936,23 +929,21 @@ def students():
             Students.IDstudents, Students.FullName, Students.studentsStudbook
         ).order_by(Students.FullName)
         select_studnotgroup = (
-            select(
-                Students.IDstudents, Students.FullName, Students.studentsStudbook, Studentsingroups
-            )
-            .join_from(
-                Students,
-                Studentsingroups,
-                Studentsingroups.IDstudents == Students.IDstudents,
-                isouter=True,
-            )
-            .filter(Studentsingroups.IDgroups.is_(None))
+            select(Students.IDstudents, Students.FullName, Students.studentsStudbook)
+            .filter(Students.IDgroups == None)
             .order_by(Students.FullName)
         )
+        select_groups = select(Groups).order_by(Groups.groupsName)
         studnotgroup = db_sessions.execute(select_studnotgroup).all()
         redstud = db_sessions.execute(select_redstud).all()
         student = db_sessions.execute(select_student).all()
+        groups = db_sessions.execute(select_groups).all()
         return render_template(
-            "students.html", studnotgroup=studnotgroup, redstud=redstud, student=student
+            "students.html",
+            studnotgroup=studnotgroup,
+            redstud=redstud,
+            student=student,
+            groups=groups,
         )
     if request.method == "POST":
         fio = request.form.get("fio")
@@ -1168,100 +1159,100 @@ def addcompetitions():
 
 
 # Учащиеся в группе
-@pages.route("/admin/group-members", methods=["GET", "POST"])
-def group_members():
-    if request.method == "GET":
-        select = get_select()
-        db_sessions = get_session()
-        select_group = select(Groups).order_by(Groups.groupsName)
-        groups = db_sessions.execute(select_group).all()
-        return render_template(
-            "group-members.html", groups=groups
-        )
-    if request.method == "POST":
-        id_group = request.form["group"]
-        select = get_select()
-        db_sessions = get_session()
-        select_students = (
-            select(Students, Groups.groupsName)
-            .join_from(
-                Students,
-                Studentsingroups,
-                Studentsingroups.IDstudents == Students.IDstudents,
-                isouter=True,
-            )
-            .join_from(
-                Studentsingroups,
-                Groups,
-                Studentsingroups.IDgroups == Groups.IDgroups,
-                isouter=True,
-            )
-            .filter(Studentsingroups.IDgroups == id_group)
-            .order_by(Students.FullName)
-        )
-        students = db_sessions.execute(select_students).all()
-        return render_template("resultTableGroupMembers.html", students=students)
+# @pages.route("/admin/group-members", methods=["GET", "POST"])
+# def group_members():
+#     if request.method == "GET":
+#         select = get_select()
+#         db_sessions = get_session()
+#         select_group = select(Groups).order_by(Groups.groupsName)
+#         groups = db_sessions.execute(select_group).all()
+#         return render_template(
+#             "group-members.html", groups=groups
+#         )
+#     if request.method == "POST":
+#         id_group = request.form["group"]
+#         select = get_select()
+#         db_sessions = get_session()
+#         select_students = (
+#             select(Students, Groups.groupsName)
+#             .join_from(
+#                 Students,
+#                 Studentsingroups,
+#                 Studentsingroups.IDstudents == Students.IDstudents,
+#                 isouter=True,
+#             )
+#             .join_from(
+#                 Studentsingroups,
+#                 Groups,
+#                 Studentsingroups.IDgroups == Groups.IDgroups,
+#                 isouter=True,
+#             )
+#             .filter(Studentsingroups.IDgroups == id_group)
+#             .order_by(Students.FullName)
+#         )
+#         students = db_sessions.execute(select_students).all()
+#         return render_template("resultTableGroupMembers.html", students=students)
 
 
-@pages.route("/admin/getStudentsGroup", methods=["GET"])
-def get_students_group():
-    args = request.args
-    id_group = args.get("idGroup")
-    operation = args.get("op")
-    select = get_select()
-    db_sessions = get_session()
-    if (operation == 'add'):
-        filt = (Studentsingroups.IDgroups != id_group) | (Studentsingroups.IDgroups == None)
-    else:
-        filt = Studentsingroups.IDgroups == id_group
-    select_students = (
-        select(Students.IDstudents, Students.FullName, Students.studentsStudbook)
-        .distinct(Students.IDstudents, Students.FullName, Students.studentsStudbook)
-        .join_from(
-            Students,
-            Studentsingroups,
-            Studentsingroups.IDstudents == Students.IDstudents,
-            isouter=True,
-        )
-        .filter(filt)
-        .order_by(Students.FullName)
-    )
-    students = db_sessions.execute(select_students).all()
-    return jsonify([dict(row._mapping) for row in students]), 200
+# @pages.route("/admin/getStudentsGroup", methods=["GET"])
+# def get_students_group():
+#     args = request.args
+#     id_group = args.get("idGroup")
+#     operation = args.get("op")
+#     select = get_select()
+#     db_sessions = get_session()
+#     if (operation == 'add'):
+#         filt = (Studentsingroups.IDgroups != id_group) | (Studentsingroups.IDgroups == None)
+#     else:
+#         filt = Studentsingroups.IDgroups == id_group
+#     select_students = (
+#         select(Students.IDstudents, Students.FullName, Students.studentsStudbook)
+#         .distinct(Students.IDstudents, Students.FullName, Students.studentsStudbook)
+#         .join_from(
+#             Students,
+#             Studentsingroups,
+#             Studentsingroups.IDstudents == Students.IDstudents,
+#             isouter=True,
+#         )
+#         .filter(filt)
+#         .order_by(Students.FullName)
+#     )
+#     students = db_sessions.execute(select_students).all()
+#     return jsonify([dict(row._mapping) for row in students]), 200
 
 
-@pages.route("/admin/addGroupMember", methods=["POST"])
-def add_group_member():
-    db_sessions = get_session()
-    group = str(request.form["group"])
-    student = int(request.form["student"])
-    add = Studentsingroups(
-        IDstudents=student,
-        IDgroups=group
-    )
-    db_sessions.add(add)
-    db_sessions.commit()
-    return redirect("/admin/group-members")
+# @pages.route("/admin/addGroupMember", methods=["POST"])
+# def add_group_member():
+#     db_sessions = get_session()
+#     group = str(request.form["group"])
+#     student = int(request.form["student"])
+#     add = Studentsingroups(
+#         IDstudents=student,
+#         IDgroups=group
+#     )
+#     db_sessions.add(add)
+#     db_sessions.commit()
+#     return redirect("/admin/group-members")
 
 
-@pages.route("/admin/deleteGroupMember", methods=["POST"])
-def del_group_member():
-    db_sessions = get_session()
-    group = int(request.form["group"])
-    student = int(request.form["student"])
-    db_sessions.query(Studentsingroups).filter(Studentsingroups.IDgroups == group).filter(Studentsingroups.IDstudents == student).delete()
-    db_sessions.commit()
-    return redirect("/admin/group-members")
+# @pages.route("/admin/deleteGroupMember", methods=["POST"])
+# def del_group_member():
+#     db_sessions = get_session()
+#     group = int(request.form["group"])
+#     student = int(request.form["student"])
+#     db_sessions.query(Studentsingroups).filter(Studentsingroups.IDgroups == group).filter(Studentsingroups.IDstudents == student).delete()
+#     db_sessions.commit()
+#     return redirect("/admin/group-members")
 
 
-@pages.route("/admin/modifyGroupMember", methods=["POST"])
-def red_group_member():
-    db_sessions = get_session()
-    old_group = str(request.form["oldGroup"])
-    new_group = str(request.form["newGroup"])
-    student = int(request.form["student"])
-    npr = db_sessions.query(Studentsingroups).filter(Studentsingroups.IDgroups == old_group).filter(Studentsingroups.IDstudents == student).first()
-    if str(new_group) != "":
-        npr.IDgroups = str(new_group)
-    db_sessions.commit()
-    return redirect("/admin/group-members")
+# @pages.route("/admin/modifyGroupMember", methods=["POST"])
+# def red_group_member():
+#     db_sessions = get_session()
+#     old_group = str(request.form["oldGroup"])
+#     new_group = str(request.form["newGroup"])
+#     student = int(request.form["student"])
+#     npr = db_sessions.query(Studentsingroups).filter(Studentsingroups.IDgroups == old_group).filter(Studentsingroups.IDstudents == student).first()
+#     if str(new_group) != "":
+#         npr.IDgroups = str(new_group)
+#     db_sessions.commit()
+#     return redirect("/admin/group-members")

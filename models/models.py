@@ -92,6 +92,7 @@ class Groups(Base):
 class Students(Base):
     __tablename__ = "students"
     IDstudents = mapped_column(Integer, primary_key=True)
+    IDgroups = mapped_column(ForeignKey("groups.IDgroups"))
     studentsFirstname = mapped_column(String(255), nullable=False)
     studentsName = mapped_column(String(255), nullable=False)
     studentsFathername = mapped_column(String(255))
@@ -108,6 +109,7 @@ class Studentsingroups(Base):
     IDstingr = mapped_column(Integer, primary_key=True)
     IDstudents = mapped_column(ForeignKey("students.IDstudents"))
     IDgroups = mapped_column(ForeignKey("groups.IDgroups"))
+
 
 class Competensions(Base):
     __tablename__ = "competensions"
