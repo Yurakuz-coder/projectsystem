@@ -162,7 +162,7 @@
           <div class="form-group">
             <label for="delStudent" class="form-select-label">Выберите студента</label>
             <select class="form-select" aria-label="Default select example" name="delStudent">
-              {% for el in studnotgroup %}
+              {% for el in student %}
               <option value="{{ el[0] }}"> {{ el[1] }} - {{ el[2] }}</option>
               {% endfor %}
             </select>
@@ -187,11 +187,27 @@
       <div class="modal-body">
         <form action="modifyStudent" method="post">
           <div class="form-group">
+            <label for="group" class="form-select-label">Выберите группу</label>
+            <select class="form-select" aria-label="Default select example" name="group"
+              onchange="getStudentsGroup(this.value)" id="modifyGroup" required>
+              {% for el in groups %}
+
+              <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{
+                el.Groups.groupsYear }}</option>
+
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
             <label for="redStudents" class="form-select-label">Выберите студента</label>
-            <select class="form-select" aria-label="Default select example" name="redStudents">
-              {% for el in redstud %}
+            <select class="form-select" {% if modify_student==[] %} disabled {% endif %}
+              aria-label="Default select example" name="redStudents" id="redStudents" required>
+              {% for el in modify_student %}
               <option value="{{ el[0] }}"> {{ el[1] }} - {{ el[2] }}</option>
               {% endfor %}
+              {% if modify_student == [] %}
+              <option value="0">Студент не найден</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -212,7 +228,7 @@
           </div>
           <div class="form-group">
             <label for="spec" class="form-select-label">Выберите группу</label>
-            <select class="form-select" aria-label="Default select example" id="group" name="group">
+            <select class="form-select" aria-label="Default select example" id="newGroup" name="newGroup">
               {% for el in groups %}
               <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{ el.Groups.groupsYear }}</option>
               {% endfor %}
@@ -238,7 +254,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" id="modifyStudentSave" class="btn btn-primary" {% if modify_student==[] %} disabled {%
+              endif %}>Сохранить</button>
           </div>
         </form>
       </div>

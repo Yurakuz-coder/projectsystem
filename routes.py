@@ -925,31 +925,36 @@ def students():
             )
             .order_by(Groups.groupsName, Students.FullName)
         )
-        select_redstud = select(
-            Students.IDstudents, Students.FullName, Students.studentsStudbook
-        ).order_by(Students.FullName)
-        select_studnotgroup = (
-            select(Students.IDstudents, Students.FullName, Students.studentsStudbook)
-            .filter(Students.IDgroups == None)
-            .order_by(Students.FullName)
-        )
         select_groups = select(Groups).order_by(Groups.groupsName)
-        studnotgroup = db_sessions.execute(select_studnotgroup).all()
-        redstud = db_sessions.execute(select_redstud).all()
-        student = db_sessions.execute(select_student).all()
         groups = db_sessions.execute(select_groups).all()
+        select_modify_student = (
+            select(
+                Students.IDstudents,
+                Students.FullName,
+                Students.studentsStudbook
+            )
+            .join_from(
+                Students,
+                Groups,
+                Students.IDgroups == Groups.IDgroups,
+                isouter=True,
+            )
+            .filter(Groups.IDgroups == groups[0].Groups.IDgroups)
+            .order_by(Groups.groupsName, Students.FullName)
+        )
+        student = db_sessions.execute(select_student).all()
+        modify_student = db_sessions.execute(select_modify_student).all()
         return render_template(
             "students.html",
-            studnotgroup=studnotgroup,
-            redstud=redstud,
             student=student,
             groups=groups,
+            modify_student=modify_student
         )
     if request.method == "POST":
         fio = request.form.get("fio")
         grname = request.form.get("grname")
         where_fio = Students.FullName.ilike("%" + fio + "%") if fio else text("1=1")
-        where_grname = Groups.groupsName.ilike("%" + grname + "%") if grname else text("1=1")
+        where_grname = Groups.IDgroups == grname if grname else text("1=1")
         select = get_select()
         db_sessions = get_session()
         select_student = (
@@ -965,41 +970,17 @@ def students():
             )
             .join_from(
                 Students,
-                Studentsingroups,
-                Studentsingroups.IDstudents == Students.IDstudents,
-                isouter=True,
-            )
-            .join_from(
-                Studentsingroups,
                 Groups,
-                Studentsingroups.IDgroups == Groups.IDgroups,
+                Students.IDgroups == Groups.IDgroups,
                 isouter=True,
             )
             .where(where_fio)
             .where(where_grname)
             .order_by(Groups.groupsName, Students.FullName)
         )
-        select_redstud = select(
-            Students.IDstudents, Students.FullName, Students.studentsStudbook
-        ).order_by(Students.FullName)
-        select_studnotgroup = (
-            select(
-                Students.IDstudents, Students.FullName, Students.studentsStudbook, Studentsingroups
-            )
-            .join_from(
-                Students,
-                Studentsingroups,
-                Studentsingroups.IDstudents == Students.IDstudents,
-                isouter=True,
-            )
-            .filter(Studentsingroups.IDgroups.is_(None))
-            .order_by(Students.FullName)
-        )
-        studnotgroup = db_sessions.execute(select_studnotgroup).all()
-        redstud = db_sessions.execute(select_redstud).all()
         student = db_sessions.execute(select_student).all()
         return render_template(
-            "resultTableStudents.html", studnotgroup=studnotgroup, redstud=redstud, student=student
+            "resultTableStudents.html", student=student
         )
 
 
@@ -1015,12 +996,14 @@ def addstudents():
         em = str(request.form["studentsEmail"])
         login = str(request.form["Login"])
         password = str(request.form["Pass"])
+        idgroup = int(request.form['group'])
         passw = hashlib.md5(password.encode())
         passw = passw.hexdigest()
         add = Students(
             studentsFirstname=fname,
             studentsName=name,
             studentsFathername=lname,
+            IDgroups=idgroup,
             studentsStudbook=book,
             studentsPhone=tel,
             studentsEmail=em,
@@ -1053,6 +1036,7 @@ def modifyStudent():
     em = request.form["redstudentsEmail"]
     login = request.form["redLogin"]
     password = request.form["redPass"]
+    idgroup = int(request.form['newGroup'])
     npr = db_sessions.query(Students).filter(Students.IDstudents == id_stud).first()
     if str(fname) != "":
         npr.studentsFirstname = str(fname)
@@ -1068,6 +1052,8 @@ def modifyStudent():
         npr.studentsEmail = str(em)
     if str(login) != "":
         npr.Login = str(login)
+    if str(idgroup) != "":
+        npr.IDgroups = str(idgroup)
     if str(password) != "":
         password = hashlib.md5(password.encode())
         password = password.hexdigest()
@@ -1157,6 +1143,20 @@ def addcompetitions():
     db_sessions.commit()
     return redirect("/admin/competitions")
 
+@pages.route("/admin/getStudentsGroup", methods=["GET"])
+def get_students_group():
+    args = request.args
+    id_group = args.get("idGroup")
+    select = get_select()
+    db_sessions = get_session()
+    select_students = (
+        select(Students.IDstudents, Students.FullName, Students.studentsStudbook)
+        .filter(Students.IDgroups == id_group)
+        .order_by(Students.FullName)
+    )
+    students = db_sessions.execute(select_students).all()
+    return jsonify([dict(row._mapping) for row in students]), 200
+
 
 # Учащиеся в группе
 # @pages.route("/admin/group-members", methods=["GET", "POST"])
@@ -1194,31 +1194,7 @@ def addcompetitions():
 #         return render_template("resultTableGroupMembers.html", students=students)
 
 
-# @pages.route("/admin/getStudentsGroup", methods=["GET"])
-# def get_students_group():
-#     args = request.args
-#     id_group = args.get("idGroup")
-#     operation = args.get("op")
-#     select = get_select()
-#     db_sessions = get_session()
-#     if (operation == 'add'):
-#         filt = (Studentsingroups.IDgroups != id_group) | (Studentsingroups.IDgroups == None)
-#     else:
-#         filt = Studentsingroups.IDgroups == id_group
-#     select_students = (
-#         select(Students.IDstudents, Students.FullName, Students.studentsStudbook)
-#         .distinct(Students.IDstudents, Students.FullName, Students.studentsStudbook)
-#         .join_from(
-#             Students,
-#             Studentsingroups,
-#             Studentsingroups.IDstudents == Students.IDstudents,
-#             isouter=True,
-#         )
-#         .filter(filt)
-#         .order_by(Students.FullName)
-#     )
-#     students = db_sessions.execute(select_students).all()
-#     return jsonify([dict(row._mapping) for row in students]), 200
+
 
 
 # @pages.route("/admin/addGroupMember", methods=["POST"])
