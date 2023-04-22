@@ -907,24 +907,6 @@ def students():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_student = (
-            select(
-                Students.IDstudents,
-                Students.FullName,
-                Students.studentsStudbook,
-                Students.studentsPhone,
-                Students.studentsEmail,
-                Students.Login,
-                Groups.groupsName,
-            )
-            .join_from(
-                Students,
-                Groups,
-                Students.IDgroups == Groups.IDgroups,
-                isouter=True,
-            )
-            .order_by(Groups.groupsName, Students.FullName)
-        )
         select_groups = select(Groups).order_by(Groups.groupsName)
         groups = db_sessions.execute(select_groups).all()
         select_modify_student = (
@@ -942,11 +924,10 @@ def students():
             .filter(Groups.IDgroups == groups[0].Groups.IDgroups)
             .order_by(Groups.groupsName, Students.FullName)
         )
-        student = db_sessions.execute(select_student).all()
         modify_student = db_sessions.execute(select_modify_student).all()
         return render_template(
             "students.html",
-            student=student,
+            student=modify_student,
             groups=groups,
             modify_student=modify_student
         )
