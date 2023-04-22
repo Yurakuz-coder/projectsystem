@@ -105,25 +105,28 @@
       <div class="modal-body">
         <form action="modifyCompetition" method="post">
           <div class="form-group">
-            <label for="competetion" class="form-select-label">Выберите компетенцию</label>
-            <select class="form-select" aria-label="Default select example" name="competetion">
-              {% for el in competitions %}
-              <option value="{{ el.Competensions.IDcompetensions }}">{{ el[1] }} - {{
-                el.Competensions.competensionsShifr }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="form-group">
             <label for="specialization" class="form-select-label">Выберите специализацию</label>
-            <select class="form-select" aria-label="Default select example" name="specialization">
-              <option value="" />
+            <select class="form-select" aria-label="Default select example" name="specialization"
+              onchange="getCompetitions(this.value, 'modify')">
               {% for el in spec %}
               <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
                 el.Specializations.specNapravlenie }} - {{
                 el.Specializations.specNapravlennost }}
               </option>
               {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="competetion" class="form-select-label">Выберите компетенцию</label>
+            <select class="form-select" aria-label="Default select example" id="modifyComp" name="competetion" required>
+              {% for el in competitions %}
+              <option value="{{ el.Competensions.IDcompetensions }}">{{
+                el.Competensions.competensionsShifr }}
+              </option>
+              {% endfor %}
+              {% if competitions == [] %}
+              <option value="">Компетенции не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -136,7 +139,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" id="modifyCompButton">Сохранить</button>
           </div>
         </form>
       </div>
@@ -154,18 +157,33 @@
       <div class="modal-body">
         <form action="deleteCompetition" method="post">
           <div class="form-group">
-            <label for="competetion" class="form-select-label">Выберите компетенцию</label>
-            <select class="form-select" aria-label="Default select example" name="competetion">
-              {% for el in competitions %}
-              <option value="{{ el.Competensions.IDcompetensions }}"> {{
-                el.Competensions.competensionsShifr }} - {{ el[1] }}
+            <label for="specialization" class="form-select-label">Выберите специализацию</label>
+            <select class="form-select" aria-label="Default select example" name="specialization"
+              onchange="getCompetitions(this.value, 'delete')">
+              {% for el in spec %}
+              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
+                el.Specializations.specNapravlenie }} - {{
+                el.Specializations.specNapravlennost }}
               </option>
               {% endfor %}
             </select>
           </div>
+          <div class="form-group">
+            <label for="competetion" class="form-select-label">Выберите компетенцию</label>
+            <select class="form-select" aria-label="Default select example" id="deleteComp" name="competetion" required>
+              {% for el in competitions %}
+              <option value="{{ el.Competensions.IDcompetensions }}">{{
+                el.Competensions.competensionsShifr }}
+              </option>
+              {% endfor %}
+              {% if competitions == [] %}
+              <option value="">Компетенции не найдены</option>
+              {% endif %}
+            </select>
+          </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-danger">Удалить</button>
+            <button type="submit" class="btn btn-danger" id="deleteCompButton">Удалить</button>
           </div>
         </form>
       </div>

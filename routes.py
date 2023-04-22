@@ -909,6 +909,25 @@ def students():
         db_sessions = get_session()
         select_groups = select(Groups).order_by(Groups.groupsName)
         groups = db_sessions.execute(select_groups).all()
+        select_student = (
+            select(
+                Students.IDstudents,
+                Students.FullName,
+                Students.studentsStudbook,
+                Students.studentsPhone,
+                Students.studentsEmail,
+                Students.Login,
+                Groups.groupsName,
+            )
+            .join_from(
+                Students,
+                Groups,
+                Students.IDgroups == Groups.IDgroups,
+                isouter=True,
+            )
+            .filter(Groups.IDgroups == groups[0].Groups.IDgroups)
+            .order_by(Groups.groupsName, Students.FullName)
+        )
         select_modify_student = (
             select(
                 Students.IDstudents,
@@ -924,10 +943,11 @@ def students():
             .filter(Groups.IDgroups == groups[0].Groups.IDgroups)
             .order_by(Groups.groupsName, Students.FullName)
         )
+        student = db_sessions.execute(select_student).all()
         modify_student = db_sessions.execute(select_modify_student).all()
         return render_template(
             "students.html",
-            student=modify_student,
+            student=student,
             groups=groups,
             modify_student=modify_student
         )
@@ -1141,14 +1161,11 @@ def addcompetitions():
 
 @pages.route('/admin/modifyCompetition', methods=['POST'])
 def modify_competition():
-    id_spec = int(request.form["specialization"])
     cod = str(request.form["competensionsShifr"])
     full = str(request.form["competensionsFull"])
     id_comp = int(request.form["competetion"])
     db_sessions = get_session()
     npr = db_sessions.query(Competensions).filter(Competensions.IDcompetensions == id_comp).first()
-    if id_spec:
-        npr.IDspec = id_spec
     if cod != "":
         npr.competensionsShifr = cod
     if full != "":
@@ -1208,78 +1225,16 @@ def get_students_group():
     students = db_sessions.execute(select_students).all()
     return jsonify([dict(row._mapping) for row in students]), 200
 
-
-# Учащиеся в группе
-# @pages.route("/admin/group-members", methods=["GET", "POST"])
-# def group_members():
-#     if request.method == "GET":
-#         select = get_select()
-#         db_sessions = get_session()
-#         select_group = select(Groups).order_by(Groups.groupsName)
-#         groups = db_sessions.execute(select_group).all()
-#         return render_template(
-#             "group-members.html", groups=groups
-#         )
-#     if request.method == "POST":
-#         id_group = request.form["group"]
-#         select = get_select()
-#         db_sessions = get_session()
-#         select_students = (
-#             select(Students, Groups.groupsName)
-#             .join_from(
-#                 Students,
-#                 Studentsingroups,
-#                 Studentsingroups.IDstudents == Students.IDstudents,
-#                 isouter=True,
-#             )
-#             .join_from(
-#                 Studentsingroups,
-#                 Groups,
-#                 Studentsingroups.IDgroups == Groups.IDgroups,
-#                 isouter=True,
-#             )
-#             .filter(Studentsingroups.IDgroups == id_group)
-#             .order_by(Students.FullName)
-#         )
-#         students = db_sessions.execute(select_students).all()
-#         return render_template("resultTableGroupMembers.html", students=students)
-
-
-
-
-
-# @pages.route("/admin/addGroupMember", methods=["POST"])
-# def add_group_member():
-#     db_sessions = get_session()
-#     group = str(request.form["group"])
-#     student = int(request.form["student"])
-#     add = Studentsingroups(
-#         IDstudents=student,
-#         IDgroups=group
-#     )
-#     db_sessions.add(add)
-#     db_sessions.commit()
-#     return redirect("/admin/group-members")
-
-
-# @pages.route("/admin/deleteGroupMember", methods=["POST"])
-# def del_group_member():
-#     db_sessions = get_session()
-#     group = int(request.form["group"])
-#     student = int(request.form["student"])
-#     db_sessions.query(Studentsingroups).filter(Studentsingroups.IDgroups == group).filter(Studentsingroups.IDstudents == student).delete()
-#     db_sessions.commit()
-#     return redirect("/admin/group-members")
-
-
-# @pages.route("/admin/modifyGroupMember", methods=["POST"])
-# def red_group_member():
-#     db_sessions = get_session()
-#     old_group = str(request.form["oldGroup"])
-#     new_group = str(request.form["newGroup"])
-#     student = int(request.form["student"])
-#     npr = db_sessions.query(Studentsingroups).filter(Studentsingroups.IDgroups == old_group).filter(Studentsingroups.IDstudents == student).first()
-#     if str(new_group) != "":
-#         npr.IDgroups = str(new_group)
-#     db_sessions.commit()
-#     return redirect("/admin/group-members")
+@pages.route("/admin/getCompetition", methods=["GET"])
+def get_competition_on_spec():
+    args = request.args
+    id_spec = args.get("spec")
+    select = get_select()
+    db_sessions = get_session()
+    select_competition = (
+        select(Competensions.competensionsShifr, Competensions.IDcompetensions)
+        .filter(Competensions.IDspec == id_spec)
+        .order_by(Competensions.competensionsShifr)
+    )
+    competitions = db_sessions.execute(select_competition).all()
+    return jsonify([dict(row._mapping) for row in competitions]), 200

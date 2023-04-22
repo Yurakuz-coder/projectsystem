@@ -43,3 +43,36 @@ function uploadCsvCompFile() {
     },
   });
 }
+
+
+function getCompetitions(spec, op) {
+  $.ajax({
+    type: "GET",
+    url: "/admin/getCompetition",
+    data: { spec },
+    success: function (data) {
+      const select = document.getElementById(op + "Comp");
+      const button = document.getElementById(op + "CompButton");
+      select.innerHTML = "";
+      if (!data.length) {
+        select.add(new Option("Компетенции не найдены", 0));
+        select.disabled = true;
+        button.disabled = true
+        return;
+      }
+      select.disabled = false;
+      button.disabled = false;
+      for (let item of data) {
+        select.add(
+          new Option(
+            `${item.competensionsShifr}`,
+            item.IDcompetensions
+          )
+        );
+      }
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+}
