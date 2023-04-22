@@ -20,7 +20,6 @@ function getDataStudents(fio, grname) {
     success: function (data) {
       const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;
-      table.className = "collapse show";
     },
     error: function (err) {
       console.log(err);
@@ -49,14 +48,14 @@ function uploadCsvStudFile() {
   });
 }
 
-function getStudentsGroup(idGroup) {
+function getStudentsGroup(idGroup, op) {
   $.ajax({
     type: "GET",
     url: "/admin/getStudentsGroup",
     data: { idGroup },
     success: function (data) {
-      const select = document.getElementById("redStudents");
-      const button = document.getElementById("modifyStudentSave");
+      const select = document.getElementById(op + "Students");
+      const button = document.getElementById(op + "StudentButton");
       select.innerHTML = "";
       if (!data.length) {
         select.add(new Option("Студенты не найдены", 0));
