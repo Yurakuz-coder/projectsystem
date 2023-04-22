@@ -3,8 +3,8 @@
 {% block content %}
 <h1>Компетенции учебных планов</h1>
 <br />
-<label for="spec" class="form-select-label">Выберите специализацию</label>
-<select class="form-select" aria-label="Default select example" id="spec" name="spec">
+<label for="spec" class="form-select-label">Выберите компетенцию</label>
+<select class="form-select" aria-label="Default select example" id="spec" name="spec" onchange="applySpec()">
   {% for el in spec %}
   <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
     el.Specializations.specNapravlenie }} - {{
@@ -13,7 +13,7 @@
 </select>
 <br />
 <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
-  aria-controls="collapseTableBody" onClick="applySpec()">
+  aria-controls="collapseTableBody">
   Отобразить данные
 </a>
 <table class="table table-hover">
@@ -48,8 +48,14 @@
     Удалить компетенцию
   </button>
 </div>
-
-
+<br />
+<br />
+<div class="input-group mb-0">
+  <button class="btn btn-outline-secondary" type="button" onclick="uploadCsvCompFile()" id="button-upload-csv">Загрузить
+    файл из csv</button>
+  <input type="file" accept=".csv" class="form-control" id="input-upload-csv" aria-describedby="button-upload-csv"
+    aria-label="Upload">
+</div>
 <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -82,6 +88,84 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
             <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalModifyLabel">Изменить компетенцию</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="modifyCompetition" method="post">
+          <div class="form-group">
+            <label for="competetion" class="form-select-label">Выберите компетенцию</label>
+            <select class="form-select" aria-label="Default select example" name="competetion">
+              {% for el in competitions %}
+              <option value="{{ el.Competensions.IDcompetensions }}"> {{
+                el.Competensions.competensionsShifr }} - {{ el[1] }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="specialization" class="form-select-label">Выберите специализацию</label>
+            <select class="form-select" aria-label="Default select example" name="specialization">
+              <option value="" />
+              {% for el in spec %}
+              <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
+                el.Specializations.specNapravlenie }} - {{
+                el.Specializations.specNapravlennost }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="competensionsShifr" class="form-control-label">Код компетенции</label>
+            <input class="form-control" id="competensionsShifr" name="competensionsShifr"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="competensionsFull" class="form-control-label">Содержание компетенции</label>
+            <textarea class="form-control" id="competensionsFull" name="competensionsFull" rows="10"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDeleteLabel">Удалить компетенцию</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="deleteCompetition" method="post">
+          <div class="form-group">
+            <label for="competetion" class="form-select-label">Выберите компетенцию</label>
+            <select class="form-select" aria-label="Default select example" name="competetion">
+              {% for el in competitions %}
+              <option value="{{ el.Competensions.IDcompetensions }}"> {{
+                el.Competensions.competensionsShifr }} - {{ el[1] }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-danger">Удалить</button>
           </div>
         </form>
       </div>

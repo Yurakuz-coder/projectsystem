@@ -965,7 +965,6 @@ def students():
                 Students.studentsPhone,
                 Students.studentsEmail,
                 Students.Login,
-                Studentsingroups,
                 Groups.groupsName,
             )
             .join_from(
@@ -1080,10 +1079,16 @@ def insert_csv_stud():
                     row["Электронная почта"],
                 )
                 pattern_phone = re.match(r"^\+7[0-9]{10}$", row["Телефон"])
+                pattern_studbook = re.match(r"[0-9]{9}", row["№ зачетной книжки"])
+                group = db_sessions.query(Groups).filter(Groups.groupsName == row["Группа"]).first()
                 if not pattern_email:
                     return "Неверный формат почты (" + row["Электронная почта"] + ")", 400
                 if not pattern_phone:
                     return "Неверный формат телефона (" + row["Телефон"] + ")", 400
+                if not pattern_studbook:
+                    return 'Неверный номер зач. книжки (' + row["№ зачетной книжки"] + ')', 400
+                if group is None:
+                    return 'Группа не найдена (' + row["Группа"] + ')', 400
                 add = Students(
                     studentsFirstname=row["Фамилия"],
                     studentsName=row["Имя"],
@@ -1091,6 +1096,7 @@ def insert_csv_stud():
                     studentsStudbook=row["№ зачетной книжки"],
                     studentsPhone=row["Телефон"],
                     studentsEmail=row["Электронная почта"],
+                    IDgroups=group.IDgroups,
                     Login=row["Логин"],
                     Pass=password,
                 )
@@ -1102,7 +1108,7 @@ def insert_csv_stud():
 
 
 @pages.route("/admin/competitions", methods=["GET", "POST"])  # Компетенции учебных планов
-def competitions():
+def get_competitions():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
@@ -1112,7 +1118,17 @@ def competitions():
             Specializations.specNapravlennost,
         )
         spec = db_sessions.execute(select_sp).all()
-        return render_template("competitions.html", spec=spec)
+        idspec = None
+        if spec:
+            idspec = spec[0].Specializations.IDspec
+        select_competitions = (
+            select(Competensions, Specializations.FullSpec)
+            .join(Specializations)
+            .filter(Competensions.IDspec == idspec)
+            .order_by(Competensions.competensionsShifr)
+        )
+        competitions = db_sessions.execute(select_competitions).all()
+        return render_template("competitions.html", spec=spec, competitions=competitions)
     if request.method == "POST":
         spec = int(request.form["spec"])
         select = get_select()
@@ -1123,7 +1139,6 @@ def competitions():
             .filter(Competensions.IDspec == spec)
             .order_by(Competensions.competensionsShifr)
         )
-        print(select_competitions)
         competitions = db_sessions.execute(select_competitions).all()
         return render_template("resultTableCompetitions.html", competitions=competitions)
 
@@ -1142,6 +1157,61 @@ def addcompetitions():
     db_sessions.add(add)
     db_sessions.commit()
     return redirect("/admin/competitions")
+
+@pages.route('/admin/modifyCompetition', methods=['POST'])
+def modify_competition():
+    id_spec = int(request.form["specialization"])
+    cod = str(request.form["competensionsShifr"])
+    full = str(request.form["competensionsFull"])
+    id_comp = int(request.form["competetion"])
+    db_sessions = get_session()
+    npr = db_sessions.query(Competensions).filter(Competensions.IDcompetensions == id_comp).first()
+    if id_spec:
+        npr.IDspec = id_spec
+    if cod != "":
+        npr.competensionsShifr = cod
+    if full != "":
+        npr.competensionsFull = full
+    db_sessions.commit()
+    return redirect("/admin/competitions")
+
+@pages.route('/admin/deleteCompetition', methods=['POST'])
+def delete_competition():
+    id_comp = int(request.form["competetion"])
+    db_sessions = get_session()
+    db_sessions.query(Competensions).filter(Competensions.IDcompetensions == id_comp).delete()
+    db_sessions.commit()
+    return redirect("/admin/competitions")
+
+@pages.route("/admin/csvComp", methods=["POST"])
+def insert_csv_comp():
+    try:
+        upload_file = request.files.get("file")
+        file_path = path.join("documents", upload_file.filename)
+        upload_file.save(file_path)
+        with open(file_path, encoding="utf-8") as file:
+            db_sessions = get_session()
+            select = get_select()
+            reader = csv.DictReader(file, delimiter=";")
+            for row in reader:
+                spec = row["Специализация"]
+                code = row["Код"]
+                content = row["Содержание"]
+                id_spec= db_sessions.execute(
+                    select(Specializations.IDspec).where(
+                        Specializations.FullSpec == spec
+                    )
+                ).first()
+                add = Competensions(
+                    IDspec = id_spec[0],
+                    competensionsShifr = code,
+                    competensionsFull = content
+                )
+                db_sessions.add(add)
+                db_sessions.commit()
+        return "", 200
+    finally:
+        remove(file_path)
 
 @pages.route("/admin/getStudentsGroup", methods=["GET"])
 def get_students_group():
