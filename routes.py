@@ -1342,3 +1342,55 @@ def modifyCafedra():
         npr.Pass = str(password)
     db_sessions.commit()
     return redirect("/admin/cafedra")
+
+
+@pages.route("/admin/csvCafedra", methods=["POST"])
+def insert_csv_cafedra():
+    try:
+        upload_file = request.files.get("file")
+        file_path = path.join("documents", upload_file.filename)
+        upload_file.save(file_path)
+        with open(file_path, encoding="utf-8") as file:
+            db_sessions = get_session()
+            select = get_select()
+            reader = csv.DictReader(file, delimiter=";")
+            for row in reader:
+                fname = row["Фамилия"]
+                name = row["Имя"]
+                lname = row["Отчество"]
+                posit = row["Должность"]
+                login = row["Логин"]
+                password = row["Пароль"]
+                password = hashlib.md5(password.encode())
+                password = password.hexdigest()
+                pattern_email = re.match(
+                    r"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$",
+                    row["Электронная почта"],
+                )
+                pattern_phone = re.match(r"^\+7[0-9]{10}$", row["Телефон"])
+                if not pattern_email:
+                    return "Неверный формат почты (" + row["Электронная почта"] + ")", 400
+                if not pattern_phone:
+                    return "Неверный формат телефона (" + row["Телефон"] + ")", 400
+                id_pos = db_sessions.execute(
+                    select(Positions.IDpositions).where(
+                        Positions.positionsName == posit
+                    )
+                ).first()
+                if id_pos is None:
+                     return 'Должность не найдена (' + row["Должность"] + ')', 400
+                add = Sheffofprojects(
+                    IDpositions=id_pos[0],
+                    sheffprFirstname=fname,
+                    sheffprName=name,
+                    sheffprFathername=lname,
+                    sheffprPhone=row["Телефон"],
+                    sheffprEmail=row["Электронная почта"],
+                    Login=login,
+                    Pass=password,
+                )
+                db_sessions.add(add)
+                db_sessions.commit()
+                return "", 200
+    finally:
+        remove(file_path)
