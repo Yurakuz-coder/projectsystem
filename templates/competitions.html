@@ -44,7 +44,7 @@
     Редактировать компетенцию
   </button>
 
-  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDel">
+  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDelete">
     Удалить компетенцию
   </button>
 </div>
@@ -108,8 +108,8 @@
             <label for="competetion" class="form-select-label">Выберите компетенцию</label>
             <select class="form-select" aria-label="Default select example" name="competetion">
               {% for el in competitions %}
-              <option value="{{ el.Competensions.IDcompetensions }}"> {{
-                el.Competensions.competensionsShifr }} - {{ el[1] }}
+              <option value="{{ el.Competensions.IDcompetensions }}">{{ el[1] }} - {{
+                el.Competensions.competensionsShifr }}
               </option>
               {% endfor %}
             </select>
