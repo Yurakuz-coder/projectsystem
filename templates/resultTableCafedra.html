@@ -1,0 +1,17 @@
+{% for el in caf %}
+<tr>
+    <td>{{ el.Sheffofprojects.FullName }}</td>
+    <td> {{ el.Positions.positionsName }}</td>
+    <td>{{ el.Sheffofprojects.sheffprPhone}}</td>
+    <td>{{ el.Sheffofprojects.sheffprEmail }}</td>
+    <td>{{ el.Sheffofprojects.Login }}</td>
+</tr>
+{% endfor %}
+
+{% if caf == [] %}
+<tr>
+    <td colspan="8">
+        <div> Данных не найдено </div>
+    </td>
+</tr>
+{% endif %}

@@ -17,8 +17,8 @@ from models.models import (
     Formstuding,
     Groups,
     Students,
-    Studentsingroups,
     Competensions,
+    Positions
 )
 from models.database import get_session, get_select
 
@@ -1238,3 +1238,14 @@ def get_competition_on_spec():
     )
     competitions = db_sessions.execute(select_competition).all()
     return jsonify([dict(row._mapping) for row in competitions]), 200
+
+
+@pages.route("/admin/cafedra", methods=["GET", "POST"])  # Состав кафедры ИВТ
+def cafedra():
+    select = get_select()
+    db_sessions = get_session()
+    select_caf = select(Sheffofprojects, Positions).join(Positions).order_by(Sheffofprojects.FullName, Positions.positionsName)
+    select_pos = select(Positions).order_by(Positions.positionsName)
+    caf = db_sessions.execute(select_caf).all()
+    pos = db_sessions.execute(select_pos).all()
+    return render_template("cafedra.html", caf=caf, pos=pos)

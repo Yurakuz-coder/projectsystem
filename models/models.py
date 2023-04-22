@@ -18,6 +18,7 @@ class Sheffofprojects(Base):
     Login = mapped_column(String(100), nullable=False)
     Pass = mapped_column(String(100))
     positionsName = relationship("Positions", foreign_keys=[IDpositions])
+    FullName = column_property(sheffprFirstname + " " + sheffprName + " " + sheffprFathername)
 
 
 class Positions(Base):
@@ -117,3 +118,5 @@ class Competensions(Base):
     IDspec = mapped_column(ForeignKey("specializations.IDspec"))
     competensionsShifr = mapped_column(String(7), nullable=False)
     competensionsFull = mapped_column(String, nullable=False)
+
+
