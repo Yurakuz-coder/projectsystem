@@ -1250,6 +1250,26 @@ def cafedra():
         caf = db_sessions.execute(select_caf).all()
         pos = db_sessions.execute(select_pos).all()
         return render_template("cafedra.html", caf=caf, pos=pos)
+    if request.method == "POST":
+        fio_filters = request.form.get("cafedraFIO")
+        pos_filters = request.form.get("cafedraPos")
+        where_fio_filters = (
+            Sheffofprojects.FullName.ilike("%" + fio_filters + "%")
+            if fio_filters
+            else text("1=1")
+        )
+        where_pos_filters = (
+            Positions.positionsName.ilike("%" + pos_filters + "%")
+            if pos_filters
+            else text("1=1")
+        )
+        select = get_select()
+        db_sessions = get_session()
+        select_caf = select(Sheffofprojects, Positions).join(Positions).where(where_fio_filters).where(where_pos_filters).order_by(Sheffofprojects.FullName,Positions.positionsName)
+        select_pos = select(Positions).order_by(Positions.positionsName)
+        caf = db_sessions.execute(select_caf).all()
+        pos = db_sessions.execute(select_pos).all()
+        return render_template("resultTableCafedra.html", caf=caf, pos=pos)
 
 
 @pages.route("/admin/addCafedra", methods=["POST"])  # добавить сотрудника ИВТ
