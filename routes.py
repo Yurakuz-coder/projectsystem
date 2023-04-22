@@ -1242,10 +1242,83 @@ def get_competition_on_spec():
 
 @pages.route("/admin/cafedra", methods=["GET", "POST"])  # Состав кафедры ИВТ
 def cafedra():
-    select = get_select()
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        select_caf = select(Sheffofprojects, Positions).join(Positions).order_by(Sheffofprojects.FullName, Positions.positionsName)
+        select_pos = select(Positions).order_by(Positions.positionsName)
+        caf = db_sessions.execute(select_caf).all()
+        pos = db_sessions.execute(select_pos).all()
+        return render_template("cafedra.html", caf=caf, pos=pos)
+
+
+@pages.route("/admin/addCafedra", methods=["POST"])  # добавить сотрудника ИВТ
+def addcafedra():
     db_sessions = get_session()
-    select_caf = select(Sheffofprojects, Positions).join(Positions).order_by(Sheffofprojects.FullName, Positions.positionsName)
-    select_pos = select(Positions).order_by(Positions.positionsName)
-    caf = db_sessions.execute(select_caf).all()
-    pos = db_sessions.execute(select_pos).all()
-    return render_template("cafedra.html", caf=caf, pos=pos)
+    firstname = str(request.form["sheffprFirstname"])
+    name = str(request.form["sheffprName"])
+    lastname = str(request.form["sheffprFathername"])
+    posit = int(request.form["posName"])
+    phone = str(request.form["sheffprPhone"])
+    em = str(request.form["sheffprEmail"])
+    login = str(request.form["Login"])
+    password = str(request.form["Pass"])
+    passw = hashlib.md5(password.encode())
+    passw = passw.hexdigest()
+    add = Sheffofprojects(
+        IDpositions=posit,
+        sheffprFirstname=firstname,
+        sheffprName=name,
+        sheffprFathername=lastname,
+        sheffprPhone=phone,
+        sheffprEmail=em,
+        Login=login,
+        Pass=passw,
+    )
+    db_sessions.add(add)
+    db_sessions.commit()
+    return redirect("/admin/cafedra")
+
+
+@pages.route('/admin/delCafedra', methods=['POST']) #удалить сотрудника ИВТ
+def delcafedra():
+    id_sotr = int(request.form["delsotr"])
+    db_sessions = get_session()
+    db_sessions.query(Sheffofprojects).filter(Sheffofprojects.IDsheffpr == id_sotr).delete()
+    db_sessions.commit()
+    return redirect("/admin/cafedra")
+
+
+@pages.route("/admin/modifyCafedra", methods=["POST"])  # Редактировать сотрудника ИВТ
+def modifyCafedra():
+    db_sessions = get_session()
+    id_sotr = request.form["modifysotr"]
+    firstname = request.form["redsheffprFirstname"]
+    name = request.form["redsheffprName"]
+    lastname = request.form["redsheffprFathername"]
+    posit = request.form["redposName"]
+    phone = request.form["redsheffprPhone"]
+    em = request.form["redsheffprEmail"]
+    login = request.form["redLogin"]
+    password = request.form["redPass"]
+    npr = db_sessions.query(Sheffofprojects).filter(Sheffofprojects.IDsheffpr == id_sotr).first()
+    if str(posit) != "":
+        npr.IDpositions = int(posit)
+    if str(firstname) != "":
+        npr.sheffprFirstname = str(firstname)
+    if str(name) != "":
+        npr.sheffprName = str(name)
+    if str(lastname) != "":
+        npr.sheffprFathername = str(lastname)
+    if str(phone) != "":
+        npr.sheffprPhone = str(phone)
+    if str(em) != "":
+        npr.sheffprEmail = str(em)
+    if str(login) != "":
+        npr.Login = str(login)
+    if str(password) != "":
+        password = hashlib.md5(password.encode())
+        password = password.hexdigest()
+        npr.Pass = str(password)
+    db_sessions.commit()
+    return redirect("/admin/cafedra")
