@@ -104,14 +104,6 @@ class Students(Base):
     Pass = mapped_column(String(100), nullable=False)
     FullName = column_property(studentsFirstname + " " + studentsName + " " + studentsFathername)
 
-
-class Studentsingroups(Base):
-    __tablename__ = "studentsingroups"
-    IDstingr = mapped_column(Integer, primary_key=True)
-    IDstudents = mapped_column(ForeignKey("students.IDstudents"))
-    IDgroups = mapped_column(ForeignKey("groups.IDgroups"))
-
-
 class Competensions(Base):
     __tablename__ = "competensions"
     IDcompetensions = mapped_column(Integer, primary_key=True)

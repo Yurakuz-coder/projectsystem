@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% set active_page = "contracts" %}
+{% block content %}
+<h1>Договоры об организации проектного обучения</h1>
+<br />
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">
+          Наименование организации
+        </th>
+        <th scope="col">
+          Юридический адрес
+        </th>
+        <th scope="col">
+          Номер договора
+        </th>
+        <th scope="col">
+          Дата заключения договора
+        </th>
+        <th scope="col">
+          Срок действия договора
+        </th>
+        <th scope="col">
+          Электронная версия договора
+        </th>
+        <th scope="col">
+          Подписанная версия договора
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% include "resultTableContracts.html" %}
+    </tbody>
+  </table>
+</div>
+{% endblock content %}

@@ -1,0 +1,18 @@
+{% for el in shefforg %}
+<tr>
+    <td> {{ el.Shefforganizations.FullName }}</td>
+    <td>{{ el.Shefforganizations.shefforgEmail }}</td>
+    <td>{{ el.Shefforganizations.shefforgPositions }}</td>
+    <td>{{ el.Shefforganizations.shefforgDoc }}</td>
+    <td>{{ el.Shefforganizations.shefforgPhone }}</td>
+    <td>{{ el.Shefforganizations.Login }}</td>
+</tr>
+{% endfor %}
+
+{% if shefforg == [] %}
+<tr>
+    <td colspan="6">
+        <div> Данных не найдено </div>
+    </td>
+</tr>
+{% endif %}

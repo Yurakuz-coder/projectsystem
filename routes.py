@@ -2,12 +2,12 @@ from datetime import datetime, date
 from os import path, remove
 import hashlib
 import locale
+import csv
+import re
 from docxtpl import DocxTemplate
 from flask import Blueprint, render_template, request, redirect, session, send_file, jsonify
 from sqlalchemy import text
 from pymorphy2 import MorphAnalyzer
-import csv
-import re
 from models.models import (
     Sheffofprojects,
     Organizations,
@@ -36,28 +36,39 @@ def index():
     passw = hashlib.md5(password.encode())
     rendered_pass = passw.hexdigest()
     role = request.form["role"]
+    db_sessions = get_session()
+
     if role == "sheffofprojects":
-        db_sessions = get_session()
         data_workers = (
-            db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
+           db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
         )
-        if (
-            data_workers.Login == login
-            and data_workers.Pass == rendered_pass
-            and data_workers.positionsName.positionsName == "Администратор"
-        ):
+        if not (data_workers.Login == login and data_workers.Pass == rendered_pass):
+            return render_template("index.html", title="Неверный логин и/или пароль!!!")
+        if data_workers.positionsName.positionsName == "Администратор":
+            full_name = f'{data_workers.sheffprFirstname} {data_workers.sheffprName} {data_workers.sheffprFathername} {data_workers.positionsName.positionsName}'
             session["admin"] = [
-                data_workers.IDsheffpr,
-                data_workers.IDpositions,
-                data_workers.sheffprFirstname,
-                data_workers.sheffprName,
-                data_workers.sheffprFathername,
-                data_workers.positionsName.positionsName,
+                full_name,
+                'Панель администратора',
+                'admin'
             ]
             return redirect("/admin/reg_shefforg")
-        else:
+    if role == "shefforganizations":
+        data_workers = (
+           db_sessions.query(Shefforganizations).filter(Shefforganizations.Login == login).first()
+        )
+        if not (data_workers.Login == login and data_workers.Pass == rendered_pass):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
-
+        org = db_sessions.query(Organizations).filter(Organizations.IDshefforg == data_workers.IDshefforg).first()
+        full_name = f'{data_workers.FullName} {data_workers.shefforgPositions} - {org.orgName}'
+        session["admin"] = [
+            full_name,
+            'Панель руководителя организации',
+            'shefforg',
+            org.IDorg,
+            data_workers.IDshefforg,
+            data_workers.shefforgEmail
+        ]
+        return redirect("/shefforg/reg_shefforg")
 
 @pages.route("/exit", methods=["POST", "GET"])  # кнопка выхода из системы
 def exit_page():
@@ -1394,3 +1405,139 @@ def insert_csv_cafedra():
                 return "", 200
     finally:
         remove(file_path)
+
+@pages.route("/shefforg/organization", methods=["GET", "POST"])  # админка-регистрация организации
+def sheff_org_organization():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        id_org = session['admin'][3]
+        select_orgsheff = (
+            select(
+                Organizations,
+                Shefforganizations,
+            )
+            .join_from(
+                Shefforganizations,
+                Organizations,
+                Organizations.IDshefforg == Shefforganizations.IDshefforg,
+            )
+            .where(Organizations.IDorg == id_org)
+            .order_by(Organizations.orgName)
+        )
+        orgsheff = db_sessions.execute(select_orgsheff).all()
+        return render_template(
+            "sheff_org_organization.html", orgsheff=orgsheff
+        )
+
+@pages.route("/shefforg/redorganiz", methods=["POST"])  # редактирование рук.организации
+def sheff_org_redorg():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idorg = session['admin'][3]
+        name = request.form["redorgName"]
+        yur = request.form["redorgYuraddress"]
+        adres = request.form["redorgPostaddress"]
+        em = request.form["redorgEmail"]
+        phone = request.form["redorgPhone"]
+        npr = db_sessions.query(Organizations).filter(Organizations.IDorg == idorg).first()
+        if str(name) != "":
+            npr.orgName = str(name)
+        if str(yur) != "":
+            npr.orgYuraddress = str(yur)
+        if str(adres) != "":
+            npr.orgPostaddress = str(adres)
+        if str(em) != "":
+            npr.orgEmail = str(em)
+        if str(phone) != "":
+            npr.orgPhone = str(phone)
+        db_sessions.commit()
+        return redirect("/shefforg/organization")
+
+@pages.route("/shefforg/reg_shefforg", methods=["GET"])  # админка-регистрация рук.огранизации
+def shefforg_reg_shefforg():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        idorg = session['admin'][3]
+        select_shefforg = (
+            select(Shefforganizations)
+            .join_from(
+                Shefforganizations,
+                Organizations,
+                Organizations.IDshefforg == Shefforganizations.IDshefforg,
+                isouter=True,
+            )
+            .filter(Organizations.IDorg == idorg)
+            .order_by(Shefforganizations.FullName)
+        )
+        shefforg = db_sessions.execute(select_shefforg).all()
+        return render_template("sheff_org_registration.html", shefforg=shefforg)
+
+@pages.route("/shefforg/redshefforganiz", methods=["POST"])  # редактирование рук.организации
+def shefforg_redshefforg():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idshefforg = session['admin'][4]
+        firstname = request.form["redshefforgFirstname"]
+        name = request.form["redshefforgName"]
+        fathername = request.form["redshefforgFathername"]
+        pos = request.form["redshefforgPositions"]
+        doc = request.form["redshefforgDoc"]
+        em = request.form["redshefforgEmail"]
+        phone = request.form["redshefforgPhone"]
+        npr = (
+            db_sessions.query(Shefforganizations)
+            .filter(Shefforganizations.IDshefforg == idshefforg)
+            .first()
+        )
+        if str(firstname) != "":
+            npr.shefforgFirstname = str(firstname)
+        if str(name) != "":
+            npr.shefforgName = str(name)
+        if str(fathername) != "":
+            npr.shefforgFathername = str(fathername)
+        if str(pos) != "":
+            npr.shefforgPositions = str(pos)
+        if str(doc) != "":
+            npr.shefforgDoc = str(doc)
+        if str(em) != "":
+            npr.shefforgEmail = str(em)
+        if str(phone) != "":
+            npr.shefforgPhone = str(phone)
+        db_sessions.commit()
+        return redirect("/shefforg/reg_shefforg")
+
+@pages.route(
+    "/shefforg/contracts", methods=["GET", "POST"]
+)  # Договоры об организации проектного обучения
+def sheff_org_contracts():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        idorg = session['admin'][3]
+        select_contracts = select(Contracts).filter(Contracts.IDorg == idorg).order_by(
+            Contracts.contractsNumber, Contracts.contractsStart
+        )
+        contracts = db_sessions.execute(select_contracts).all()
+
+        return render_template(
+            "sheff_org_contracts.html",
+            contracts=contracts,
+        )
+
+@pages.route(
+    "/shefforg/mailadmin", methods=["GET", "POST"]
+)  # Договоры об организации проектного обучения
+def sheff_org_mailadmin():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        select_admins = select(Sheffofprojects).order_by(
+            Sheffofprojects.FullName
+        )
+        admins = db_sessions.execute(select_admins).all()
+
+        return render_template(
+            "sheff_org_mail_admin.html",
+            admins=admins)
