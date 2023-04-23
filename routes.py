@@ -70,6 +70,7 @@ def index():
         ]
         return redirect("/shefforg/reg_shefforg")
 
+
 @pages.route("/exit", methods=["POST", "GET"])  # кнопка выхода из системы
 def exit_page():
     if request.method == "POST":
