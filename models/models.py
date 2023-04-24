@@ -112,3 +112,18 @@ class Competensions(Base):
     competensionsFull = mapped_column(String, nullable=False)
 
 
+class Initiatorsofprojects(Base):
+    __tablename__ = "initiatorsofprojects"
+    IDinitpr = mapped_column(Integer, primary_key=True)
+    IDorg = mapped_column(ForeignKey("organizations.IDorg"))
+    initprFirstname = mapped_column(String(255), nullable=False)
+    initprName = mapped_column(String(255), nullable=False)
+    initprFathername = mapped_column(String(255))
+    initprPositions = mapped_column(String(255), nullable=False)
+    initprEmail = mapped_column(String(100), nullable=False)
+    initprPhone = mapped_column(String(12), nullable=False)
+    Login = mapped_column(String(100), nullable=False)
+    Pass = mapped_column(String(100), nullable=False)
+    FullName = column_property(initprFirstname + " " + initprName + " " + initprFathername)
+
+
