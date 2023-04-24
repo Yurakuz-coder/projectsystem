@@ -48,7 +48,7 @@ def index():
             full_name = f'{data_workers.sheffprFirstname} {data_workers.sheffprName} {data_workers.sheffprFathername} {data_workers.positionsName.positionsName}'
             session['fullName'] = full_name
             session['url'] = 'admin'
-            session["nav"] = 'Панель администратора'
+            session["firstNav"] = 'Панель администратора'
             return redirect("/admin/reg_shefforg")
     if role == "shefforganizations":
         data_workers = (
@@ -62,7 +62,9 @@ def index():
         session['fullName'] = full_name
         session['url'] = 'shefforg'
         session['pos'] = work
-        session["nav"] = 'Панель руководителя организации'
+        session["firstNav"] = 'Панель руководителя'
+        session["secondNav"] = 'организации'
+        session['email'] = data_workers.shefforgEmail
         session['user'] = [
             org.IDorg,
             data_workers.IDshefforg
@@ -73,7 +75,7 @@ def index():
 @pages.route("/exit", methods=["POST", "GET"])  # кнопка выхода из системы
 def exit_page():
     if request.method == "POST":
-        session.pop("admin", None)
+        session.clear()
         return redirect("/")
 
 
