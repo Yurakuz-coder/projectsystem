@@ -8,13 +8,13 @@
     Добавить инициатора проектов
   </button>
 
-  <!-- Редактировать организацию -->
-  <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#redorganiz">
+  <!-- Редактировать инициатора -->
+  <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#redinic">
     Редактировать инициатора проектов
   </button>
 
-  <!-- Удаление руководителя организации -->
-  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delorganiz">
+  <!-- Удаление инициатора -->
+  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delinic">
     Удалить инициатора проектов
   </button>
 </div>
@@ -70,6 +70,36 @@
           </div>
         </form>
       </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Modal -->
+<div class="modal fade" id="delinic" tabindex="-1" aria-labelledby="delinicLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="delinicLabel">Удалить руководителя организации</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="deliniciators" method="post">
+          <div class="form-group">
+            <label for="delin" class="form-select-label">Выберите инициатора проектов</label>
+            <select class="form-select" aria-label="Default select example" name="delin">
+              {% for el in inic %}
+              <option value="{{ el.Initiatorsofprojects.IDinitpr }}"> {{ el.Initiatorsofprojects.Fullname }} - {{ el.Initiatorsofprojects.initprPositions }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <br>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      </div>
+      </form>
     </div>
   </div>
 </div>

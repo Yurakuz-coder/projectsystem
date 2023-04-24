@@ -1558,7 +1558,12 @@ def sheff_org_mailadmin():
 @pages.route("/shefforg/iniciators", methods=["GET", "POST"])  # Инициаторы проектов
 def sheff_org_iniciators():
     if request.method == "GET":
-        return render_template("iniciators.html")
+        select = get_select()
+        db_sessions = get_session()
+        idorg = session['user'][0]
+        select_inicators = select(Initiatorsofprojects).filter(Initiatorsofprojects.IDorg == idorg).order_by(Initiatorsofprojects.FullName)
+        inic = db_sessions.execute(select_inicators).all()
+        return render_template("iniciators.html", inic=inic)
 
 
 @pages.route("/shefforg/addIniciators", methods=["POST"])  # Добавить инициатора проектов
@@ -1590,3 +1595,11 @@ def sheff_org_addiniciators():
     db_sessions.commit()
     return redirect("/shefforg/iniciators")
 
+
+@pages.route('/shefforg/deliniciators', methods=['POST']) #удалить инициатора проектов
+def deliniciators():
+    id_sotr = int(request.form["delin"])
+    db_sessions = get_session()
+    db_sessions.query(Initiatorsofprojects).filter(Initiatorsofprojects.IDinitpr == id_sotr).delete()
+    db_sessions.commit()
+    return redirect("/shefforg/iniciators")
