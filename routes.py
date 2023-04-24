@@ -18,7 +18,8 @@ from models.models import (
     Groups,
     Students,
     Competensions,
-    Positions
+    Positions,
+    Initiatorsofprojects
 )
 from models.database import get_session, get_select
 
@@ -1552,9 +1553,38 @@ def sheff_org_mailadmin():
             admins=admins)
 
 
-@pages.route(
-    "/shefforg/iniciators", methods=["GET", "POST"]
-)  # Инициаторы проектов
+@pages.route("/shefforg/iniciators", methods=["GET", "POST"])  # Инициаторы проектов
 def sheff_org_iniciators():
     if request.method == "GET":
         return render_template("iniciators.html")
+
+
+@pages.route("/shefforg/addIniciators", methods=["POST"])  # Добавить инициатора проектов
+def sheff_org_addiniciators():
+    db_sessions = get_session()
+    idorg = session['user'][0]
+    fname = str(request.form["initprFirstname"])
+    name = str(request.form["initprName"])
+    lname = str(request.form["initprFathername"])
+    pos = str(request.form["initprPositions"])
+    em = str(request.form["initprEmail"])
+    tel = str(request.form["initprPhone"])
+    login = str(request.form["Login"])
+    password = str(request.form["Pass"])
+    passw = hashlib.md5(password.encode())
+    passw = passw.hexdigest()
+    add = Initiatorsofprojects(
+        IDorg=idorg,
+        initprFirstname=fname,
+        initprName=name,
+        initprFathername=lname,
+        initprPositions=pos,
+        initprEmail=em,
+        initprPhone=tel,
+        Login=login,
+        Pass=passw,
+    )
+    db_sessions.add(add)
+    db_sessions.commit()
+    return redirect("/shefforg/iniciators")
+
