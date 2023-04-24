@@ -46,8 +46,7 @@ def index():
         if not (data_workers.Login == login and data_workers.Pass == rendered_pass):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
         if data_workers.positionsName.positionsName == "Администратор":
-            full_name = f'{data_workers.sheffprFirstname} {data_workers.sheffprName} {data_workers.sheffprFathername} {data_workers.positionsName.positionsName}'
-            session['fullName'] = full_name
+            session['fullName'] = [data_workers.sheffprFirstname, data_workers.sheffprName, data_workers.sheffprFathername, data_workers.positionsName.positionsName]
             session['url'] = 'admin'
             session["firstNav"] = 'Панель администратора'
             return redirect("/admin/reg_shefforg")
@@ -58,9 +57,8 @@ def index():
         if not (data_workers.Login == login and data_workers.Pass == rendered_pass):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
         org = db_sessions.query(Organizations).filter(Organizations.IDshefforg == data_workers.IDshefforg).first()
-        full_name = f'{data_workers.FullName}'
         work = f'{data_workers.shefforgPositions} {org.orgName}'
-        session['fullName'] = full_name
+        session['fullName'] = [data_workers.shefforgFirstname, data_workers.shefforgName, data_workers.shefforgFathername]
         session['url'] = 'shefforg'
         session['pos'] = work
         session["firstNav"] = 'Панель руководителя'
@@ -1338,6 +1336,7 @@ def modifyCafedra():
     npr = db_sessions.query(Sheffofprojects).filter(Sheffofprojects.IDsheffpr == id_sotr).first()
     positions = None
     old_name = npr.FullName
+    sess_name = f"{session['fullName'][0]} {session['fullName'][1]} {session['fullName'][2]} {session['fullName'][3]}"
     if str(posit) != "":
         npr.IDpositions = int(posit)
         positions = db_sessions.query(Positions).filter(Positions.IDpositions == posit).first()
@@ -1357,9 +1356,9 @@ def modifyCafedra():
         password = hashlib.md5(password.encode())
         password = password.hexdigest()
         npr.Pass = str(password)
-    if session['fullName'] == f'{old_name} {npr.positionsName.positionsName}':
+    if sess_name == f'{old_name} {npr.positionsName.positionsName}':
         session.pop('fullName')
-        session['fullName'] =  f'{firstname} {name} {lastname} {positions.Positions.positionsName if positions else npr.positionsName.positionsName}'
+        session['fullName'] =  [firstname if firstname else npr.sheffprFirstname, name if name else npr.sheffprName, lastname if lastname else npr.sheffprFathername, positions.Positions.positionsName if positions else npr.positionsName.positionsName]
     db_sessions.commit()
     return redirect("/admin/cafedra")
 
@@ -1515,7 +1514,7 @@ def shefforg_redshefforg():
         if str(phone) != "":
             npr.shefforgPhone = str(phone)
         session.pop('fullName')
-        session['fullName'] =  f'{firstname} {name} {fathername}'
+        session['fullName'] =  [firstname if firstname else npr.shefforgFirstname, name if name else npr.shefforgName, fathername if fathername else npr.shefforgFathername]
         db_sessions.commit()
 
         return redirect("/shefforg/reg_shefforg")

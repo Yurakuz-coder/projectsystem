@@ -1,9 +1,9 @@
 {% block content %}
 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-  <br>
   <div class="position-sticky pt-3">
-    <h5 align="center">{{ session['fullName'] }}</h5>
-    <h3 align="center"></h3>
+    <h5 align="center">{{ session['fullName'][0] }} <br> {{ session['fullName'][1] }} <br> {{ session['fullName'][2] }}
+      <br> {{ session['fullName'][3] }}
+    </h5>
     <ul class="nav flex-column">
       <li class="nav-item">
         <a class="{{ 'nav-link active' if active_page == 'reg_shefforg' else 'nav-link' }}" aria-current="page"
