@@ -1602,3 +1602,43 @@ def deliniciators():
     db_sessions.query(Initiatorsofprojects).filter(Initiatorsofprojects.IDinitpr == id_sotr).delete()
     db_sessions.commit()
     return redirect("/shefforg/iniciators")
+
+
+@pages.route("/shefforg/redinitiators", methods=["POST"])  # Редактировать инициатора проектов
+def sheff_org_redinitiators():
+    db_sessions = get_session()
+    idin = int(request.form["redin"])
+    fname = request.form["redinitprFirstname"]
+    name = request.form["redinitprName"]
+    lname = request.form["redinitprFathername"]
+    pos = request.form["redinitprPositions"]
+    em = request.form["redinitprEmail"]
+    tel = request.form["redinitprPhone"]
+    login = request.form["redLogin"]
+    password = request.form["redPass"]
+    npr = (
+        db_sessions.query(Initiatorsofprojects)
+        .filter(Initiatorsofprojects.IDinitpr == idin)
+        .first()
+    )
+    if str(fname) != "":
+        npr.initprFirstname = str(fname)
+    if str(name) != "":
+        npr.initprName = str(name)
+    if str(lname) != "":
+        npr.initprFathername = str(lname)
+    if str(pos) != "":
+        npr.initprPositions = str(pos)
+    if str(em) != "":
+        npr.initprEmail = str(em)
+    if str(tel) != "":
+        npr.initprPhone = str(tel)
+    if str(login) != "":
+        npr.Login = str(login)
+    if str(password) != "":
+        password = hashlib.md5(password.encode())
+        password = password.hexdigest()
+        npr.Pass = str(password)
+    db_sessions.commit()
+    return redirect("/shefforg/iniciators")
+
