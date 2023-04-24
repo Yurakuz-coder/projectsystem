@@ -16,9 +16,9 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'projectsystemivt@gmail.com'
-app.config['MAIL_DEFAULT_SENDER'] = 'projectsystemivt@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ivt11071999'
+app.config['MAIL_USERNAME'] = 'projectsystemcafivt@gmail.com'
+app.config['MAIL_DEFAULT_SENDER'] = 'projectsystemcafivt@gmail.com'
+app.config['MAIL_PASSWORD'] = 'brpfhvjwlvlgxitd'
 mail = Mail(app)
 app.register_blueprint(pages)
 init_db()
