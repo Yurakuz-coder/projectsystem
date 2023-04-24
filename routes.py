@@ -46,8 +46,9 @@ def index():
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
         if data_workers.positionsName.positionsName == "Администратор":
             full_name = f'{data_workers.sheffprFirstname} {data_workers.sheffprName} {data_workers.sheffprFathername} {data_workers.positionsName.positionsName}'
+            session['fullName'] = full_name
             session["admin"] = [
-                full_name,
+                0,
                 'Панель администратора',
                 'admin'
             ]
@@ -59,14 +60,17 @@ def index():
         if not (data_workers.Login == login and data_workers.Pass == rendered_pass):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
         org = db_sessions.query(Organizations).filter(Organizations.IDshefforg == data_workers.IDshefforg).first()
-        full_name = f'{data_workers.FullName} {data_workers.shefforgPositions} - {org.orgName}'
+        full_name = f'{data_workers.FullName}'
+        work = f'{data_workers.shefforgPositions} {org.orgName}'
+        session['fullName'] = full_name
         session["admin"] = [
-            full_name,
+            0,
             'Панель руководителя организации',
             'shefforg',
             org.IDorg,
             data_workers.IDshefforg,
-            data_workers.shefforgEmail
+            data_workers.shefforgEmail,
+            work
         ]
         return redirect("/shefforg/reg_shefforg")
 
@@ -1334,8 +1338,11 @@ def modifyCafedra():
     login = request.form["redLogin"]
     password = request.form["redPass"]
     npr = db_sessions.query(Sheffofprojects).filter(Sheffofprojects.IDsheffpr == id_sotr).first()
+    positions = None
+    old_name = npr.FullName
     if str(posit) != "":
         npr.IDpositions = int(posit)
+        positions = db_sessions.query(Positions).filter(Positions.IDpositions == posit).first()
     if str(firstname) != "":
         npr.sheffprFirstname = str(firstname)
     if str(name) != "":
@@ -1352,6 +1359,9 @@ def modifyCafedra():
         password = hashlib.md5(password.encode())
         password = password.hexdigest()
         npr.Pass = str(password)
+    if session['fullName'] == f'{old_name} {npr.positionsName.positionsName}':
+        session.pop('fullName')
+        session['fullName'] =  f'{firstname} {name} {lastname} {positions.Positions.positionsName if positions else npr.positionsName.positionsName}'
     db_sessions.commit()
     return redirect("/admin/cafedra")
 
@@ -1506,7 +1516,10 @@ def shefforg_redshefforg():
             npr.shefforgEmail = str(em)
         if str(phone) != "":
             npr.shefforgPhone = str(phone)
+        session.pop('fullName')
+        session['fullName'] =  f'{firstname} {name} {fathername}'
         db_sessions.commit()
+
         return redirect("/shefforg/reg_shefforg")
 
 @pages.route(
@@ -1534,7 +1547,7 @@ def sheff_org_mailadmin():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_admins = select(Sheffofprojects).order_by(
+        select_admins = select(Sheffofprojects).filter(Sheffofprojects.IDpositions == 1).order_by(
             Sheffofprojects.FullName
         )
         admins = db_sessions.execute(select_admins).all()
