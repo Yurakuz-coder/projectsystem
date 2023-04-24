@@ -1550,3 +1550,11 @@ def sheff_org_mailadmin():
         return render_template(
             "sheff_org_mail_admin.html",
             admins=admins)
+
+
+@pages.route(
+    "/shefforg/iniciators", methods=["GET", "POST"]
+)  # Инициаторы проектов
+def sheff_org_iniciators():
+    if request.method == "GET":
+        return render_template("iniciators.html")
