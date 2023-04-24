@@ -63,7 +63,6 @@ def index():
         session['url'] = 'shefforg'
         session['pos'] = work
         session["nav"] = 'Панель руководителя организации'
-        session['email'] = data_workers.shefforgEmail
         session['user'] = [
             org.IDorg,
             data_workers.IDshefforg

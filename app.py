@@ -30,7 +30,7 @@ def sheff_org_send_mail():
         upload_file = request.files.get("files")
         subject = request.form.get("subject")
         message = request.form.get("message")
-        msg = Message(subject, sender=session['email'], recipients=['shadowdancer666@inbox.ru'])
+        msg = Message(subject, recipients=['shadowdancer666@inbox.ru'])
         msg.body = message
         if (upload_file):
             file_path = path.join("documents", upload_file.filename)
