@@ -38,7 +38,7 @@ def sheff_org_send_mail():
             upload_file.save(file_path)
             with open(file_path, encoding="utf-8") as file:
                 msg.attach(file_path, upload_file.name, file.read())
-        msg.body += '\n\n Данное сообщение было сгенерировано автоматически, в дальнейшем отправляйте почту на ' + session['email']
+        msg.body += f"\n\n Данное сообщение было создано в информационной системе сопровождения проектной деятельности кафедры ИВТ пользователем {' '.join(session['fullName'])} - {session['pos']}.  В дальнейшем отправляйте почту на {session['email']}"
         mail.send(msg)
         return 'Сообщение отправлено', 200
 
