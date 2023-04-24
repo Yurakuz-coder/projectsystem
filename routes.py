@@ -47,11 +47,8 @@ def index():
         if data_workers.positionsName.positionsName == "Администратор":
             full_name = f'{data_workers.sheffprFirstname} {data_workers.sheffprName} {data_workers.sheffprFathername} {data_workers.positionsName.positionsName}'
             session['fullName'] = full_name
-            session["admin"] = [
-                0,
-                'Панель администратора',
-                'admin'
-            ]
+            session['url'] = 'admin'
+            session["nav"] = 'Панель администратора'
             return redirect("/admin/reg_shefforg")
     if role == "shefforganizations":
         data_workers = (
@@ -63,15 +60,14 @@ def index():
         full_name = f'{data_workers.FullName}'
         work = f'{data_workers.shefforgPositions} {org.orgName}'
         session['fullName'] = full_name
-        session["admin"] = [
-            0,
-            'Панель руководителя организации',
-            'shefforg',
+        session['url'] = 'shefforg'
+        session['pos'] = work
+        session["nav"] = 'Панель руководителя организации'
+        session['email'] = data_workers.shefforgEmail
+        session['user'] = [
             org.IDorg,
-            data_workers.IDshefforg,
-            data_workers.shefforgEmail,
-            work
-        ]
+            data_workers.IDshefforg
+            ]
         return redirect("/shefforg/reg_shefforg")
 
 
@@ -1422,7 +1418,7 @@ def sheff_org_organization():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        id_org = session['admin'][3]
+        id_org = session['user'][0]
         select_orgsheff = (
             select(
                 Organizations,
@@ -1445,7 +1441,7 @@ def sheff_org_organization():
 def sheff_org_redorg():
     if request.method == "POST":
         db_sessions = get_session()
-        idorg = session['admin'][3]
+        idorg = session['user'][0]
         name = request.form["redorgName"]
         yur = request.form["redorgYuraddress"]
         adres = request.form["redorgPostaddress"]
@@ -1470,7 +1466,7 @@ def shefforg_reg_shefforg():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        idorg = session['admin'][3]
+        idorg = session['user'][0]
         select_shefforg = (
             select(Shefforganizations)
             .join_from(
@@ -1489,7 +1485,7 @@ def shefforg_reg_shefforg():
 def shefforg_redshefforg():
     if request.method == "POST":
         db_sessions = get_session()
-        idshefforg = session['admin'][4]
+        idshefforg = session['user'][1]
         firstname = request.form["redshefforgFirstname"]
         name = request.form["redshefforgName"]
         fathername = request.form["redshefforgFathername"]
@@ -1529,7 +1525,7 @@ def sheff_org_contracts():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        idorg = session['admin'][3]
+        idorg = session['user'][0]
         select_contracts = select(Contracts).filter(Contracts.IDorg == idorg).order_by(
             Contracts.contractsNumber, Contracts.contractsStart
         )

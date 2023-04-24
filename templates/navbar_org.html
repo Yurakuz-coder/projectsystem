@@ -2,12 +2,12 @@
 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
   <br>
   <div class="position-sticky pt-3">
-    <h5 align="center">{{ session['fullName'] }}<br>{{ session['admin'][6] }}</h5>
+    <h5 align="center">{{ session['fullName'] }}<br>{{ session['pos'] }}</h5>
     <h3 align="center"></h3>
     <ul class="nav flex-column">
       <li class="nav-item">
         <a class="{{ 'nav-link active' if active_page == 'reg_shefforg' else 'nav-link' }}" aria-current="page"
-          href="/{{ session['admin'][2] }}/reg_shefforg">
+          href="/{{ session['url'] }}/reg_shefforg">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
             class="bi bi-file-earmark-person-fill" viewBox="0 0 16 16">
             <path
@@ -18,7 +18,7 @@
       </li>
       <li class="nav-item">
         <a class="{{ 'nav-link active' if active_page == 'organization' else 'nav-link' }}" aria-current="page"
-          href="/{{ session['admin'][2] }}/organization">
+          href="/{{ session['url'] }}/organization">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
             class="bi bi-briefcase-fill" viewBox="0 0 16 16">
             <path
@@ -31,7 +31,7 @@
       </li>
       <li class="nav-item">
         <a class="{{ 'nav-link active' if active_page == 'contracts' else 'nav-link' }}" aria-current="page"
-          href="/{{ session['admin'][2] }}/contracts">
+          href="/{{ session['url'] }}/contracts">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
             class="bi bi-file-earmark-text-fill" viewBox="0 0 16 16">
             <path
@@ -43,7 +43,7 @@
 
       <li class="nav-item">
         <a class="{{ 'nav-link active' if active_page == 'mail' else 'nav-link' }}" aria-current="page"
-          href="/{{ session['admin'][2] }}/mailadmin">
+          href="/{{ session['url'] }}/mailadmin">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope"
             viewBox="0 0 16 16">
             <path

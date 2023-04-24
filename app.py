@@ -30,14 +30,14 @@ def sheff_org_send_mail():
         upload_file = request.files.get("files")
         subject = request.form.get("subject")
         message = request.form.get("message")
-        msg = Message(subject, sender=session['admin'][5], recipients=['shadowdancer666@inbox.ru'])
+        msg = Message(subject, sender=session['email'], recipients=['shadowdancer666@inbox.ru'])
         msg.body = message
         if (upload_file):
             file_path = path.join("documents", upload_file.filename)
             upload_file.save(file_path)
             with open(file_path, encoding="utf-8") as file:
                 msg.attach(file_path, upload_file.name, file.read())
-        msg.body += '\n\n Данное сообщение было сгенерировано автоматически, в дальнейшем отправляйте почту на ' + session['admin'][5]
+        msg.body += '\n\n Данное сообщение было сгенерировано автоматически, в дальнейшем отправляйте почту на ' + session['email']
         mail.send(msg)
         return 'Сообщение отправлено', 200
 
