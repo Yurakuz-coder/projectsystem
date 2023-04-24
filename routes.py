@@ -1615,7 +1615,7 @@ def sheff_org_redinitiators():
     em = request.form["redinitprEmail"]
     tel = request.form["redinitprPhone"]
     login = request.form["redLogin"]
-    password = request.form["redPass"]
+    passw = request.form["rP"]
     npr = (
         db_sessions.query(Initiatorsofprojects)
         .filter(Initiatorsofprojects.IDinitpr == idin)
@@ -1635,10 +1635,10 @@ def sheff_org_redinitiators():
         npr.initprPhone = str(tel)
     if str(login) != "":
         npr.Login = str(login)
-    if str(password) != "":
-        password = hashlib.md5(password.encode())
-        password = password.hexdigest()
-        npr.Pass = str(password)
+    if str(passw) != "":
+        passw = hashlib.md5(passw.encode())
+        passw = passw.hexdigest()
+        npr.Pass = str(passw)
     db_sessions.commit()
     return redirect("/shefforg/iniciators")
 
