@@ -1667,7 +1667,7 @@ def sheff_org_redinitiators():
     em = request.form["redinitprEmail"]
     tel = request.form["redinitprPhone"]
     login = request.form["redLogin"]
-    passw = request.form["rP"]
+    passw = request.form["password"]
     npr = (
         db_sessions.query(Initiatorsofprojects)
         .filter(Initiatorsofprojects.IDinitpr == idin)
