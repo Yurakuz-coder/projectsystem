@@ -1,0 +1,17 @@
+{% for el in inic %}
+<tr>
+    <td>{{ el.Initiatorsofprojects.FullName }}</td>
+    <td> {{ el.Initiatorsofprojects.initprEmail }}</td>
+    <td> {{ el.Initiatorsofprojects.initprPositions }}</td>
+    <td> {{ el.Initiatorsofprojects.initprPhone }}</td>
+    <td> {{ el.Initiatorsofprojects.Login }}</td>
+</tr>
+{% endfor %}
+
+{% if inic == [] %}
+<tr>
+    <td colspan="5">
+        <div> Данных не найдено </div>
+    </td>
+</tr>
+{% endif %}

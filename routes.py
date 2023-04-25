@@ -19,7 +19,7 @@ from models.models import (
     Students,
     Competensions,
     Positions,
-    Initiatorsofprojects
+    Initiatorsofprojects,
 )
 from models.database import get_session, get_select
 
@@ -41,33 +41,43 @@ def index():
 
     if role == "sheffofprojects":
         data_workers = (
-           db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
+            db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
         )
         if not (data_workers.Login == login and data_workers.Pass == rendered_pass):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
         if data_workers.positionsName.positionsName == "Администратор":
-            session['fullName'] = [data_workers.sheffprFirstname, data_workers.sheffprName, data_workers.sheffprFathername, data_workers.positionsName.positionsName]
-            session['url'] = 'admin'
-            session["firstNav"] = 'Панель администратора'
+            session["fullName"] = [
+                data_workers.sheffprFirstname,
+                data_workers.sheffprName,
+                data_workers.sheffprFathername,
+                data_workers.positionsName.positionsName,
+            ]
+            session["url"] = "admin"
+            session["firstNav"] = "Панель администратора"
             return redirect("/admin/reg_shefforg")
     if role == "shefforganizations":
         data_workers = (
-           db_sessions.query(Shefforganizations).filter(Shefforganizations.Login == login).first()
+            db_sessions.query(Shefforganizations).filter(Shefforganizations.Login == login).first()
         )
         if not (data_workers.Login == login and data_workers.Pass == rendered_pass):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
-        org = db_sessions.query(Organizations).filter(Organizations.IDshefforg == data_workers.IDshefforg).first()
-        work = f'{data_workers.shefforgPositions} {org.orgName}'
-        session['fullName'] = [data_workers.shefforgFirstname, data_workers.shefforgName, data_workers.shefforgFathername]
-        session['url'] = 'shefforg'
-        session['pos'] = work
-        session["firstNav"] = 'Панель руководителя'
-        session["secondNav"] = 'организации'
-        session['email'] = data_workers.shefforgEmail
-        session['user'] = [
-            org.IDorg,
-            data_workers.IDshefforg
-            ]
+        org = (
+            db_sessions.query(Organizations)
+            .filter(Organizations.IDshefforg == data_workers.IDshefforg)
+            .first()
+        )
+        work = f"{data_workers.shefforgPositions} {org.orgName}"
+        session["fullName"] = [
+            data_workers.shefforgFirstname,
+            data_workers.shefforgName,
+            data_workers.shefforgFathername,
+        ]
+        session["url"] = "shefforg"
+        session["pos"] = work
+        session["firstNav"] = "Панель руководителя"
+        session["secondNav"] = "организации"
+        session["email"] = data_workers.shefforgEmail
+        session["user"] = [org.IDorg, data_workers.IDshefforg]
         return redirect("/shefforg/reg_shefforg")
 
 
@@ -941,11 +951,7 @@ def students():
             .order_by(Groups.groupsName, Students.FullName)
         )
         select_modify_student = (
-            select(
-                Students.IDstudents,
-                Students.FullName,
-                Students.studentsStudbook
-            )
+            select(Students.IDstudents, Students.FullName, Students.studentsStudbook)
             .join_from(
                 Students,
                 Groups,
@@ -958,10 +964,7 @@ def students():
         student = db_sessions.execute(select_student).all()
         modify_student = db_sessions.execute(select_modify_student).all()
         return render_template(
-            "students.html",
-            student=student,
-            groups=groups,
-            modify_student=modify_student
+            "students.html", student=student, groups=groups, modify_student=modify_student
         )
     if request.method == "POST":
         fio = request.form.get("fio")
@@ -991,9 +994,7 @@ def students():
             .order_by(Groups.groupsName, Students.FullName)
         )
         student = db_sessions.execute(select_student).all()
-        return render_template(
-            "resultTableStudents.html", student=student
-        )
+        return render_template("resultTableStudents.html", student=student)
 
 
 @pages.route("/admin/addStudents", methods=["POST"])  # Добавить студента
@@ -1008,7 +1009,7 @@ def addstudents():
         em = str(request.form["studentsEmail"])
         login = str(request.form["Login"])
         password = str(request.form["Pass"])
-        idgroup = int(request.form['group'])
+        idgroup = int(request.form["group"])
         passw = hashlib.md5(password.encode())
         passw = passw.hexdigest()
         add = Students(
@@ -1048,7 +1049,7 @@ def modifyStudent():
     em = request.form["redstudentsEmail"]
     login = request.form["redLogin"]
     password = request.form["redPass"]
-    idgroup = int(request.form['newGroup'])
+    idgroup = int(request.form["newGroup"])
     npr = db_sessions.query(Students).filter(Students.IDstudents == id_stud).first()
     if str(fname) != "":
         npr.studentsFirstname = str(fname)
@@ -1099,9 +1100,9 @@ def insert_csv_stud():
                 if not pattern_phone:
                     return "Неверный формат телефона (" + row["Телефон"] + ")", 400
                 if not pattern_studbook:
-                    return 'Неверный номер зач. книжки (' + row["№ зачетной книжки"] + ')', 400
+                    return "Неверный номер зач. книжки (" + row["№ зачетной книжки"] + ")", 400
                 if group is None:
-                    return 'Группа не найдена (' + row["Группа"] + ')', 400
+                    return "Группа не найдена (" + row["Группа"] + ")", 400
                 add = Students(
                     studentsFirstname=row["Фамилия"],
                     studentsName=row["Имя"],
@@ -1171,7 +1172,8 @@ def addcompetitions():
     db_sessions.commit()
     return redirect("/admin/competitions")
 
-@pages.route('/admin/modifyCompetition', methods=['POST'])
+
+@pages.route("/admin/modifyCompetition", methods=["POST"])
 def modify_competition():
     cod = str(request.form["competensionsShifr"])
     full = str(request.form["competensionsFull"])
@@ -1185,13 +1187,15 @@ def modify_competition():
     db_sessions.commit()
     return redirect("/admin/competitions")
 
-@pages.route('/admin/deleteCompetition', methods=['POST'])
+
+@pages.route("/admin/deleteCompetition", methods=["POST"])
 def delete_competition():
     id_comp = int(request.form["competetion"])
     db_sessions = get_session()
     db_sessions.query(Competensions).filter(Competensions.IDcompetensions == id_comp).delete()
     db_sessions.commit()
     return redirect("/admin/competitions")
+
 
 @pages.route("/admin/csvComp", methods=["POST"])
 def insert_csv_comp():
@@ -1207,21 +1211,18 @@ def insert_csv_comp():
                 spec = row["Специализация"]
                 code = row["Код"]
                 content = row["Содержание"]
-                id_spec= db_sessions.execute(
-                    select(Specializations.IDspec).where(
-                        Specializations.FullSpec == spec
-                    )
+                id_spec = db_sessions.execute(
+                    select(Specializations.IDspec).where(Specializations.FullSpec == spec)
                 ).first()
                 add = Competensions(
-                    IDspec = id_spec[0],
-                    competensionsShifr = code,
-                    competensionsFull = content
+                    IDspec=id_spec[0], competensionsShifr=code, competensionsFull=content
                 )
                 db_sessions.add(add)
                 db_sessions.commit()
         return "", 200
     finally:
         remove(file_path)
+
 
 @pages.route("/admin/getStudentsGroup", methods=["GET"])
 def get_students_group():
@@ -1236,6 +1237,7 @@ def get_students_group():
     )
     students = db_sessions.execute(select_students).all()
     return jsonify([dict(row._mapping) for row in students]), 200
+
 
 @pages.route("/admin/getCompetition", methods=["GET"])
 def get_competition_on_spec():
@@ -1257,7 +1259,11 @@ def cafedra():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_caf = select(Sheffofprojects, Positions).join(Positions).order_by(Sheffofprojects.FullName, Positions.positionsName)
+        select_caf = (
+            select(Sheffofprojects, Positions)
+            .join(Positions)
+            .order_by(Sheffofprojects.FullName, Positions.positionsName)
+        )
         select_pos = select(Positions).order_by(Positions.positionsName)
         caf = db_sessions.execute(select_caf).all()
         pos = db_sessions.execute(select_pos).all()
@@ -1266,18 +1272,20 @@ def cafedra():
         fio_filters = request.form.get("cafedraFIO")
         pos_filters = request.form.get("cafedraPos")
         where_fio_filters = (
-            Sheffofprojects.FullName.ilike("%" + fio_filters + "%")
-            if fio_filters
-            else text("1=1")
+            Sheffofprojects.FullName.ilike("%" + fio_filters + "%") if fio_filters else text("1=1")
         )
         where_pos_filters = (
-            Positions.positionsName.ilike("%" + pos_filters + "%")
-            if pos_filters
-            else text("1=1")
+            Positions.positionsName.ilike("%" + pos_filters + "%") if pos_filters else text("1=1")
         )
         select = get_select()
         db_sessions = get_session()
-        select_caf = select(Sheffofprojects, Positions).join(Positions).where(where_fio_filters).where(where_pos_filters).order_by(Sheffofprojects.FullName,Positions.positionsName)
+        select_caf = (
+            select(Sheffofprojects, Positions)
+            .join(Positions)
+            .where(where_fio_filters)
+            .where(where_pos_filters)
+            .order_by(Sheffofprojects.FullName, Positions.positionsName)
+        )
         select_pos = select(Positions).order_by(Positions.positionsName)
         caf = db_sessions.execute(select_caf).all()
         pos = db_sessions.execute(select_pos).all()
@@ -1312,7 +1320,7 @@ def addcafedra():
     return redirect("/admin/cafedra")
 
 
-@pages.route('/admin/delCafedra', methods=['POST']) #удалить сотрудника ИВТ
+@pages.route("/admin/delCafedra", methods=["POST"])  # удалить сотрудника ИВТ
 def delcafedra():
     id_sotr = int(request.form["delsotr"])
     db_sessions = get_session()
@@ -1356,9 +1364,14 @@ def modifyCafedra():
         password = hashlib.md5(password.encode())
         password = password.hexdigest()
         npr.Pass = str(password)
-    if sess_name == f'{old_name} {npr.positionsName.positionsName}':
-        session.pop('fullName')
-        session['fullName'] =  [firstname if firstname else npr.sheffprFirstname, name if name else npr.sheffprName, lastname if lastname else npr.sheffprFathername, positions.Positions.positionsName if positions else npr.positionsName.positionsName]
+    if sess_name == f"{old_name} {npr.positionsName.positionsName}":
+        session.pop("fullName")
+        session["fullName"] = [
+            firstname if firstname else npr.sheffprFirstname,
+            name if name else npr.sheffprName,
+            lastname if lastname else npr.sheffprFathername,
+            positions.Positions.positionsName if positions else npr.positionsName.positionsName,
+        ]
     db_sessions.commit()
     return redirect("/admin/cafedra")
 
@@ -1392,12 +1405,10 @@ def insert_csv_cafedra():
                 if not pattern_phone:
                     return "Неверный формат телефона (" + row["Телефон"] + ")", 400
                 id_pos = db_sessions.execute(
-                    select(Positions.IDpositions).where(
-                        Positions.positionsName == posit
-                    )
+                    select(Positions.IDpositions).where(Positions.positionsName == posit)
                 ).first()
                 if id_pos is None:
-                     return 'Должность не найдена (' + row["Должность"] + ')', 400
+                    return "Должность не найдена (" + row["Должность"] + ")", 400
                 add = Sheffofprojects(
                     IDpositions=id_pos[0],
                     sheffprFirstname=fname,
@@ -1414,12 +1425,13 @@ def insert_csv_cafedra():
     finally:
         remove(file_path)
 
+
 @pages.route("/shefforg/organization", methods=["GET", "POST"])  # админка-регистрация организации
 def sheff_org_organization():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        id_org = session['user'][0]
+        id_org = session["user"][0]
         select_orgsheff = (
             select(
                 Organizations,
@@ -1434,15 +1446,14 @@ def sheff_org_organization():
             .order_by(Organizations.orgName)
         )
         orgsheff = db_sessions.execute(select_orgsheff).all()
-        return render_template(
-            "sheff_org_organization.html", orgsheff=orgsheff
-        )
+        return render_template("sheff_org_organization.html", orgsheff=orgsheff)
+
 
 @pages.route("/shefforg/redorganiz", methods=["POST"])  # редактирование рук.организации
 def sheff_org_redorg():
     if request.method == "POST":
         db_sessions = get_session()
-        idorg = session['user'][0]
+        idorg = session["user"][0]
         name = request.form["redorgName"]
         yur = request.form["redorgYuraddress"]
         adres = request.form["redorgPostaddress"]
@@ -1462,12 +1473,13 @@ def sheff_org_redorg():
         db_sessions.commit()
         return redirect("/shefforg/organization")
 
+
 @pages.route("/shefforg/reg_shefforg", methods=["GET"])  # админка-регистрация рук.огранизации
 def shefforg_reg_shefforg():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        idorg = session['user'][0]
+        idorg = session["user"][0]
         select_shefforg = (
             select(Shefforganizations)
             .join_from(
@@ -1482,11 +1494,12 @@ def shefforg_reg_shefforg():
         shefforg = db_sessions.execute(select_shefforg).all()
         return render_template("sheff_org_registration.html", shefforg=shefforg)
 
+
 @pages.route("/shefforg/redshefforganiz", methods=["POST"])  # редактирование рук.организации
 def shefforg_redshefforg():
     if request.method == "POST":
         db_sessions = get_session()
-        idshefforg = session['user'][1]
+        idshefforg = session["user"][1]
         firstname = request.form["redshefforgFirstname"]
         name = request.form["redshefforgName"]
         fathername = request.form["redshefforgFathername"]
@@ -1513,11 +1526,16 @@ def shefforg_redshefforg():
             npr.shefforgEmail = str(em)
         if str(phone) != "":
             npr.shefforgPhone = str(phone)
-        session.pop('fullName')
-        session['fullName'] =  [firstname if firstname else npr.shefforgFirstname, name if name else npr.shefforgName, fathername if fathername else npr.shefforgFathername]
+        session.pop("fullName")
+        session["fullName"] = [
+            firstname if firstname else npr.shefforgFirstname,
+            name if name else npr.shefforgName,
+            fathername if fathername else npr.shefforgFathername,
+        ]
         db_sessions.commit()
 
         return redirect("/shefforg/reg_shefforg")
+
 
 @pages.route(
     "/shefforg/contracts", methods=["GET", "POST"]
@@ -1526,9 +1544,11 @@ def sheff_org_contracts():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        idorg = session['user'][0]
-        select_contracts = select(Contracts).filter(Contracts.IDorg == idorg).order_by(
-            Contracts.contractsNumber, Contracts.contractsStart
+        idorg = session["user"][0]
+        select_contracts = (
+            select(Contracts)
+            .filter(Contracts.IDorg == idorg)
+            .order_by(Contracts.contractsNumber, Contracts.contractsStart)
         )
         contracts = db_sessions.execute(select_contracts).all()
 
@@ -1537,6 +1557,7 @@ def sheff_org_contracts():
             contracts=contracts,
         )
 
+
 @pages.route(
     "/shefforg/mailadmin", methods=["GET", "POST"]
 )  # Договоры об организации проектного обучения
@@ -1544,14 +1565,14 @@ def sheff_org_mailadmin():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        select_admins = select(Sheffofprojects).filter(Sheffofprojects.IDpositions == 1).order_by(
-            Sheffofprojects.FullName
+        select_admins = (
+            select(Sheffofprojects)
+            .filter(Sheffofprojects.IDpositions == 1)
+            .order_by(Sheffofprojects.FullName)
         )
         admins = db_sessions.execute(select_admins).all()
 
-        return render_template(
-            "sheff_org_mail_admin.html",
-            admins=admins)
+        return render_template("sheff_org_mail_admin.html", admins=admins)
 
 
 @pages.route("/shefforg/iniciators", methods=["GET", "POST"])  # Инициаторы проектов
@@ -1559,16 +1580,45 @@ def sheff_org_iniciators():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        idorg = session['user'][0]
-        select_inicators = select(Initiatorsofprojects).filter(Initiatorsofprojects.IDorg == idorg).order_by(Initiatorsofprojects.FullName)
+        idorg = session["user"][0]
+        select_inicators = (
+            select(Initiatorsofprojects)
+            .filter(Initiatorsofprojects.IDorg == idorg)
+            .order_by(Initiatorsofprojects.FullName)
+        )
         inic = db_sessions.execute(select_inicators).all()
         return render_template("iniciators.html", inic=inic)
+    if request.method == "POST":
+        select = get_select()
+        db_sessions = get_session()
+        idorg = session["user"][0]
+        fio_filters = request.form["fioFilter"]
+        pos_filters = request.form["posFilter"]
+        where_fio_filters = (
+            Initiatorsofprojects.FullName.ilike("%" + fio_filters + "%")
+            if fio_filters
+            else text("1=1")
+        )
+        where_org_filters = (
+            Initiatorsofprojects.initprPositions.ilike("%" + pos_filters + "%")
+            if pos_filters
+            else text("1=1")
+        )
+        select_inicators = (
+            select(Initiatorsofprojects)
+            .filter(Initiatorsofprojects.IDorg == idorg)
+            .where(where_fio_filters)
+            .where(where_org_filters)
+            .order_by(Initiatorsofprojects.FullName)
+        )
+        inic = db_sessions.execute(select_inicators).all()
+        return render_template("resultTableInic.html", inic=inic)
 
 
 @pages.route("/shefforg/addIniciators", methods=["POST"])  # Добавить инициатора проектов
 def sheff_org_addiniciators():
     db_sessions = get_session()
-    idorg = session['user'][0]
+    idorg = session["user"][0]
     fname = str(request.form["initprFirstname"])
     name = str(request.form["initprName"])
     lname = str(request.form["initprFathername"])
@@ -1595,11 +1645,13 @@ def sheff_org_addiniciators():
     return redirect("/shefforg/iniciators")
 
 
-@pages.route('/shefforg/deliniciators', methods=['POST']) #удалить инициатора проектов
+@pages.route("/shefforg/deliniciators", methods=["POST"])  # удалить инициатора проектов
 def deliniciators():
     id_sotr = int(request.form["delin"])
     db_sessions = get_session()
-    db_sessions.query(Initiatorsofprojects).filter(Initiatorsofprojects.IDinitpr == id_sotr).delete()
+    db_sessions.query(Initiatorsofprojects).filter(
+        Initiatorsofprojects.IDinitpr == id_sotr
+    ).delete()
     db_sessions.commit()
     return redirect("/shefforg/iniciators")
 
@@ -1642,3 +1694,42 @@ def sheff_org_redinitiators():
     db_sessions.commit()
     return redirect("/shefforg/iniciators")
 
+
+@pages.route("/admin/csvInic", methods=["POST"])
+def insert_csv_inic():
+    try:
+        upload_file = request.files.get("file")
+        file_path = path.join("documents", upload_file.filename)
+        upload_file.save(file_path)
+        with open(file_path, encoding="utf-8") as file:
+            db_sessions = get_session()
+            reader = csv.DictReader(file, delimiter=";")
+            for row in reader:
+                password = row["Пароль"]
+                password = hashlib.md5(password.encode())
+                password = password.hexdigest()
+                pattern_email = re.match(
+                    r"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$",
+                    row["Электронная почта"],
+                )
+                pattern_phone = re.match(r"^\+7[0-9]{10}$", row["Телефон"])
+                if not pattern_email:
+                    return "Неверный формат почты (" + row["Электронная почта"] + ")", 400
+                if not pattern_phone:
+                    return "Неверный формат телефона (" + row["Телефон"] + ")", 400
+                add = Initiatorsofprojects(
+                    initprFirstname=row["Фамилия"],
+                    initprName=row["Имя"],
+                    initprFathername=row["Отчество"],
+                    IDorg=session["user"][0],
+                    initprPositions=row["Должность"],
+                    initprPhone=row["Телефон"],
+                    initprEmail=row["Электронная почта"],
+                    Login=row["Логин"],
+                    Pass=password,
+                )
+                db_sessions.add(add)
+                db_sessions.commit()
+        return "", 200
+    finally:
+        remove(file_path)

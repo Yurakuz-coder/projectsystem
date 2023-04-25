@@ -2,6 +2,60 @@
 {% set active_page = "iniciators" %}
 {% block content %}
 <h1>Инициаторы проектов</h1>
+<br />
+<div class="btn-group" role="group">
+  <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
+    aria-controls="collapseTableBody">
+    Отобразить данные
+  </a>
+  <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+    aria-controls="collapseFilters">
+    Добавить фильтры
+  </a>
+</div>
+<br />
+<div class="collapse" id="collapseFilters">
+  <br />
+  <input type="text" id="fioFilter" class="form-control" placeholder="Фильтр по ФИО" aria-label="fioFilter"
+    aria-describedby="basic-addon1">
+  <br />
+  <input type="text" id="posFilter" class="form-control" placeholder="Фильтр по должности" aria-label="posFilter"
+    aria-describedby="basic-addon1">
+  <br />
+  <div class="btn-group" role="group">
+    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyInicFilters()">
+      Применить фильтры
+    </button>
+    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropInicFilters()">
+      Сбросить фильтр
+    </button>
+  </div>
+  <br />
+</div>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">
+        ФИО
+      </th>
+      <th scope="col">
+        Электронный адрес
+      </th>
+      <th scope="col">
+        Должность
+      </th>
+      <th scope="col">
+        Телефон
+      </th>
+      <th scope="col">
+        Логин
+      </th>
+    </tr>
+  </thead>
+  <tbody class="collapse" id="collapseTableBody">
+    {% include "resultTableInic.html" %}
+  </tbody>
+</table>
 <br>
 <div class="btn-group" role="group">
   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -17,6 +71,15 @@
   <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delinic">
     Удалить инициатора проектов
   </button>
+</div>
+
+<br />
+<br />
+<div class="input-group mb-0">
+  <button class="btn btn-outline-secondary" type="button" onclick="uploadCsvInicFile()" id="button-upload-csv">Загрузить
+    файл из csv</button>
+  <input type="file" accept=".csv" class="form-control" id="input-upload-csv" aria-describedby="button-upload-csv"
+    aria-label="Upload">
 </div>
 
 
