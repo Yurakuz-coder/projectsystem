@@ -93,11 +93,15 @@
         <form action="addContract" method="post">
           <div class="form-group">
             <label for="addorg" class="form-select-label">Выберите организацию</label>
-            <select class="form-select" aria-label="Default select example" name="addorg">
+            <select class="form-select" aria-label="Default select example" name="addorg" {% if organizations==[] %}
+              disabled {% endif %}>
               {% for el in organizations %}
               <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - {{
                 el.Organizations.orgYuraddress }} </option>
               {% endfor %}
+              {% if organizations == [] %}
+              <option value="">Организации не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -115,7 +119,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if organizations==[] %} disabled {% endif
+              %}>Сохранить</button>
           </div>
         </form>
       </div>
@@ -135,18 +140,23 @@
         <form action="delContract" method="post">
           <div class="form-group">
             <label for="delContract" class="form-select-label">Выберите договор</label>
-            <select class="form-select" aria-label="Default select example" name="delContract">
+            <select class="form-select" aria-label="Default select example" name="delContract" {% if contracts_order==[]
+              %} disabled {% endif %}>
               {% for el in contracts_order %}
               <option value="{{ el.Contracts.IDcontracts }}"> {{ el.Contracts.organizations.orgName }} - № {{
                 el.Contracts.contractsNumber }} от {{
                 el.Contracts.contractsStart }}
               </option>
               {% endfor %}
+              {% if contracts_order == [] %}
+              <option value="">Договоры не найдены</option>
+              {% endif %}
             </select>
           </div>
           <br>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          <button type="submit" class="btn btn-danger">Удалить</button>
+          <button type="submit" class="btn btn-danger" {% if contracts_order==[] %} disabled {% endif
+            %}>Удалить</button>
         </form>
       </div>
     </div>
@@ -165,23 +175,30 @@
         <form action="modifyContract" method="post">
           <div class="form-group">
             <label for="modifyContract" class="form-select-label">Выберите договор</label>
-            <select class="form-select" aria-label="Default select example" name="modifyContract">
+            <select class="form-select" aria-label="Default select example" name="modifyContract" {% if
+              contracts_order==[] %} disabled {% endif %}>
               {% for el in contracts_order %}
               <option value="{{ el.Contracts.IDcontracts }}"> {{
                 el.Contracts.organizations.orgName }} - № {{ el.Contracts.contractsNumber }} от {{
                 el.Contracts.contractsStart }}
               </option>
               {% endfor %}
+              {% if contracts_order == [] %}
+              <option value="">Договоры не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
             <label for="addorg" class="form-select-label">Выберите организацию</label>
-            <select class="form-select" aria-label="Default select example" name="addorg">
-              <option selected></option>
+            <select class="form-select" aria-label="Default select example" name="addorg" {% if organizations==[] %}
+              disabled {% endif %}>
               {% for el in organizations %}
               <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - {{
                 el.Organizations.orgYuraddress }}</option>
               {% endfor %}
+              {% if organizations == [] %}
+              <option value="">Организации не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -199,7 +216,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if contracts_order==[] %} disabled {% endif %} {% if
+              organizations==[] %} disabled {% endif %}>Сохранить</button>
           </div>
         </form>
       </div>

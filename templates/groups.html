@@ -101,26 +101,35 @@
           </div>
           <div class="form-group">
             <label for="form_st" class="form-select-label">Форма обучения</label>
-            <select class="form-select" aria-label="Default select example" name="form_st">
+            <select class="form-select" aria-label="Default select example" name="form_st" {% if formst==[] %} disabled
+              {% endif %}>
               {% for el in formst %}
               <option value="{{ el.Formstuding.IDform_st }}"> {{ el.Formstuding.form_stName }}</option>
               {% endfor %}
+              {% if specializations==[] %}
+              <option value="">Формы обучения не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
             <label for="spec" class="form-select-label">Направление подготовки</label>
-            <select class="form-select" aria-label="Default select example" name="spec">
+            <select class="form-select" aria-label="Default select example" name="spec" {% if specializations==[] %}
+              disabled {% endif %}>
               {% for el in specializations %}
               <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
                 el.Specializations.specNapravlenie }} - {{
                 el.Specializations.specNapravlennost }}
               </option>
               {% endfor %}
+              {% if specializations==[] %}
+              <option value="">Специализации не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if specializations==[] %} disabled {% endif %} {% if
+              formst==[] %} disabled {% endif %}>Сохранить</button>
           </div>
         </form>
       </div>
@@ -140,15 +149,19 @@
         <form action="delGroup" method="post">
           <div class="form-group">
             <label for="delGroup" class="form-select-label">Выберите группу</label>
-            <select class="form-select" aria-label="Default select example" name="delGroup">
+            <select class="form-select" aria-label="Default select example" name="delGroup" {% if groups==[] %} disabled
+              {% endif %}>
               {% for el in groups %}
               <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} </option>
               {% endfor %}
+              {% if groups==[] %}
+              <option value="">Группы не найдены</option>
+              {% endif %}
             </select>
           </div>
           <br>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          <button type="submit" class="btn btn-danger">Удалить</button>
+          <button type="submit" class="btn btn-danger" {% if groups==[] %} disabled {% endif %}>Удалить</button>
         </form>
       </div>
     </div>
@@ -167,10 +180,14 @@
         <form action="modifyGroup" method="post">
           <div class="form-group">
             <label for="modifyGroups" class="form-select-label">Выберите группу</label>
-            <select class="form-select" aria-label="Default select example" name="modifyGroups">
+            <select class="form-select" aria-label="Default select example" name="modifyGroups" {% if groups==[] %}
+              disabled {% endif %}>
               {% for el in groups %}
               <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} </option>
               {% endfor %}
+              {% if groups==[] %}
+              <option value="">Группы не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -184,28 +201,35 @@
           </div>
           <div class="form-group">
             <label for="redform_st" class="form-select-label">Форма обучения</label>
-            <select class="form-select" aria-label="Default select example" name="redform_st">
-              <option selected></option>
+            <select class="form-select" aria-label="Default select example" name="redform_st" {% if formst==[] %}
+              disabled {% endif %}>
               {% for el in formst %}
               <option value="{{ el.Formstuding.IDform_st }}"> {{ el.Formstuding.form_stName }}</option>
               {% endfor %}
+              {% if specializations==[] %}
+              <option value="">Формы обучения не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
             <label for="redspec" class="form-select-label">Направление подготовки</label>
-            <select class="form-select" aria-label="Default select example" name="redspec">
-              <option selected></option>
+            <select class="form-select" aria-label="Default select example" name="redspec" {% if specializations==[] %}
+              disabled {% endif %}>
               {% for el in specializations %}
               <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
                 el.Specializations.specNapravlenie }} - {{
                 el.Specializations.specNapravlennost }}
               </option>
               {% endfor %}
+              {% if specializations==[] %}
+              <option value="">Специализации не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if groups==[] %} disabled {% endif %} {% if
+              specializations==[] %} disabled {% endif %} {% if formst==[] %} disabled {% endif %}>Сохранить</button>
           </div>
         </form>
       </div>

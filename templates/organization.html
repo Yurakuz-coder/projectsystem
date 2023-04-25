@@ -92,10 +92,14 @@
         <form action="add-org" method="post">
           <div class="form-group">
             <label for="addsheforg" class="form-select-label">Выберите руководителя организации</label>
-            <select class="form-select" aria-label="Default select example" name="addsheforg">
+            <select class="form-select" aria-label="Default select example" name="addsheforg" {% if shefforg==[] %}
+              disabled {% endif %}>
               {% for el in shefforg %}
               <option value="{{ el[1] }}"> {{ el[2] }} </option>
               {% endfor %}
+              {% if shefforg == [] %}
+              <option value="">Руководители не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -122,7 +126,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if shefforg==[] %} disabled {% endif %}>Сохранить</button>
           </div>
         </form>
       </div>
@@ -142,17 +146,21 @@
         <form action="delorg" method="post">
           <div class="form-group">
             <label for="delorg" class="form-select-label">Выберите организацию</label>
-            <select class="form-select" aria-label="Default select example" name="delorg">
+            <select class="form-select" aria-label="Default select example" name="delorg" {% if organizations==[] %}
+              disabled {% endif %}>
               {% for el in organizations %}
               <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - Юридический адрес: {{
                 el.Organizations.orgYuraddress }}
               </option>
               {% endfor %}
+              {% if organizations == [] %}
+              <option value="">Организации не найдены</option>
+              {% endif %}
             </select>
           </div>
           <br>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          <button type="submit" class="btn btn-danger">Удалить</button>
+          <button type="submit" class="btn btn-danger" {% if organizations==[] %} disabled {% endif %}>Удалить</button>
         </form>
       </div>
     </div>
@@ -171,20 +179,27 @@
       <div class="modal-body">
         <form action="redorganiz" method="post">
           <label for="redorg" class="form-select-label">Выберите организацию</label>
-          <select class="form-select" aria-label="Default select example" name="redorg">
+          <select class="form-select" aria-label="Default select example" name="redorg" {% if organizations==[] %}
+            disabled {% endif %}>
             {% for el in organizations %}
             <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - Юридический адрес: {{
               el.Organizations.orgYuraddress }}
             </option>
             {% endfor %}
+            {% if organizations == [] %}
+            <option value="">Организации не найдены</option>
+            {% endif %}
           </select>
           <div class="form-group">
             <label for="redsheforg" class="form-select-label">Выберите руководителя организации</label>
-            <select class="form-select" aria-label="Default select example" name="redsheforg">
-              <option selected></option>
+            <select class="form-select" aria-label="Default select example" name="redsheforg" {% if shefforg==[] %}
+              disabled {% endif %}>
               {% for el in shefforg %}
               <option value="{{ el[1] }}"> {{ el[2] }} </option>
               {% endfor %}
+              {% if shefforg == [] %}
+              <option value="">Руководители не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -211,7 +226,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if shefforg==[] %} disabled {% endif %} {% if
+              organizations==[] %} disabled {% endif %}>Сохранить</button>
           </div>
         </form>
       </div>

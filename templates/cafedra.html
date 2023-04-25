@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Состав кафедры ИВТ</h1>
 <br />
-    <div class="btn-group" role="group">
+<div class="btn-group" role="group">
   <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
     aria-controls="collapseTableBody">
     Отобразить данные
@@ -16,11 +16,11 @@
 <br />
 <div class="collapse" id="collapseFilters">
   <br />
-  <input type="text" id="cafedraFIO" class="form-control" placeholder="Фильтр по ФИО"
-    aria-label="cafedraFIO" aria-describedby="basic-addon1">
+  <input type="text" id="cafedraFIO" class="form-control" placeholder="Фильтр по ФИО" aria-label="cafedraFIO"
+    aria-describedby="basic-addon1">
   <br />
-  <input type="text" id="cafedraPos" class="form-control" placeholder="Фильтр по должности"
-    aria-label="cafedraPos" aria-describedby="basic-addon1">
+  <input type="text" id="cafedraPos" class="form-control" placeholder="Фильтр по должности" aria-label="cafedraPos"
+    aria-describedby="basic-addon1">
   <br />
   <div class="btn-group" role="group">
     <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyCafedraFilters()">
@@ -32,7 +32,7 @@
   </div>
   <br />
 </div>
-    <table class="table table-hover">
+<table class="table table-hover">
   <thead>
     <tr>
       <th scope="col">
@@ -56,7 +56,7 @@
     {% include "resultTableCafedra.html" %}
   </tbody>
 </table>
-    <div class="btn-group" role="group">
+<div class="btn-group" role="group">
   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
     Добавить сотрудника
   </button>
@@ -72,14 +72,15 @@
 <br />
 <br />
 <div class="input-group mb-0">
-  <button class="btn btn-outline-secondary" type="button" onclick="uploadCsvCafedraFile()" id="button-upload-csv">Загрузить
+  <button class="btn btn-outline-secondary" type="button" onclick="uploadCsvCafedraFile()"
+    id="button-upload-csv">Загрузить
     файл из csv</button>
   <input type="file" accept=".csv" class="form-control" id="input-upload-csv" aria-describedby="button-upload-csv"
     aria-label="Upload">
 </div>
 
 
-    <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -100,12 +101,16 @@
             <label for="sheffprFathername" class="form-control-label">Отчество (необязательное поле)</label>
             <input class="form-control" id="sheffprFathername" name="sheffprFathername">
           </div>
-             <div class="form-group">
+          <div class="form-group">
             <label for="posName" class="form-select-label">Выберите должность</label>
-            <select class="form-select" aria-label="Default select example" id="posName" name="posName">
+            <select class="form-select" aria-label="Default select example" id="posName" name="posName" {% if pos==[] %}
+              disabled {% endif %}>
               {% for el in pos %}
               <option value="{{ el.Positions.IDpositions }}"> {{ el.Positions.positionsName }}</option>
               {% endfor %}
+              {% if pos == [] %}
+              <option value="">Должности не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -129,7 +134,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if pos==[] %} disabled {% endif %}>Сохранить</button>
           </div>
         </form>
       </div>
@@ -138,7 +143,7 @@
 </div>
 
 
-    <div class="modal fade" id="modalDel" tabindex="-1" aria-labelledby="modalDelLabel" aria-hidden="true">
+<div class="modal fade" id="modalDel" tabindex="-1" aria-labelledby="modalDelLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -149,15 +154,20 @@
         <form action="delCafedra" method="post">
           <div class="form-group">
             <label for="delsotr" class="form-select-label">Выберите сотрудника</label>
-            <select class="form-select" aria-label="Default select example" name="delsotr">
+            <select class="form-select" aria-label="Default select example" name="delsotr" {% if caf==[] %} disabled {%
+              endif %}>
               {% for el in caf %}
-              <option value="{{ el.Sheffofprojects.IDsheffpr }}"> {{ el.Sheffofprojects.FullName }} - {{ el.Positions.positionsName }} </option>
+              <option value="{{ el.Sheffofprojects.IDsheffpr }}"> {{ el.Sheffofprojects.FullName }} - {{
+                el.Positions.positionsName }} </option>
               {% endfor %}
+              {% if caf == [] %}
+              <option value="">Сотрудники не найдены</option>
+              {% endif %}
             </select>
           </div>
           <br>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          <button type="submit" class="btn btn-danger">Удалить</button>
+          <button type="submit" class="btn btn-danger" {% if caf==[] %} disabled {% endif %}>Удалить</button>
         </form>
       </div>
     </div>
@@ -165,7 +175,7 @@
 </div>
 
 
-    <div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
+<div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -176,10 +186,15 @@
         <form action="modifyCafedra" method="post">
           <div class="form-group">
             <label for="modifysotr" class="form-select-label">Выберите сотрудника</label>
-            <select class="form-select" aria-label="Default select example" name="modifysotr">
+            <select class="form-select" aria-label="Default select example" name="modifysotr" {% if caf==[] %} disabled
+              {% endif %}>
               {% for el in caf %}
-              <option value="{{ el.Sheffofprojects.IDsheffpr }}"> {{ el.Sheffofprojects.FullName }} - {{ el.Positions.positionsName }} </option>
+              <option value="{{ el.Sheffofprojects.IDsheffpr }}"> {{ el.Sheffofprojects.FullName }} - {{
+                el.Positions.positionsName }} </option>
               {% endfor %}
+              {% if caf == [] %}
+              <option value="">Сотрудники не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -194,13 +209,16 @@
             <label for="redsheffprFathername" class="form-control-label">Отчество (необязательное поле)</label>
             <input class="form-control" id="redsheffprFathername" name="redsheffprFathername">
           </div>
-             <div class="form-group">
+          <div class="form-group">
             <label for="redposName" class="form-select-label">Выберите должность</label>
-            <select class="form-select" aria-label="Default select example" id="redposName" name="redposName">
-             <option value="" />
+            <select class="form-select" aria-label="Default select example" id="redposName" name="redposName" {% if
+              pos==[] %} disabled {% endif %}>
               {% for el in pos %}
               <option value="{{ el.Positions.IDpositions }}"> {{ el.Positions.positionsName }}</option>
               {% endfor %}
+              {% if pos == [] %}
+              <option value="">Должности не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -223,7 +241,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if pos==[] %} disabled {% endif %} {% if caf==[] %}
+              disabled {% endif %}>Сохранить</button>
           </div>
         </form>
       </div>

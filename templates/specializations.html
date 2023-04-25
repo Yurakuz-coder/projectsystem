@@ -117,18 +117,23 @@
         <form action="delSpecialization" method="post">
           <div class="form-group">
             <label for="delSpecialization" class="form-select-label">Выберите специализацию</label>
-            <select class="form-select" aria-label="Default select example" name="delSpecialization">
+            <select class="form-select" aria-label="Default select example" name="delSpecialization" {% if
+              specializations==[] %} disabled {% endif %}>
               {% for el in specializations %}
               <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
                 el.Specializations.specNapravlenie }} - {{
                 el.Specializations.specNapravlennost }}
               </option>
               {% endfor %}
+              {% if specializations==[] %}
+              <option value="">Специализации не найдены</option>
+              {% endif %}
             </select>
           </div>
           <br>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          <button type="submit" class="btn btn-danger">Удалить</button>
+          <button type="submit" class="btn btn-danger" {% if specializations==[] %} disabled {% endif
+            %}>Удалить</button>
         </form>
       </div>
     </div>
@@ -154,6 +159,9 @@
                 el.Specializations.specNapravlennost }}
               </option>
               {% endfor %}
+              {% if specializations==[] %}
+              <option value="">Специализации не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -171,7 +179,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if specializations==[] %} disabled {% endif
+              %}>Сохранить</button>
           </div>
         </form>
       </div>

@@ -153,7 +153,8 @@
         <form action="delsheforg" method="post">
           <div class="form-group">
             <label for="delsheforg" class="form-select-label">Выберите руководителя организации</label>
-            <select class="form-select" aria-label="Default select example" name="delsheforg">
+            <select class="form-select" aria-label="Default select example" name="delsheforg" {% if shefforg==[] %}
+              disabled {% endif %}>
               {% for el in shefforg %}
               <option value="{{ el.Shefforganizations.IDshefforg }}"> {{ el.Shefforganizations.shefforgFirstname }} {{
                 el.Shefforganizations.shefforgName }}
@@ -161,11 +162,14 @@
                 el.Organizations.orgYuraddress }}
               </option>
               {% endfor %}
+              {% if shefforg == [] %}
+              <option value="">Руководители не найдены</option>
+              {% endif %}
             </select>
           </div>
           <br>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          <button type="submit" class="btn btn-danger">Удалить</button>
+          <button type="submit" class="btn btn-danger" {% if shefforg==[] %} disabled {% endif %}>Удалить</button>
         </form>
       </div>
       </form>
@@ -184,7 +188,8 @@
         <form action="redshefforganiz" method="post">
           <div class="form-group">
             <label for="redshefforg" class="form-select-label">Выберите руководителя организации</label>
-            <select class="form-select" aria-label="Default select example" name="redshefforg">
+            <select class="form-select" aria-label="Default select example" name="redshefforg" {% if shefforg==[] %}
+              disabled {% endif %}>
               {% for el in shefforg %}
               <option value="{{ el.Shefforganizations.IDshefforg }}"> {{ el.Shefforganizations.shefforgFirstname }} {{
                 el.Shefforganizations.shefforgName }}
@@ -192,6 +197,9 @@
                 el.Organizations.orgYuraddress }}
               </option>
               {% endfor %}
+              {% if shefforg == [] %}
+              <option value="">Руководители не найдены</option>
+              {% endif %}
             </select>
           </div>
           <div class="form-group">
@@ -235,7 +243,7 @@
           </div>
           <br>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          <button type="submit" class="btn btn-primary">Сохранить</button>
+          <button type="submit" class="btn btn-primary" {% if shefforg==[] %} disabled {% endif %}>Сохранить</button>
         </form>
       </div>
       </form>
