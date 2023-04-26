@@ -104,6 +104,7 @@ class Students(Base):
     Pass = mapped_column(String(100), nullable=False)
     FullName = column_property(studentsFirstname + " " + studentsName + " " + studentsFathername)
 
+
 class Competensions(Base):
     __tablename__ = "competensions"
     IDcompetensions = mapped_column(Integer, primary_key=True)
@@ -127,3 +128,38 @@ class Initiatorsofprojects(Base):
     FullName = column_property(initprFirstname + " " + initprName + " " + initprFathername)
 
 
+class PassportOfProjects(Base):
+    __tablename__ = "passportofprojects"
+    IDpassport = mapped_column(Integer, primary_key=True, autoincrement=True)
+    IDinitpr = mapped_column(ForeignKey("initiatorsofprojects.IDinitpr"))
+    IDsheffpr = mapped_column(ForeignKey("sheffofprojects.IDsheffpr"))
+    passportName = mapped_column(String(255), nullable=False)
+    passportDate = mapped_column(Date, nullable=False)
+    passportProblem = mapped_column(String)
+    passportPurpose = mapped_column(String)
+    passportTasks = mapped_column(String)
+    passportResults = mapped_column(String)
+    passportContent = mapped_column(String)
+    passportDeadlines = mapped_column(String)
+    passportStages = mapped_column(String)
+    passportResources = mapped_column(String)
+    passportCost = mapped_column(String)
+    passportCriteria = mapped_column(String)
+    passportFormresults = mapped_column(String)
+    passportPattern = mapped_column(String(1000), nullable=False)
+    passportFull = mapped_column(String(1000), nullable=False)
+    passportSigned = mapped_column(String(1000), nullable=False)
+
+
+class StadiaOfProjects(Base):
+    __tablename__ = "stadiaofprojects"
+    IDstadiaofpr = mapped_column(Integer, primary_key=True)
+    stadiaofprName = mapped_column(String(255), nullable=False)
+
+
+class Projects(Base):
+    __tablename__ = "projects"
+    IDprojects = mapped_column(Integer, primary_key=True)
+    IDpassport = mapped_column(ForeignKey("passportofprojects.IDpassport"))
+    IDstadiaofpr = mapped_column(ForeignKey("stadiaofprojects.IDstadiaofpr"))
+    projectsFull = mapped_column(String(1000))

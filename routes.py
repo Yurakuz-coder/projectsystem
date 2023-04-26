@@ -20,6 +20,9 @@ from models.models import (
     Competensions,
     Positions,
     Initiatorsofprojects,
+    Projects,
+    PassportOfProjects,
+    StadiaOfProjects,
 )
 from models.database import get_session, get_select
 
@@ -43,7 +46,10 @@ def index():
         data_workers = (
             db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
         )
-        if not (data_workers.Login == login and data_workers.Pass == rendered_pass):
+        if not (
+            data_workers is not None
+            and (data_workers.Login == login and data_workers.Pass == rendered_pass)
+        ):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
         if data_workers.positionsName.positionsName == "Администратор":
             session["fullName"] = [
@@ -59,7 +65,10 @@ def index():
         data_workers = (
             db_sessions.query(Shefforganizations).filter(Shefforganizations.Login == login).first()
         )
-        if not (data_workers.Login == login and data_workers.Pass == rendered_pass):
+        if not (
+            data_workers is not None
+            and (data_workers.Login == login and data_workers.Pass == rendered_pass)
+        ):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
         org = (
             db_sessions.query(Organizations)
@@ -79,6 +88,35 @@ def index():
         session["email"] = data_workers.shefforgEmail
         session["user"] = [org.IDorg, data_workers.IDshefforg]
         return redirect("/shefforg/reg_shefforg")
+    if role == "initiatorsofprojects":
+        data_workers = (
+            db_sessions.query(Initiatorsofprojects)
+            .filter(Initiatorsofprojects.Login == login)
+            .first()
+        )
+        if not (
+            data_workers is not None
+            and (data_workers.Login == login and data_workers.Pass == rendered_pass)
+        ):
+            return render_template("index.html", title="Неверный логин и/или пароль!!!")
+        org = (
+            db_sessions.query(Organizations)
+            .filter(Organizations.IDorg == data_workers.IDorg)
+            .first()
+        )
+        work = f"{data_workers.initprPositions} {org.orgName}"
+        session["fullName"] = [
+            data_workers.initprFirstname,
+            data_workers.initprName,
+            data_workers.initprFathername,
+        ]
+        session["url"] = "iniciators"
+        session["pos"] = work
+        session["firstNav"] = "Панель инициатора"
+        session["secondNav"] = "проекта"
+        session["email"] = data_workers.initprEmail
+        session["user"] = [org.IDorg, data_workers.IDinitpr]
+        return redirect("/iniciators/projects")
 
 
 @pages.route("/exit", methods=["POST", "GET"])  # кнопка выхода из системы
@@ -1733,3 +1771,82 @@ def insert_csv_inic():
         return "", 200
     finally:
         remove(file_path)
+
+
+# Проекты
+@pages.route("/iniciators/projects", methods=["GET", "POST"])
+def iniciators_project():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        idinitpr = session["user"][1]
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .filter(PassportOfProjects.IDinitpr == idinitpr)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        return render_template("iniciators_projects.html", projects=projects)
+    if request.method == "POST":
+        select = get_select()
+        db_sessions = get_session()
+        idorg = session["user"][0]
+        fio_filters = request.form["fioFilter"]
+        pos_filters = request.form["posFilter"]
+        where_fio_filters = (
+            Initiatorsofprojects.FullName.ilike("%" + fio_filters + "%")
+            if fio_filters
+            else text("1=1")
+        )
+        where_org_filters = (
+            Initiatorsofprojects.initprPositions.ilike("%" + pos_filters + "%")
+            if pos_filters
+            else text("1=1")
+        )
+        select_inicators = (
+            select(Initiatorsofprojects)
+            .filter(Initiatorsofprojects.IDorg == idorg)
+            .where(where_fio_filters)
+            .where(where_org_filters)
+            .order_by(Initiatorsofprojects.FullName)
+        )
+        inic = db_sessions.execute(select_inicators).all()
+        return render_template("resultTableInic.html", inic=inic)
+
+
+@pages.route("/iniciators/addProject", methods=["POST"])
+def iniciators_add_project():
+    db_sessions = get_session()
+    idinitpr = session["user"][1]
+    projectName = str(request.form["projectName"])
+    problem = str(request.form["problem"])
+    purpose = str(request.form["purpose"])
+    tasks = str(request.form["tasks"])
+    result = str(request.form["result"])
+
+    add_passport = PassportOfProjects(
+        IDinitpr=idinitpr,
+        passportName=projectName,
+        passportDate=datetime.now(),
+        passportProblem=problem,
+        passportPurpose=purpose,
+        passportTasks=tasks,
+        passportResults=result,
+        passportPattern=1,
+        passportFull=2,
+        passportSigned=3,
+    )
+    db_sessions.add(add_passport)
+    db_sessions.flush()
+    idpassport = add_passport.IDpassport
+
+    add_project = Projects(IDpassport=idpassport, IDstadiaofpr=1)
+    db_sessions.add(add_project)
+    db_sessions.commit()
+    return redirect("/iniciators/projects")
+
+
+@pages.route("/iniciators/modifyProject", methods=["POST"])
+def iniciators_modify_project():
+    pass
