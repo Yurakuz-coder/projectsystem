@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% set active_page = "projects" %}
+{% block content %}
+<h1>Проекты</h1>
+<br />
+<div class="btn-group" role="group">
+    <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+        aria-controls="collapseFilters">
+        Добавить фильтры
+    </a>
+</div>
+<br />
+<div class="collapse" id="collapseFilters">
+    <br />
+    <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
+        aria-label="projectFilter" aria-describedby="basic-addon1">
+    <br />
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyProjectFilters()">
+            Применить фильтры
+        </button>
+        <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropProjectFilter()">
+            Сбросить фильтр
+        </button>
+    </div>
+</div>
+<br />
+<div class="accordion" id="projectsAccordion">
+    {% include "resultAccordionProjects.html" %}
+</div>
+<br>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+        Создать заявку на организацию проекта
+    </button>
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">
+        Редактировать паспорт проекта
+    </button>
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDelete">
+        Удалить паспорт проекта
+    </button>
+</div>
+
+<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAddLabel">Создание заявки на организацию проекта</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="addProject" method="post">
+                    <div class="form-group">
+                        <label for="projectName" class="form-select-label">Введите название проекта</label>
+                        <input type="text" class="form-control" id="projectName" name="projectName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
+                            направлен проект</label>
+                        <input type="text" class="form-control" id="problem" name="problem" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="purpose" class="form-select-label">Цель проекта</label>
+                        <input type="text" class="form-control" id="purpose" name="purpose" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tasks" class="form-select-label">Задачи проекта</label>
+                        <input type="text" class="form-control" id="tasks" name="tasks" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="result" class="form-select-label">Планируемые результаты проекта</label>
+                        <input type="text" class="form-control" id="result" name="result" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalModifyLabel">Редактировать паспорт проекта</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="modifyProject" method="post">
+                    <div class="form-group">
+                        <label for="modifyProject" class="form-select-label">Выберите проект</label>
+                        <select class="form-select" name="modifyProject" {% if projects==[] %} disabled {% endif %}>
+                            {% for el in projects %}
+                            <option value="{{ el.Projects.IDprojects }}"> {{ el.PassportOfProjects.passportName }}
+                            </option>
+                            {% endfor %}
+                            {% if projects == [] %}
+                            <option value="">Проекты не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectName" class="form-select-label">Введите название проекта</label>
+                        <input type="text" class="form-control" id="projectName" name="projectName">
+                    </div>
+                    <div class="form-group">
+                        <label for="problem" class="form-select-label">Введите описание проблемы, на решение которой
+                            направлен проект</label>
+                        <input type="text" class="form-control" id="problem" name="problem">
+                    </div>
+                    <div class="form-group">
+                        <label for="goal" class="form-select-label">Цель проекта</label>
+                        <input type="text" class="form-control" id="goal" name="goal">
+                    </div>
+                    <div class="form-group">
+                        <label for="tasks" class="form-select-label">Задачи проекта</label>
+                        <input type="text" class="form-control" id="tasks" name="tasks">
+                    </div>
+                    <div class="form-group">
+                        <label for="result" class="form-select-label">Планируемые результаты проекта</label>
+                        <input type="text" class="form-control" id="result" name="result">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary" {% if contracts_order==[] %} disabled {% endif %}
+                            {% if projects==[] %} disabled {% endif %}>Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDeleteLabel">Редактировать паспорт проекта</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="deleteProject" method="post">
+                    <div class="form-group">
+                        <label for="deleteProject" class="form-select-label">Выберите проект</label>
+                        <select class="form-select" name="deleteProject" {% if projects==[] %} disabled {% endif %}>
+                            {% for el in projects %}
+                            <option value="{{ el.Projects.IDprojects }}"> {{ el.PassportOfProjects.passportName }}
+                            </option>
+                            {% endfor %}
+                            {% if projects == [] %}
+                            <option value="">Проекты не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-danger" {% if contracts_order==[] %} disabled {% endif %}
+                            {% if projects==[] %} disabled {% endif %}>Удалить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

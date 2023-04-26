@@ -1785,34 +1785,30 @@ def iniciators_project():
             .join(PassportOfProjects)
             .join(StadiaOfProjects)
             .filter(PassportOfProjects.IDinitpr == idinitpr)
+            .order_by(PassportOfProjects.passportName)
         )
         projects = db_sessions.execute(select_projects).all()
         return render_template("iniciators_projects.html", projects=projects)
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
-        idorg = session["user"][0]
-        fio_filters = request.form["fioFilter"]
-        pos_filters = request.form["posFilter"]
-        where_fio_filters = (
-            Initiatorsofprojects.FullName.ilike("%" + fio_filters + "%")
-            if fio_filters
+        idorg = idinitpr = session["user"][1]
+        project_filter = request.form["projectFilter"]
+        where_project_filter = (
+            PassportOfProjects.passportName.ilike("%" + project_filter + "%")
+            if project_filter
             else text("1=1")
         )
-        where_org_filters = (
-            Initiatorsofprojects.initprPositions.ilike("%" + pos_filters + "%")
-            if pos_filters
-            else text("1=1")
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .where(where_project_filter)
+            .filter(PassportOfProjects.IDinitpr == idinitpr)
+            .order_by(PassportOfProjects.passportName)
         )
-        select_inicators = (
-            select(Initiatorsofprojects)
-            .filter(Initiatorsofprojects.IDorg == idorg)
-            .where(where_fio_filters)
-            .where(where_org_filters)
-            .order_by(Initiatorsofprojects.FullName)
-        )
-        inic = db_sessions.execute(select_inicators).all()
-        return render_template("resultTableInic.html", inic=inic)
+        projects = db_sessions.execute(select_projects).all()
+        return render_template("resultAccordionProjects.html", projects=projects)
 
 
 @pages.route("/iniciators/addProject", methods=["POST"])
@@ -1833,9 +1829,9 @@ def iniciators_add_project():
         passportPurpose=purpose,
         passportTasks=tasks,
         passportResults=result,
-        passportPattern=1,
-        passportFull=2,
-        passportSigned=3,
+        passportPattern='',
+        passportFull='',
+        passportSigned='',
     )
     db_sessions.add(add_passport)
     db_sessions.flush()
@@ -1849,4 +1845,136 @@ def iniciators_add_project():
 
 @pages.route("/iniciators/modifyProject", methods=["POST"])
 def iniciators_modify_project():
-    pass
+    idprojects = request.form('modifyProject')
+    projectName = request.form["projectName"]
+    problem = request.form["problem"]
+    purpose = request.form["purpose"]
+    tasks = request.form["tasks"]
+    result = request.form["result"]
+    npr = (
+        db_sessions.query(PassportOfProjects)
+        .filter(PassportOfProjects.IDprojects == idprojects)
+        .first()
+    )
+
+    if str(projectName) != "":
+        npr.passportName = str(projectName)
+    if str(problem) != "":
+        npr.passportProblem = str(problem)
+    if str(purpose) != "":
+        npr.passportPurpose = str(purpose)
+    if str(tasks) != "":
+        npr.passportTasks = str(tasks)
+    if str(result) != "":
+        npr.passportResults = str(result)
+
+    db_sessions.commit()
+    return redirect("/iniciators/projects")
+
+
+@pages.route("/admin/projects", methods=["GET", "POST"])
+def admin_project():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .order_by(PassportOfProjects.passportName)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        return render_template("projects.html", projects=projects)
+    if request.method == "POST":
+        select = get_select()
+        db_sessions = get_session()
+        project_filter = request.form["projectFilter"]
+        where_project_filter = (
+            PassportOfProjects.passportName.ilike("%" + project_filter + "%")
+            if project_filter
+            else text("1=1")
+        )
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .where(where_project_filter)
+            .order_by(PassportOfProjects.passportName)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        return render_template("resultAccordionProjects.html", projects=projects)
+
+
+@pages.route("/admin/addProject", methods=["POST"])
+def admin_add_project():
+    db_sessions = get_session()
+    idinitpr = session["user"][1]
+    projectName = str(request.form["projectName"])
+    problem = str(request.form["problem"])
+    purpose = str(request.form["purpose"])
+    tasks = str(request.form["tasks"])
+    result = str(request.form["result"])
+
+    add_passport = PassportOfProjects(
+        IDinitpr=idinitpr,
+        passportName=projectName,
+        passportDate=datetime.now(),
+        passportProblem=problem,
+        passportPurpose=purpose,
+        passportTasks=tasks,
+        passportResults=result,
+        passportPattern='',
+        passportFull='',
+        passportSigned='',
+    )
+    db_sessions.add(add_passport)
+    db_sessions.flush()
+    idpassport = add_passport.IDpassport
+
+    add_project = Projects(IDpassport=idpassport, IDstadiaofpr=1)
+    db_sessions.add(add_project)
+    db_sessions.commit()
+    return redirect("/admin/projects")
+
+
+@pages.route("/admin/modifyProject", methods=["POST"])
+def admin_modify_project():
+    idprojects = request.form('modifyProject')
+    projectName = request.form["projectName"]
+    problem = request.form["problem"]
+    purpose = request.form["purpose"]
+    tasks = request.form["tasks"]
+    result = request.form["result"]
+    npr = (
+        db_sessions.query(PassportOfProjects)
+        .filter(PassportOfProjects.IDprojects == idprojects)
+        .first()
+    )
+
+    if str(projectName) != "":
+        npr.passportName = str(projectName)
+    if str(problem) != "":
+        npr.passportProblem = str(problem)
+    if str(purpose) != "":
+        npr.passportPurpose = str(purpose)
+    if str(tasks) != "":
+        npr.passportTasks = str(tasks)
+    if str(result) != "":
+        npr.passportResults = str(result)
+
+    db_sessions.commit()
+    return redirect("/admin/projects")
+
+@pages.route("/admin/deleteProject", methods=["POST"])  # удалить инициатора проектов
+def admin_delete_project():
+    idproject = int(request.form["deleteProject"])
+    db_sessions = get_session()
+    project = db_sessions.query(Projects).filter(
+        Projects.IDprojects == idproject
+    ).first()
+    db_sessions.query(Projects).filter(
+        Projects.IDprojects == idproject
+    ).delete()
+    db_sessions.query(PassportOfProjects).filter(PassportOfProjects.IDpassport == project.IDpassport).delete()
+    db_sessions.commit()
+    return redirect("/admin/projects")
