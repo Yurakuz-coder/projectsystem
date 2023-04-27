@@ -2157,3 +2157,9 @@ def delete_passport():
     PassportOfProjects.passportSigned = ''
     db_sessions.commit()
     return redirect("/admin/contracts", code=307)
+
+@pages.route(
+    "/iniciators/mailadmin", methods=["GET", "POST"]
+)  # Договоры об организации проектного обучения
+def iniciators_org_mailadmin():
+    return sheff_org_mailadmin()

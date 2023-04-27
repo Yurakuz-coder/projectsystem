@@ -14,7 +14,7 @@ function sendMail() {
     processData: false,
     contentType: false,
     data: formData,
-    url: "/shefforg/sendmailtoadmin",
+    url: "/sendmailtoadmin",
     success: function () {
       button.innerHTML = 'Сообщение отправлено';
     },

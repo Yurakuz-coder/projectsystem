@@ -25,7 +25,7 @@ init_db()
 app.secret_key = os.urandom(20).hex()
 
 
-@app.route("/shefforg/sendmailtoadmin", methods=["POST"])
+@app.route("/sendmailtoadmin", methods=["POST"])
 def sheff_org_send_mail():
     if request.method == "POST":
         upload_file = request.files.get("files")
