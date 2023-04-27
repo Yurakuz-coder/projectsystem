@@ -55,9 +55,39 @@
                         <input type="text" class="form-control" id="projectName" name="projectName" required>
                     </div>
                     <div class="form-group">
+                        <label for="iniciator" class="form-select-label">Выберите инициатора</label>
+                        <select class="form-select" name="iniciator" {% if iniciators==[] %} disabled {% endif %}>
+                            {% for el in iniciators %}
+                            <option value="{{ el.Initiatorsofprojects.IDinitpr }}"> {{ el.Organizations.orgName }} - {{
+                                el.Initiatorsofprojects.FullName }}
+                            </option>
+                            {% endfor %}
+                            {% if iniciators == [] %}
+                            <option value="">Инициаторы не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sheffpr" class="form-select-label">Выберите руководителя проектами</label>
+                        <select class="form-select" name="sheffpr" {% if sheffpr==[] %} disabled {% endif %}>
+                            {% for el in sheffpr %}
+                            <option value="{{ el.Sheffofprojects.IDsheffpr }}"> {{ el.Sheffofprojects.FullName }} - {{
+                                el.Sheffofprojects.positionsName.positionsName }}
+                            </option>
+                            {% endfor %}
+                            {% if sheffpr == [] %}
+                            <option value="">Руководители не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
                         <input type="text" class="form-control" id="problem" name="problem" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate" class="form-control-label">Дата начала</label>
+                        <input class="form-control" id="startDate" name="startDate" type="date"></input>
                     </div>
                     <div class="form-group">
                         <label for="purpose" class="form-select-label">Цель проекта</label>
@@ -71,9 +101,38 @@
                         <label for="result" class="form-select-label">Планируемые результаты проекта</label>
                         <input type="text" class="form-control" id="result" name="result" required>
                     </div>
+                    <div class="form-group">
+                        <label for="content" class="form-select-label">Краткое содержание проекта</label>
+                        <input type="text" class="form-control" id="content" name="content">
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline" class="form-select-label">Сроки реализации проекта</label>
+                        <input type="text" class="form-control" id="deadline" name="deadline">
+                    </div>
+                    <div class="form-group">
+                        <label for="stages" class="form-select-label">Календарный план</label>
+                        <input type="text" class="form-control" id="stages" name="stages">
+                    </div>
+                    <div class="form-group">
+                        <label for="resource" class="form-select-label">Ресурсное обеспечение</label>
+                        <input type="text" class="form-control" id="resource" name="resource">
+                    </div>
+                    <div class="form-group">
+                        <label for="cost" class="form-select-label">Затраты на выполнение проекта</label>
+                        <input type="text" class="form-control" id="cost" name="cost">
+                    </div>
+                    <div class="form-group">
+                        <label for="criteria" class="form-select-label">Критерии оценки результатов проекта</label>
+                        <input type="text" class="form-control" id="criteria" name="criteria">
+                    </div>
+                    <div class="form-group">
+                        <label for="formResult" class="form-select-label">Форма представления результата проекта</label>
+                        <input type="text" class="form-control" id="formResult" name="formResult">
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="submit" class="btn btn-primary" {% if iniciators==[] or sheffpr==[] %} disabled {%
+                            endif %}>Сохранить</button>
                     </div>
                 </form>
             </div>
@@ -107,26 +166,84 @@
                         <input type="text" class="form-control" id="projectName" name="projectName">
                     </div>
                     <div class="form-group">
-                        <label for="problem" class="form-select-label">Введите описание проблемы, на решение которой
-                            направлен проект</label>
-                        <input type="text" class="form-control" id="problem" name="problem">
+                        <label for="iniciator" class="form-select-label">Выберите инициатора</label>
+                        <select class="form-select" name="iniciator" {% if iniciators==[] %} disabled {% endif %}>
+                            {% for el in iniciators %}
+                            <option value="{{ el.Initiatorsofprojects.IDinitpr }}"> {{ el.Organizations.orgName }} - {{
+                                el.Initiatorsofprojects.FullName }}
+                            </option>
+                            {% endfor %}
+                            {% if iniciators == [] %}
+                            <option value="">Инициаторы не найдены</option>
+                            {% endif %}
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label for="goal" class="form-select-label">Цель проекта</label>
-                        <input type="text" class="form-control" id="goal" name="goal">
+                        <label for="sheffpr" class="form-select-label">Выберите руководителя проектами</label>
+                        <select class="form-select" name="sheffpr" {% if sheffpr==[] %} disabled {% endif %}>
+                            {% for el in sheffpr %}
+                            <option value="{{ el.Sheffofprojects.IDsheffpr }}"> {{ el.Sheffofprojects.FullName }} - {{
+                                el.Sheffofprojects.positionsName.positionsName }}
+                            </option>
+                            {% endfor %}
+                            {% if sheffpr == [] %}
+                            <option value="">Руководители не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
+                            направлен проект</label>
+                        <input type="text" class="form-control" id="problem" name="problem" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate" class="form-control-label">Дата начала</label>
+                        <input class="form-control" id="startDate" name="startDate" type="date"></input>
+                    </div>
+                    <div class="form-group">
+                        <label for="purpose" class="form-select-label">Цель проекта</label>
+                        <input type="text" class="form-control" id="purpose" name="purpose" required>
                     </div>
                     <div class="form-group">
                         <label for="tasks" class="form-select-label">Задачи проекта</label>
-                        <input type="text" class="form-control" id="tasks" name="tasks">
+                        <input type="text" class="form-control" id="tasks" name="tasks" required>
                     </div>
                     <div class="form-group">
                         <label for="result" class="form-select-label">Планируемые результаты проекта</label>
-                        <input type="text" class="form-control" id="result" name="result">
+                        <input type="text" class="form-control" id="result" name="result" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="content" class="form-select-label">Краткое содержание проекта</label>
+                        <input type="text" class="form-control" id="content" name="content">
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline" class="form-select-label">Сроки реализации проекта</label>
+                        <input type="text" class="form-control" id="deadline" name="deadline">
+                    </div>
+                    <div class="form-group">
+                        <label for="stages" class="form-select-label">Календарный план</label>
+                        <input type="text" class="form-control" id="stages" name="stages">
+                    </div>
+                    <div class="form-group">
+                        <label for="resource" class="form-select-label">Ресурсное обеспечение</label>
+                        <input type="text" class="form-control" id="resource" name="resource">
+                    </div>
+                    <div class="form-group">
+                        <label for="cost" class="form-select-label">Затраты на выполнение проекта</label>
+                        <input type="text" class="form-control" id="cost" name="cost">
+                    </div>
+                    <div class="form-group">
+                        <label for="criteria" class="form-select-label">Критерии оценки результатов проекта</label>
+                        <input type="text" class="form-control" id="criteria" name="criteria">
+                    </div>
+                    <div class="form-group">
+                        <label for="formResult" class="form-select-label">Форма представления результата проекта</label>
+                        <input type="text" class="form-control" id="formResult" name="formResult">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary" {% if contracts_order==[] %} disabled {% endif %}
-                            {% if projects==[] %} disabled {% endif %}>Сохранить</button>
+                        <button type="submit" class="btn btn-primary" {% if iniciators==[] or projects==[] or
+                            sheffpr==[] %} disabled {% endif %}>Сохранить</button>
                     </div>
                 </form>
             </div>
@@ -157,8 +274,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-danger" {% if contracts_order==[] %} disabled {% endif %}
-                            {% if projects==[] %} disabled {% endif %}>Удалить</button>
+                        <button type="submit" class="btn btn-danger" {% if projects==[] %} disabled {% endif
+                            %}>Удалить</button>
                     </div>
                 </form>
             </div>

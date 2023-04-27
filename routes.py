@@ -1792,7 +1792,6 @@ def iniciators_project():
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
-        idorg = idinitpr = session["user"][1]
         project_filter = request.form["projectFilter"]
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
@@ -1815,7 +1814,7 @@ def iniciators_project():
 def iniciators_add_project():
     db_sessions = get_session()
     idinitpr = session["user"][1]
-    projectName = str(request.form["projectName"])
+    project_name = str(request.form["projectName"])
     problem = str(request.form["problem"])
     purpose = str(request.form["purpose"])
     tasks = str(request.form["tasks"])
@@ -1823,15 +1822,15 @@ def iniciators_add_project():
 
     add_passport = PassportOfProjects(
         IDinitpr=idinitpr,
-        passportName=projectName,
+        passportName=project_name,
         passportDate=datetime.now(),
         passportProblem=problem,
         passportPurpose=purpose,
         passportTasks=tasks,
         passportResults=result,
-        passportPattern='',
-        passportFull='',
-        passportSigned='',
+        passportPattern="",
+        passportFull="",
+        passportSigned="",
     )
     db_sessions.add(add_passport)
     db_sessions.flush()
@@ -1845,8 +1844,9 @@ def iniciators_add_project():
 
 @pages.route("/iniciators/modifyProject", methods=["POST"])
 def iniciators_modify_project():
-    idprojects = request.form('modifyProject')
-    projectName = request.form["projectName"]
+    db_sessions = get_session()
+    idprojects = request.form["modifyProject"]
+    project_name = request.form["projectName"]
     problem = request.form["problem"]
     purpose = request.form["purpose"]
     tasks = request.form["tasks"]
@@ -1857,8 +1857,8 @@ def iniciators_modify_project():
         .first()
     )
 
-    if str(projectName) != "":
-        npr.passportName = str(projectName)
+    if str(project_name) != "":
+        npr.passportName = str(project_name)
     if str(problem) != "":
         npr.passportProblem = str(problem)
     if str(purpose) != "":
@@ -1883,8 +1883,18 @@ def admin_project():
             .join(StadiaOfProjects)
             .order_by(PassportOfProjects.passportName)
         )
+        select_iniciators = (
+            select(Initiatorsofprojects, Organizations)
+            .join(Organizations)
+            .order_by(Organizations.orgName, Initiatorsofprojects.FullName)
+        )
+        select_sheffpr = select(Sheffofprojects).order_by(Sheffofprojects.FullName)
         projects = db_sessions.execute(select_projects).all()
-        return render_template("projects.html", projects=projects)
+        iniciators = db_sessions.execute(select_iniciators).all()
+        sheffpr = db_sessions.execute(select_sheffpr).all()
+        return render_template(
+            "projects.html", projects=projects, iniciators=iniciators, sheffpr=sheffpr
+        )
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
@@ -1908,24 +1918,41 @@ def admin_project():
 @pages.route("/admin/addProject", methods=["POST"])
 def admin_add_project():
     db_sessions = get_session()
-    idinitpr = session["user"][1]
-    projectName = str(request.form["projectName"])
+    iniciator = int(request.form.get("iniciator"))
+    sheffpr = int(request.form["sheffpr"])
+    start_date = request.form.get("startDate")
+    project_name = str(request.form["projectName"])
     problem = str(request.form["problem"])
     purpose = str(request.form["purpose"])
     tasks = str(request.form["tasks"])
     result = str(request.form["result"])
+    content = str(request.form.get("content"))
+    deadline = str(request.form.get("deadline"))
+    stages = str(request.form.get("stages"))
+    resource = str(request.form.get("resource"))
+    cost = str(request.form.get("cost"))
+    criteria = str(request.form.get("criteria"))
+    formResult = str(request.form.get("formResult"))
 
     add_passport = PassportOfProjects(
-        IDinitpr=idinitpr,
-        passportName=projectName,
-        passportDate=datetime.now(),
+        IDinitpr=iniciator,
+        IDsheffpr=sheffpr,
+        passportName=project_name,
+        passportDate=None if start_date == "" else start_date,
         passportProblem=problem,
         passportPurpose=purpose,
         passportTasks=tasks,
         passportResults=result,
-        passportPattern='',
-        passportFull='',
-        passportSigned='',
+        passportContent=content,
+        passportDeadlines=deadline,
+        passportStages=stages,
+        passportResources=resource,
+        passportCost=cost,
+        passportCriteria=criteria,
+        passportFormresults=formResult,
+        passportPattern="",
+        passportFull="",
+        passportSigned="",
     )
     db_sessions.add(add_passport)
     db_sessions.flush()
@@ -1939,20 +1966,37 @@ def admin_add_project():
 
 @pages.route("/admin/modifyProject", methods=["POST"])
 def admin_modify_project():
-    idprojects = request.form('modifyProject')
-    projectName = request.form["projectName"]
-    problem = request.form["problem"]
-    purpose = request.form["purpose"]
-    tasks = request.form["tasks"]
-    result = request.form["result"]
+    db_sessions = get_session()
+    idprojects = request.form["modifyProject"]
+    iniciator = int(request.form.get("iniciator"))
+    sheffpr = int(request.form["sheffpr"])
+    start_date = request.form.get("startDate")
+    project_name = str(request.form["projectName"])
+    problem = str(request.form["problem"])
+    purpose = str(request.form["purpose"])
+    tasks = str(request.form["tasks"])
+    result = str(request.form["result"])
+    content = str(request.form.get("content"))
+    deadline = str(request.form.get("deadline"))
+    stages = str(request.form.get("stages"))
+    resource = str(request.form.get("resource"))
+    cost = str(request.form.get("cost"))
+    criteria = str(request.form.get("criteria"))
+    formResult = str(request.form.get("formResult"))
     npr = (
         db_sessions.query(PassportOfProjects)
         .filter(PassportOfProjects.IDprojects == idprojects)
         .first()
     )
 
-    if str(projectName) != "":
-        npr.passportName = str(projectName)
+    if str(iniciator) != "":
+        npr.IDinitpr = str(iniciator)
+    if str(sheffpr) != "":
+        npr.IDsheffpr = str(sheffpr)
+    if str(project_name) != "":
+        npr.passportName = str(project_name)
+    if str(start_date) != "":
+        npr.passportDate = start_date
     if str(problem) != "":
         npr.passportProblem = str(problem)
     if str(purpose) != "":
@@ -1961,20 +2005,32 @@ def admin_modify_project():
         npr.passportTasks = str(tasks)
     if str(result) != "":
         npr.passportResults = str(result)
-
+    if str(content) != "":
+        npr.passportContent = str(content)
+    if str(deadline) != "":
+        npr.passportDeadlines = str(deadline)
+    if str(stages) != "":
+        npr.passportStages = str(stages)
+    if str(resource) != "":
+        npr.passportResources = str(resource)
+    if str(cost) != "":
+        npr.passportCost = str(cost)
+    if str(criteria) != "":
+        npr.passportCriteria = str(criteria)
+    if str(formResult) != "":
+        npr.passportFormresults = str(formResult)
     db_sessions.commit()
     return redirect("/admin/projects")
+
 
 @pages.route("/admin/deleteProject", methods=["POST"])  # удалить инициатора проектов
 def admin_delete_project():
     idproject = int(request.form["deleteProject"])
     db_sessions = get_session()
-    project = db_sessions.query(Projects).filter(
-        Projects.IDprojects == idproject
-    ).first()
-    db_sessions.query(Projects).filter(
-        Projects.IDprojects == idproject
+    project = db_sessions.query(Projects).filter(Projects.IDprojects == idproject).first()
+    db_sessions.query(Projects).filter(Projects.IDprojects == idproject).delete()
+    db_sessions.query(PassportOfProjects).filter(
+        PassportOfProjects.IDpassport == project.IDpassport
     ).delete()
-    db_sessions.query(PassportOfProjects).filter(PassportOfProjects.IDpassport == project.IDpassport).delete()
     db_sessions.commit()
     return redirect("/admin/projects")
