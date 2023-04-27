@@ -4,17 +4,17 @@
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
--- 
+--
 -- Отключение внешних ключей
--- 
+--
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 
--- 
+--
 -- Установка кодировки, с использованием которой клиент будет посылать запросы на сервер
 --
 SET NAMES 'utf8';
 
--- 
+--
 -- Установка базы данных по умолчанию
 --
 USE projectsystem;
@@ -542,7 +542,7 @@ CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Студенты в проекте';
 
--- 
+--
 -- Вывод данных для таблицы form_studing
 --
 INSERT INTO form_studing VALUES
@@ -550,13 +550,13 @@ INSERT INTO form_studing VALUES
 (1, 'очная'),
 (2, 'очно-заочная');
 
--- 
+--
 -- Вывод данных для таблицы levels
 --
 
 -- Таблица projectsystem.levels не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы positions
 --
 INSERT INTO positions VALUES
@@ -565,14 +565,14 @@ INSERT INTO positions VALUES
 (4, 'Профессор кафедры ИВТ'),
 (3, 'Старший преподаватель кафедры ИВТ');
 
--- 
+--
 -- Вывод данных для таблицы shefforganizations
 --
 INSERT INTO shefforganizations VALUES
 (1, 'Кузнецов', 'Юрий', 'Александрович', 'начальник', 'Доверенность', 'iurij.kuznetsov2011@yandex.ru', '+7913197341', 'Admin', '9e727fdd3aec8274f46685441900280d'),
 (3, 'Борисов', 'Алишер', 'Александрович', 'директор', 'доверенность', '432@yandex.ru', '+72334561231', 'Boris', '4dbf44c6b1be736ee92ef90090452fc2');
 
--- 
+--
 -- Вывод данных для таблицы specializations
 --
 INSERT INTO specializations VALUES
@@ -580,19 +580,19 @@ INSERT INTO specializations VALUES
 (3, '09.04.02', 'Информационные системы и технологии', 'Мультимедиатехнологии'),
 (5, '09.04.02', 'Информационные системы и технологии', 'Управление данными');
 
--- 
+--
 -- Вывод данных для таблицы stadiaofprojects
 --
 
 -- Таблица projectsystem.stadiaofprojects не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы stadiaofworks
 --
 
 -- Таблица projectsystem.stadiaofworks не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы competensions
 --
 INSERT INTO competensions VALUES
@@ -600,7 +600,7 @@ INSERT INTO competensions VALUES
 (2, 3, 'ПК-1', 'Способен думать'),
 (3, 4, 'ПК-2', 'Плавать');
 
--- 
+--
 -- Вывод данных для таблицы groups
 --
 INSERT INTO groups VALUES
@@ -608,87 +608,102 @@ INSERT INTO groups VALUES
 (4, 'МИД21-01', 2021, 1, 5),
 (5, 'МИИ21-01', 2021, 1, 4);
 
--- 
+--
 -- Вывод данных для таблицы organizations
 --
 INSERT INTO organizations VALUES
 (1, 1, 'ООО "Праздник 1"', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 2', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 2', 'sibir124@hotmail.com', '+73913132244'),
 (4, 3, 'ТО КГКУ УСЗН', 'Красноярск', 'Красноярск', 'uszn21@mail.ru', '+73913123345');
 
--- 
+--
 -- Вывод данных для таблицы sheffofprojects
 --
 INSERT INTO sheffofprojects VALUES
 (1, 1, 'Козлова', 'Юлия', 'Борисовна', '83912139623', 'yulya_sib_gau@mail.ru\r\n', 'Admin', '9e727fdd3aec8274f46685441900280d');
 
--- 
+--
 -- Вывод данных для таблицы initiatorsofprojects
 --
 
 -- Таблица projectsystem.initiatorsofprojects не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы projectsudycontracts
 --
 INSERT INTO projectsudycontracts VALUES
 (7, 4, 122, '2023-04-13', '2024-04-15', 'test', 'full', NULL),
 (9, 1, 123, '2023-04-13', '2024-04-15', 'test', 'full', NULL);
 
--- 
+--
 -- Вывод данных для таблицы students
 --
 
 -- Таблица projectsystem.students не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы passportofprojects
 --
 
 -- Таблица projectsystem.passportofprojects не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы projects
 --
 
 -- Таблица projectsystem.projects не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы rolesofprojects
 --
 
 -- Таблица projectsystem.rolesofprojects не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы applications
 --
 
 -- Таблица projectsystem.applications не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы competensionsinproject
 --
 
 -- Таблица projectsystem.competensionsinproject не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы specializationsinprojects
 --
 
 -- Таблица projectsystem.specializationsinprojects не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы confirmation
 --
 
 -- Таблица projectsystem.confirmation не содержит данных
 
--- 
+--
 -- Вывод данных для таблицы studentsinprojects
 --
 
 -- Таблица projectsystem.studentsinprojects не содержит данных
 
--- 
+--
 -- Включение внешних ключей
--- 
+--
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+INSERT INTO projectsystem.stadiaofprojects
+(IDstadiaofpr, stadiaofprName)
+VALUES(1, 'На рассмотрении');
+INSERT INTO projectsystem.stadiaofprojects
+(IDstadiaofpr, stadiaofprName)
+VALUES(2, 'Участники найдены, идет работа над проектом');
+INSERT INTO projectsystem.stadiaofprojects
+(IDstadiaofpr, stadiaofprName)
+VALUES(3, 'Одобрено администратором, идет поиск руководителя');
+INSERT INTO projectsystem.stadiaofprojects
+(IDstadiaofpr, stadiaofprName)
+VALUES(4, 'Поиск участников');
+INSERT INTO projectsystem.stadiaofprojects
+(IDstadiaofpr, stadiaofprName)
+VALUES(5, 'Проект завершен');

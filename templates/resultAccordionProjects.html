@@ -36,37 +36,48 @@
                     <h5 class="mb-1">Планируемые результаты</h5>{{ el.PassportOfProjects.passportResults }}
                 </li>
                 <li class="list-group-item">
-                    <h5 class="mb-1">Краткое содержание проекта</h5>{{ el.PassportOfProjects.passportContent }}
+                    <h5 class="mb-1">Краткое содержание проекта</h5>{{ el.PassportOfProjects.passportContent or 'Не
+                    заполнено' }}
                 </li>
                 <li class="list-group-item">
-                    <h5 class="mb-1">Сроки реализации проекта</h5>{{ el.PassportOfProjects.passportDeadlines }}
+                    <h5 class="mb-1">Сроки реализации проекта</h5>{{ el.PassportOfProjects.passportDeadlines or 'Не
+                    заполнено' }}
                 </li>
                 <li class="list-group-item">
-                    <h5 class="mb-1">Календарный план</h5>{{ el.PassportOfProjects.passportStages }}
+                    <h5 class="mb-1">Календарный план</h5>{{ el.PassportOfProjects.passportStages or 'Не заполнено' }}
                 </li>
                 <li class="list-group-item">
-                    <h5 class="mb-1">Ресурсное обеспечение</h5>{{ el.PassportOfProjects.passportResources }}
+                    <h5 class="mb-1">Ресурсное обеспечение</h5>{{ el.PassportOfProjects.passportResources or 'Не
+                    заполнено' }}
                 </li>
                 <li class="list-group-item">
-                    <h5 class="mb-1">Затраты на выполнение проекта</h5>{{ el.PassportOfProjects.passportCost }}
+                    <h5 class="mb-1">Затраты на выполнение проекта</h5>{{ el.PassportOfProjects.passportCost or 'Не
+                    заполнено' }}
                 </li>
                 <li class="list-group-item">
                     <h5 class="mb-1">Критерии оценки результатов проекта</h5>{{ el.PassportOfProjects.passportCriteria
+                    or 'Не заполнено'
                     }}
                 </li>
                 <li class="list-group-item">
                     <h5 class="mb-1">Форма представления результата проекта</h5>{{
-                    el.PassportOfProjects.passportFormresults }}
+                    el.PassportOfProjects.passportFormresults or 'Не заполнено' }}
                 </li>
                 <li class="list-group-item">
                     <div class="btn-toolbar justify-content-between" role="toolbar">
+                        <div class="d-grid gap-2 col-3">
+                            <a href="/getPassport?idPassport={{ el.PassportOfProjects.IDpassport }}" role="button"
+                                class="btn btn-primary h-50 d-inline-block">Скачать
+                                электронную версию</a>
+                        </div>
                         <div class="d-grid gap-2 col-3" role="group">
                             <a href="/getPassportSigned?idPassport={{ el.PassportOfProjects.IDpassport }}" role="button"
-                                aria-disabled="{{ el.PassportOfProjects.passportSigned is none }}"
-                                class="btn btn-primary btn {{ 'disabled' if el.PassportOfProjects.passportSigned is none else '' }}">Скачать</a>
+                                aria-disabled="{{ el.PassportOfProjects.passportSigned == '' }}"
+                                class="btn btn-primary btn {{ 'disabled' if el.PassportOfProjects.passportSigned == '' else '' }}">Скачать
+                                подписанную версию</a>
                             <button {% if el.PassportOfProjects.passportSigned is none %} disabled {% endif %}
                                 class="btn btn-danger btn" value="{{ el.PassportOfProjects.IDpassport }}"
-                                onclick="deletePassportFile(this.value)">Удалить</button>
+                                onclick="deletePassportFile(this.value)">Удалить подписанную версию</button>
                         </div>
 
                         <div class="d-grid gap-2 col-3">

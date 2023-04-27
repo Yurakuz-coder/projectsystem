@@ -192,6 +192,19 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="stadia" class="form-select-label">Выберите руководителя проектами</label>
+                        <select class="form-select" name="stadia" {% if stadia==[] %} disabled {% endif %}>
+                            {% for el in stadia %}
+                            <option value="{{ el.StadiaOfProjects.IDstadiaofpr }}"> {{
+                                el.StadiaOfProjects.stadiaofprName }}
+                            </option>
+                            {% endfor %}
+                            {% if stadia == [] %}
+                            <option value="">Стадии проекта отсутствуют</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
                         <input type="text" class="form-control" id="problem" name="problem">

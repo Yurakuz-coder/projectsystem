@@ -1851,9 +1851,14 @@ def iniciators_modify_project():
     purpose = request.form["purpose"]
     tasks = request.form["tasks"]
     result = request.form["result"]
+    project = (
+        db_sessions.query(Projects)
+        .filter(Projects.IDprojects == idprojects)
+        .first()
+    )
     npr = (
         db_sessions.query(PassportOfProjects)
-        .filter(PassportOfProjects.IDprojects == idprojects)
+        .filter(PassportOfProjects.IDpassport == project.IDpassport)
         .first()
     )
 
@@ -1888,12 +1893,14 @@ def admin_project():
             .join(Organizations)
             .order_by(Organizations.orgName, Initiatorsofprojects.FullName)
         )
+        select_stadia = select(StadiaOfProjects).order_by(StadiaOfProjects.IDstadiaofpr)
         select_sheffpr = select(Sheffofprojects).order_by(Sheffofprojects.FullName)
         projects = db_sessions.execute(select_projects).all()
         iniciators = db_sessions.execute(select_iniciators).all()
+        stadia = db_sessions.execute(select_stadia).all()
         sheffpr = db_sessions.execute(select_sheffpr).all()
         return render_template(
-            "projects.html", projects=projects, iniciators=iniciators, sheffpr=sheffpr
+            "projects.html", projects=projects, stadia=stadia, iniciators=iniciators, sheffpr=sheffpr
         )
     if request.method == "POST":
         select = get_select()
@@ -1983,11 +1990,18 @@ def admin_modify_project():
     cost = str(request.form.get("cost"))
     criteria = str(request.form.get("criteria"))
     formResult = str(request.form.get("formResult"))
-    npr = (
-        db_sessions.query(PassportOfProjects)
-        .filter(PassportOfProjects.IDprojects == idprojects)
+    stadia = int(request.form.get('stadia'))
+    project = (
+        db_sessions.query(Projects)
+        .filter(Projects.IDprojects == idprojects)
         .first()
     )
+    npr = (
+        db_sessions.query(PassportOfProjects)
+        .filter(PassportOfProjects.IDpassport == project.IDpassport)
+        .first()
+    )
+
 
     if str(iniciator) != "":
         npr.IDinitpr = str(iniciator)
@@ -2019,6 +2033,8 @@ def admin_modify_project():
         npr.passportCriteria = str(criteria)
     if str(formResult) != "":
         npr.passportFormresults = str(formResult)
+    if str(stadia) != "":
+        project.IDstadiaofpr = stadia
     db_sessions.commit()
     return redirect("/admin/projects")
 
@@ -2034,3 +2050,110 @@ def admin_delete_project():
     ).delete()
     db_sessions.commit()
     return redirect("/admin/projects")
+
+@pages.route("/getPassport", methods=["GET"])
+def get_passport():
+    args = request.args
+    idpassport = args.get("idPassport")
+
+    db_sessions = get_session()
+    select = get_select()
+
+    select = select(PassportOfProjects, Initiatorsofprojects, Organizations).join_from(
+                PassportOfProjects,
+                Initiatorsofprojects,
+                Initiatorsofprojects.IDinitpr == PassportOfProjects.IDinitpr,
+                isouter=True,
+            ).join_from(
+                Initiatorsofprojects,
+                Organizations,
+                Organizations.IDorg == Initiatorsofprojects.IDorg,
+                isouter=True,
+            ).filter(PassportOfProjects.IDpassport == idpassport)
+    record = db_sessions.execute(select).first()
+    if not record:
+        return
+
+    context = {}
+    context["start_date"] = get_date(record.PassportOfProjects.passportDate.strftime("%d.%m.%Y")) + " г."
+    context["passport_name"] = record.PassportOfProjects.passportName
+    context["fio"] = record.Initiatorsofprojects.FullName
+    context["pos"] = record.Initiatorsofprojects.initprPositions
+    context["work"] = record.Organizations.orgName
+    context["phone"] = record.Initiatorsofprojects.initprPhone
+    context["email"] = record.Initiatorsofprojects.initprEmail
+    context["problem"] = record.PassportOfProjects.passportProblem
+    context["purpose"] = record.PassportOfProjects.passportPurpose
+    context["task"] = record.PassportOfProjects.passportTasks
+    context["result"] = record.PassportOfProjects.passportResults
+    context["content"] = record.PassportOfProjects.passportContent or 'Не заполнено'
+    context["deadline"] = record.PassportOfProjects.passportDeadlines or 'Не заполнено'
+    context["stages"] = record.PassportOfProjects.passportStages or 'Не заполнено'
+    context["resources"] = record.PassportOfProjects.passportResources or 'Не заполнено'
+    context["cost"] = record.PassportOfProjects.passportCost or 'Не заполнено'
+    context["criteria"] = record.PassportOfProjects.passportCriteria or 'Не заполнено'
+    context["formresult"] = record.PassportOfProjects.passportFormresults or 'Не заполнено'
+
+    filename = (
+        "Паспорт "
+        + str(record.PassportOfProjects.passportName)
+        + "_"
+        + date.today().strftime("%d_%B_%Y")
+        + ".doc"
+    )
+    file_path = path.join("documents", filename)
+    doc = DocxTemplate("./documents/passport_template.docx")
+
+    doc.render(context)
+
+    doc.save(file_path)
+
+    return send_file(file_path, mimetype="multipart/form-data", as_attachment=True)
+
+
+@pages.route("/getPassportSigned", methods=["GET"])
+def get_passport_signed():
+    args = request.args
+    idpassport = args.get("idPassport")
+
+    db_sessions = get_session()
+    passport = db_sessions.query(PassportOfProjects).filter(PassportOfProjects.IDpassport == idpassport).first()
+
+    if not passport.passportSigned:
+        return "", 404
+
+    return send_file(passport.passportSigned, mimetype="multipart/form-data", as_attachment=True)
+
+
+# загрузить подписанный договор
+@pages.route("/uploadPassportSigned", methods=["POST"])
+def upload_passport():
+    upload_file = request.files.get("file")
+    idpassport = request.form.get("passport_id")
+    if not upload_file or not id_contract:
+        return
+
+    file_path = path.join("documents", upload_file.filename)
+
+    db_sessions = get_session()
+    contract = db_sessions.query(PassportOfProjects).filter(PassportOfProjects.IDpassport == idpassport).first()
+    PassportOfProjects.passportSigned = file_path
+    db_sessions.commit()
+
+    upload_file.save(file_path)
+
+    return redirect("/admin/contracts", code=307)
+
+
+# удалить подписанный договор
+@pages.route("/deletePassportSigned", methods=["POST"])
+def delete_passport():
+    idpassport = request.form.get("idPassport")
+    if not idpassport:
+        return
+
+    db_sessions = get_session()
+    contract = db_sessions.query(PassportOfProjects).filter(PassportOfProjects.IDpassport == idpassport).first()
+    PassportOfProjects.passportSigned = ''
+    db_sessions.commit()
+    return redirect("/admin/contracts", code=307)
