@@ -131,8 +131,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary" {% if iniciators==[] or sheffpr==[] %} disabled {%
-                            endif %}>Сохранить</button>
+                        <button type="submit" class="btn btn-primary" {% if iniciators==[] %} disabled {% endif
+                            %}>Сохранить</button>
                     </div>
                 </form>
             </div>
@@ -194,7 +194,7 @@
                     <div class="form-group">
                         <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
-                        <input type="text" class="form-control" id="problem" name="problem" required>
+                        <input type="text" class="form-control" id="problem" name="problem">
                     </div>
                     <div class="form-group">
                         <label for="startDate" class="form-control-label">Дата начала</label>
@@ -202,15 +202,15 @@
                     </div>
                     <div class="form-group">
                         <label for="purpose" class="form-select-label">Цель проекта</label>
-                        <input type="text" class="form-control" id="purpose" name="purpose" required>
+                        <input type="text" class="form-control" id="purpose" name="purpose">
                     </div>
                     <div class="form-group">
                         <label for="tasks" class="form-select-label">Задачи проекта</label>
-                        <input type="text" class="form-control" id="tasks" name="tasks" required>
+                        <input type="text" class="form-control" id="tasks" name="tasks">
                     </div>
                     <div class="form-group">
                         <label for="result" class="form-select-label">Планируемые результаты проекта</label>
-                        <input type="text" class="form-control" id="result" name="result" required>
+                        <input type="text" class="form-control" id="result" name="result">
                     </div>
                     <div class="form-group">
                         <label for="content" class="form-select-label">Краткое содержание проекта</label>
@@ -242,8 +242,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary" {% if iniciators==[] or projects==[] or
-                            sheffpr==[] %} disabled {% endif %}>Сохранить</button>
+                        <button type="submit" class="btn btn-primary" {% if iniciators==[] or projects==[] %} disabled
+                            {% endif %}>Сохранить</button>
                     </div>
                 </form>
             </div>
