@@ -50,24 +50,28 @@
                 <form action="addProject" method="post">
                     <div class="form-group">
                         <label for="projectName" class="form-select-label">Введите название проекта</label>
-                        <input type="text" class="form-control" id="projectName" name="projectName" required>
+                        <textarea class="form-control" rows="3" id="projectName" name="projectName" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
-                        <input type="text" class="form-control" id="problem" name="problem" required>
+                        <textarea class="form-control" rows="5" id="problem" name="problem" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate" class="form-control-label">Дата начала</label>
+                        <input class="form-control" id="startDate" name="startDate" type="date" required></input>
                     </div>
                     <div class="form-group">
                         <label for="purpose" class="form-select-label">Цель проекта</label>
-                        <input type="text" class="form-control" id="purpose" name="purpose" required>
+                        <textarea class="form-control" rows="3" id="purpose" name="purpose" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="tasks" class="form-select-label">Задачи проекта</label>
-                        <input type="text" class="form-control" id="tasks" name="tasks" required>
+                        <textarea class="form-control" rows="3" id="tasks" name="tasks" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="result" class="form-select-label">Планируемые результаты проекта</label>
-                        <input type="text" class="form-control" id="result" name="result" required>
+                        <textarea class="form-control" rows="5" id="result" name="result" required></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
@@ -102,24 +106,28 @@
                     </div>
                     <div class="form-group">
                         <label for="projectName" class="form-select-label">Введите название проекта</label>
-                        <input type="text" class="form-control" id="projectName" name="projectName">
+                        <textarea class="form-control" rows="3" id="projectName" name="projectName"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="problem" class="form-select-label">Введите описание проблемы, на решение которой
+                        <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
-                        <input type="text" class="form-control" id="problem" name="problem">
+                        <textarea class="form-control" rows="5" id="problem" name="problem"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="goal" class="form-select-label">Цель проекта</label>
-                        <input type="text" class="form-control" id="goal" name="goal">
+                        <label for="startDate" class="form-control-label">Дата начала</label>
+                        <input class="form-control" id="startDate" name="startDate" type="date"></input>
+                    </div>
+                    <div class="form-group">
+                        <label for="purpose" class="form-select-label">Цель проекта</label>
+                        <textarea class="form-control" rows="3" id="purpose" name="purpose"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="tasks" class="form-select-label">Задачи проекта</label>
-                        <input type="text" class="form-control" id="tasks" name="tasks">
+                        <textarea class="form-control" rows="3" id="tasks" name="tasks"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="result" class="form-select-label">Планируемые результаты проекта</label>
-                        <input type="text" class="form-control" id="result" name="result">
+                        <textarea class="form-control" rows="5" id="result" name="result"></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>

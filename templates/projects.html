@@ -30,9 +30,9 @@
 </div>
 <br>
 <div class="btn-group" role="group">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+    <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
         Создать заявку на организацию проекта
-    </button>
+    </button> -->
     <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">
         Редактировать паспорт проекта
     </button>
@@ -41,7 +41,7 @@
     </button>
 </div>
 
-<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+<!-- <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -138,7 +138,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -163,36 +163,10 @@
                     </div>
                     <div class="form-group">
                         <label for="projectName" class="form-select-label">Введите название проекта</label>
-                        <input type="text" class="form-control" id="projectName" name="projectName">
+                        <textarea class="form-control" rows="3" id="projectName" name="projectName"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="iniciator" class="form-select-label">Выберите инициатора</label>
-                        <select class="form-select" name="iniciator" {% if iniciators==[] %} disabled {% endif %}>
-                            {% for el in iniciators %}
-                            <option value="{{ el.Initiatorsofprojects.IDinitpr }}"> {{ el.Organizations.orgName }} - {{
-                                el.Initiatorsofprojects.FullName }}
-                            </option>
-                            {% endfor %}
-                            {% if iniciators == [] %}
-                            <option value="">Инициаторы не найдены</option>
-                            {% endif %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="sheffpr" class="form-select-label">Выберите руководителя проектами</label>
-                        <select class="form-select" name="sheffpr" {% if sheffpr==[] %} disabled {% endif %}>
-                            {% for el in sheffpr %}
-                            <option value="{{ el.Sheffofprojects.IDsheffpr }}"> {{ el.Sheffofprojects.FullName }} - {{
-                                el.Sheffofprojects.positionsName.positionsName }}
-                            </option>
-                            {% endfor %}
-                            {% if sheffpr == [] %}
-                            <option value="">Руководители не найдены</option>
-                            {% endif %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="stadia" class="form-select-label">Выберите руководителя проектами</label>
+                        <label for="stadia" class="form-select-label">Выберите стадию проекта</label>
                         <select class="form-select" name="stadia" {% if stadia==[] %} disabled {% endif %}>
                             {% for el in stadia %}
                             <option value="{{ el.StadiaOfProjects.IDstadiaofpr }}"> {{
@@ -207,7 +181,7 @@
                     <div class="form-group">
                         <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
-                        <input type="text" class="form-control" id="problem" name="problem">
+                        <textarea class="form-control" rows="5" id="problem" name="problem"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="startDate" class="form-control-label">Дата начала</label>
@@ -215,43 +189,43 @@
                     </div>
                     <div class="form-group">
                         <label for="purpose" class="form-select-label">Цель проекта</label>
-                        <input type="text" class="form-control" id="purpose" name="purpose">
+                        <textarea class="form-control" rows="3" id="purpose" name="purpose"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="tasks" class="form-select-label">Задачи проекта</label>
-                        <input type="text" class="form-control" id="tasks" name="tasks">
+                        <textarea class="form-control" rows="3" id="tasks" name="tasks"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="result" class="form-select-label">Планируемые результаты проекта</label>
-                        <input type="text" class="form-control" id="result" name="result">
+                        <textarea class="form-control" rows="5" id="result" name="result"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="content" class="form-select-label">Краткое содержание проекта</label>
-                        <input type="text" class="form-control" id="content" name="content">
+                        <textarea class="form-control" rows="7" id="content" name="content"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="deadline" class="form-select-label">Сроки реализации проекта</label>
-                        <input type="text" class="form-control" id="deadline" name="deadline">
+                        <textarea class="form-control" rows="3" id="deadline" name="deadline"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="stages" class="form-select-label">Календарный план</label>
-                        <input type="text" class="form-control" id="stages" name="stages">
+                        <textarea class="form-control" rows="5" id="stages" name="stages"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="resource" class="form-select-label">Ресурсное обеспечение</label>
-                        <input type="text" class="form-control" id="resource" name="resource">
+                        <textarea class="form-control" rows="3" id="resource" name="resource"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="cost" class="form-select-label">Затраты на выполнение проекта</label>
-                        <input type="text" class="form-control" id="cost" name="cost">
+                        <textarea class="form-control" rows="3" id="cost" name="cost"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="criteria" class="form-select-label">Критерии оценки результатов проекта</label>
-                        <input type="text" class="form-control" id="criteria" name="criteria">
+                        <textarea class="form-control" rows="3" id="criteria" name="criteria"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="formResult" class="form-select-label">Форма представления результата проекта</label>
-                        <input type="text" class="form-control" id="formResult" name="formResult">
+                        <textarea class="form-control" rows="3" id="formResult" name="formResult"></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
