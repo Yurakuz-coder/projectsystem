@@ -2145,12 +2145,12 @@ def upload_passport():
     file_path = path.join("documents", upload_file.filename)
 
     db_sessions = get_session()
-    contract = (
+    passport = (
         db_sessions.query(PassportOfProjects)
         .filter(PassportOfProjects.IDpassport == idpassport)
         .first()
     )
-    PassportOfProjects.passportSigned = file_path
+    passport.passportSigned = file_path
     db_sessions.commit()
 
     upload_file.save(file_path)
@@ -2166,12 +2166,12 @@ def delete_passport():
         return
 
     db_sessions = get_session()
-    contract = (
+    passport = (
         db_sessions.query(PassportOfProjects)
         .filter(PassportOfProjects.IDpassport == idpassport)
         .first()
     )
-    PassportOfProjects.passportSigned = ""
+    passport.passportSigned = ""
     db_sessions.commit()
     return redirect("/admin/contracts", code=307)
 
