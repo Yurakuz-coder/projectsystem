@@ -15,6 +15,16 @@
     <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
         aria-label="projectFilter" aria-describedby="basic-addon1">
     <br />
+    <label for="stadia" class="form-select-label">Выберите стадию проекта</label>
+    <select class="form-select" id="stadiaFilter">
+        <option value="">Не использовать фильтр по стадии</option>
+        {% for el in stadia %}
+        <option value="{{ el.StadiaOfProjects.IDstadiaofpr }}"> {{
+            el.StadiaOfProjects.stadiaofprName }}
+        </option>
+        {% endfor %}
+    </select>
+    <br />
     <div class="btn-group" role="group">
         <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyProjectFilters()">
             Применить фильтры
@@ -56,10 +66,6 @@
                         <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
                         <textarea class="form-control" rows="5" id="problem" name="problem" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="startDate" class="form-control-label">Дата начала</label>
-                        <input class="form-control" id="startDate" name="startDate" type="date" required></input>
                     </div>
                     <div class="form-group">
                         <label for="purpose" class="form-select-label">Цель проекта</label>
@@ -112,10 +118,6 @@
                         <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
                         <textarea class="form-control" rows="5" id="problem" name="problem"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="startDate" class="form-control-label">Дата начала</label>
-                        <input class="form-control" id="startDate" name="startDate" type="date"></input>
                     </div>
                     <div class="form-group">
                         <label for="purpose" class="form-select-label">Цель проекта</label>

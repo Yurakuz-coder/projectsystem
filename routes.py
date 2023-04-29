@@ -23,6 +23,9 @@ from models.models import (
     Projects,
     PassportOfProjects,
     StadiaOfProjects,
+    RolesOfProjects,
+    SpecializationInProjects,
+    CompetensionsInProject
 )
 from models.database import get_session, get_select
 
@@ -42,6 +45,25 @@ def index():
     role = request.form["role"]
     db_sessions = get_session()
 
+    if role == 'administrator':
+        data_workers = (
+            db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
+        )
+        if not (
+            data_workers is not None
+            and (data_workers.Login == login and data_workers.Pass == rendered_pass)
+            and data_workers.positionsName.positionsName == "Администратор"
+        ):
+            return render_template("index.html", title="Неверный логин и/или пароль!!!")
+        session["fullName"] = [
+            data_workers.sheffprFirstname,
+            data_workers.sheffprName,
+            data_workers.sheffprFathername,
+            data_workers.positionsName.positionsName,
+        ]
+        session["url"] = "admin"
+        session["firstNav"] = "Панель администратора"
+        return redirect("/admin/reg_shefforg")
     if role == "sheffofprojects":
         data_workers = (
             db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
@@ -51,16 +73,17 @@ def index():
             and (data_workers.Login == login and data_workers.Pass == rendered_pass)
         ):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
-        if data_workers.positionsName.positionsName == "Администратор":
-            session["fullName"] = [
-                data_workers.sheffprFirstname,
-                data_workers.sheffprName,
-                data_workers.sheffprFathername,
-                data_workers.positionsName.positionsName,
-            ]
-            session["url"] = "admin"
-            session["firstNav"] = "Панель администратора"
-            return redirect("/admin/reg_shefforg")
+        session["fullName"] = [
+            data_workers.sheffprFirstname,
+            data_workers.sheffprName,
+            data_workers.sheffprFathername,
+            data_workers.positionsName.positionsName,
+        ]
+        session["url"] = "sheffproj"
+        session["firstNav"] = "Панель руководителя"
+        session["secondNav"] = "проекта"
+        session["user"] = [data_workers.IDsheffpr]
+        return redirect("/sheffproj/assignment")
     if role == "shefforganizations":
         data_workers = (
             db_sessions.query(Shefforganizations).filter(Shefforganizations.Login == login).first()
@@ -1780,6 +1803,7 @@ def iniciators_project():
         select = get_select()
         db_sessions = get_session()
         idinitpr = session["user"][1]
+        select_stadia = select(StadiaOfProjects).order_by(StadiaOfProjects.IDstadiaofpr)
         select_projects = (
             select(Projects, PassportOfProjects, StadiaOfProjects)
             .join(PassportOfProjects)
@@ -1787,15 +1811,23 @@ def iniciators_project():
             .filter(PassportOfProjects.IDinitpr == idinitpr)
             .order_by(PassportOfProjects.passportName)
         )
+        stadia = db_sessions.execute(select_stadia).all()
         projects = db_sessions.execute(select_projects).all()
-        return render_template("iniciators_projects.html", projects=projects)
+        return render_template("iniciators_projects.html", projects=projects, stadia=stadia)
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
+        idinitpr = session["user"][1]
         project_filter = request.form["projectFilter"]
+        stadia_filter = request.form["stadiaFilter"]
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
+            else text("1=1")
+        )
+        where_stadia_filter = (
+            StadiaOfProjects.IDstadiaofpr == stadia_filter
+            if stadia_filter
             else text("1=1")
         )
         select_projects = (
@@ -1803,6 +1835,7 @@ def iniciators_project():
             .join(PassportOfProjects)
             .join(StadiaOfProjects)
             .where(where_project_filter)
+            .where(where_stadia_filter)
             .filter(PassportOfProjects.IDinitpr == idinitpr)
             .order_by(PassportOfProjects.passportName)
         )
@@ -1823,7 +1856,6 @@ def iniciators_add_project():
     add_passport = PassportOfProjects(
         IDinitpr=idinitpr,
         passportName=project_name,
-        passportDate=datetime.now(),
         passportProblem=problem,
         passportPurpose=purpose,
         passportTasks=tasks,
@@ -1884,31 +1916,30 @@ def admin_project():
             .join(StadiaOfProjects)
             .order_by(PassportOfProjects.passportName)
         )
-        select_iniciators = (
-            select(Initiatorsofprojects, Organizations)
-            .join(Organizations)
-            .order_by(Organizations.orgName, Initiatorsofprojects.FullName)
-        )
-        select_stadia = select(StadiaOfProjects).order_by(StadiaOfProjects.IDstadiaofpr)
-        select_sheffpr = select(Sheffofprojects).order_by(Sheffofprojects.FullName)
+        select_stadia = select(StadiaOfProjects).filter(StadiaOfProjects.IDstadiaofpr < 3).order_by(StadiaOfProjects.IDstadiaofpr)
         projects = db_sessions.execute(select_projects).all()
-        iniciators = db_sessions.execute(select_iniciators).all()
+        first_project = projects[0]
+        # stadia_modify = db_sessions.execute(select(StadiaOfProjects).filter(StadiaOfProjects.IDstadiaofpr == first_project.StadiaOfProjects.IDstadiaofpr)).all()
         stadia = db_sessions.execute(select_stadia).all()
-        sheffpr = db_sessions.execute(select_sheffpr).all()
         return render_template(
             "projects.html",
             projects=projects,
             stadia=stadia,
-            iniciators=iniciators,
-            sheffpr=sheffpr,
+            # stadia_modify=stadia_modify
         )
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
         project_filter = request.form["projectFilter"]
+        stadia_filter = request.form["stadiaFilter"]
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
+            else text("1=1")
+        )
+        where_stadia_filter = (
+            StadiaOfProjects.IDstadiaofpr == stadia_filter
+            if stadia_filter
             else text("1=1")
         )
         select_projects = (
@@ -1916,18 +1947,31 @@ def admin_project():
             .join(PassportOfProjects)
             .join(StadiaOfProjects)
             .where(where_project_filter)
+            .where(where_stadia_filter)
             .order_by(PassportOfProjects.passportName)
         )
         projects = db_sessions.execute(select_projects).all()
         return render_template("resultAccordionProjects.html", projects=projects)
 
 
+@pages.route('/checkStadia', methods=['GET'])
+def check_stadia():
+    idproject = int(request.args.get('idProject'))
+    db_sessions = get_session()
+    select = get_select()
+    select_project = select(Projects).filter(Projects.IDprojects == idproject)
+    project = db_sessions.execute(select_project).first()
+    if project[0].IDstadiaofpr < 3:
+        stadia = db_sessions.execute(select(StadiaOfProjects.IDstadiaofpr, StadiaOfProjects.stadiaofprName).filter(StadiaOfProjects.IDstadiaofpr < 3).order_by(StadiaOfProjects.IDstadiaofpr)).all()
+        return jsonify([dict(row._mapping) for row in stadia]), 200
+    stadia = db_sessions.execute(select(StadiaOfProjects.IDstadiaofpr, StadiaOfProjects.stadiaofprName).filter(StadiaOfProjects.IDstadiaofpr == project[0].IDstadiaofpr)).first()
+    return jsonify(dict(stadia._mapping)), 200
+
 @pages.route("/admin/addProject", methods=["POST"])
 def admin_add_project():
     db_sessions = get_session()
     iniciator = int(request.form.get("iniciator"))
     sheffpr = int(request.form["sheffpr"])
-    start_date = request.form.get("startDate")
     project_name = str(request.form["projectName"])
     problem = str(request.form["problem"])
     purpose = str(request.form["purpose"])
@@ -1945,7 +1989,6 @@ def admin_add_project():
         IDinitpr=iniciator,
         IDsheffpr=sheffpr,
         passportName=project_name,
-        passportDate=None if start_date == "" else start_date,
         passportProblem=problem,
         passportPurpose=purpose,
         passportTasks=tasks,
@@ -1975,22 +2018,19 @@ def admin_add_project():
 def admin_modify_project():
     db_sessions = get_session()
     idprojects = request.form["modifyProject"]
-    iniciator = int(request.form.get("iniciator"))
-    sheffpr = int(request.form["sheffpr"])
-    start_date = request.form.get("startDate")
     project_name = str(request.form["projectName"])
     problem = str(request.form["problem"])
     purpose = str(request.form["purpose"])
     tasks = str(request.form["tasks"])
     result = str(request.form["result"])
-    content = str(request.form.get("content"))
-    deadline = str(request.form.get("deadline"))
-    stages = str(request.form.get("stages"))
-    resource = str(request.form.get("resource"))
-    cost = str(request.form.get("cost"))
-    criteria = str(request.form.get("criteria"))
-    formResult = str(request.form.get("formResult"))
-    stadia = int(request.form.get("stadia"))
+    content = str(request.form["content"])
+    deadline = str(request.form["deadline"])
+    stages = str(request.form["stages"])
+    resource = str(request.form["resource"])
+    cost = str(request.form["cost"])
+    criteria = str(request.form["criteria"])
+    formResult = str(request.form["formResult"])
+    stadia = request.form.get("stadia")
     project = db_sessions.query(Projects).filter(Projects.IDprojects == idprojects).first()
     npr = (
         db_sessions.query(PassportOfProjects)
@@ -1998,14 +2038,8 @@ def admin_modify_project():
         .first()
     )
 
-    if str(iniciator) != "":
-        npr.IDinitpr = str(iniciator)
-    if str(sheffpr) != "":
-        npr.IDsheffpr = str(sheffpr)
     if str(project_name) != "":
         npr.passportName = str(project_name)
-    if str(start_date) != "":
-        npr.passportDate = start_date
     if str(problem) != "":
         npr.passportProblem = str(problem)
     if str(purpose) != "":
@@ -2028,7 +2062,7 @@ def admin_modify_project():
         npr.passportCriteria = str(criteria)
     if str(formResult) != "":
         npr.passportFormresults = str(formResult)
-    if str(stadia) != "":
+    if stadia is not None:
         project.IDstadiaofpr = stadia
     db_sessions.commit()
     return redirect("/admin/projects")
@@ -2076,11 +2110,6 @@ def get_passport():
         return
 
     context = {}
-    context["start_date"] = (
-        get_date(record.PassportOfProjects.passportDate.strftime("%d.%m.%Y")) + " г."
-        if record.PassportOfProjects.passportDate
-        else "Не указана дата"
-    )
     context["passport_name"] = record.PassportOfProjects.passportName
     context["fio"] = record.Initiatorsofprojects.FullName
     context["pos"] = record.Initiatorsofprojects.initprPositions
@@ -2181,3 +2210,183 @@ def delete_passport():
 )  # Договоры об организации проектного обучения
 def iniciators_org_mailadmin():
     return sheff_org_mailadmin()
+
+@pages.route('/sheffproj/projects', methods=["GET", "POST"])
+def sheffproj_projects():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .filter(StadiaOfProjects.IDstadiaofpr == 3)
+            .order_by(PassportOfProjects.passportName)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        return render_template(
+            "sheffproj_projects.html",
+            projects=projects
+        )
+
+@pages.route("/sheffproj/modifyProject", methods=["POST"])
+def sheffproj_modify_project():
+    db_sessions = get_session()
+    idprojects = request.form["modifyProject"]
+    project_name = str(request.form["projectName"])
+    problem = str(request.form["problem"])
+    purpose = str(request.form["purpose"])
+    tasks = str(request.form["tasks"])
+    result = str(request.form["result"])
+    content = str(request.form["content"])
+    deadline = str(request.form["deadline"])
+    stages = str(request.form["stages"])
+    resource = str(request.form["resource"])
+    cost = str(request.form["cost"])
+    criteria = str(request.form["criteria"])
+    formResult = str(request.form["formResult"])
+    project = db_sessions.query(Projects).filter(Projects.IDprojects == idprojects).first()
+    npr = (
+        db_sessions.query(PassportOfProjects)
+        .filter(PassportOfProjects.IDpassport == project.IDpassport)
+        .first()
+    )
+
+    if str(project_name) != "":
+        npr.passportName = str(project_name)
+    if str(problem) != "":
+        npr.passportProblem = str(problem)
+    if str(purpose) != "":
+        npr.passportPurpose = str(purpose)
+    if str(tasks) != "":
+        npr.passportTasks = str(tasks)
+    if str(result) != "":
+        npr.passportResults = str(result)
+    if str(content) != "":
+        npr.passportContent = str(content)
+    if str(deadline) != "":
+        npr.passportDeadlines = str(deadline)
+    if str(stages) != "":
+        npr.passportStages = str(stages)
+    if str(resource) != "":
+        npr.passportResources = str(resource)
+    if str(cost) != "":
+        npr.passportCost = str(cost)
+    if str(criteria) != "":
+        npr.passportCriteria = str(criteria)
+    if str(formResult) != "":
+        npr.passportFormresults = str(formResult)
+    db_sessions.commit()
+    return redirect("/admin/projects")
+
+@pages.route("/sheffproj/assignment", methods=["GET"])
+def sheffproj_assignment_project():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .filter(StadiaOfProjects.IDstadiaofpr == 2)
+            .order_by(PassportOfProjects.passportName)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        return render_template(
+            "sheffproj_assignment.html",
+            projects=projects
+        )
+
+@pages.route("/sheffproj/assignSheffProj", methods=["POST"])
+def assign_sheff_proj_project():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idproject = request.form['project']
+
+        project = db_sessions.query(Projects).filter(Projects.IDprojects == idproject).first()
+        npr = (
+            db_sessions.query(PassportOfProjects)
+            .filter(PassportOfProjects.IDpassport == project.IDpassport)
+            .first()
+        )
+        npr.IDsheffpr = session["user"][0]
+        project.IDstadiaofpr = 3
+        db_sessions.commit()
+        return redirect('/sheffproj/assignment')
+
+@pages.route('/admin/stadia', methods=['GET'])
+def admin_stadia():
+    if request.method == 'GET':
+        db_sessions = get_session()
+        select = get_select()
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .filter(StadiaOfProjects.IDstadiaofpr != 5)
+            .order_by(PassportOfProjects.passportName)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        return render_template(
+            "stadia.html",
+            projects=projects
+        )
+
+@pages.route('/admin/changeStadia', methods=['POST'])
+def admin_change_stadia():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idproject = request.form['project']
+
+        project = db_sessions.query(Projects).filter(Projects.IDprojects == idproject).first()
+        npr = (
+            db_sessions.query(PassportOfProjects)
+            .filter(PassportOfProjects.IDpassport == project.IDpassport)
+            .first()
+        )
+        project.IDstadiaofpr = 5
+        db_sessions.commit()
+        return redirect('/admin/stadia')
+
+@pages.route('/sheffproj/members', methods=['GET'])
+def sheffproj_members():
+    if request.method == 'GET':
+        db_sessions = get_session()
+        select = get_select()
+        idsheffpr = session["user"][0]
+        # select_members = (
+        #     select(RolesOfProjects, PassportOfProjects, Specializations, CompetensionsInProject)
+        #     .join(PassportOfProjects)
+        #     .join(SpecializationInProjects)
+        #     .join(Specializations)
+        #     .join(CompetensionsInProject)
+        #     .filter(PassportOfProjects.IDsheffpr == idsheffpr)
+        # )
+        # members = db_sessions.execute(select_members).all()
+        return render_template(
+            "sheffproj_members.html",
+            # members=members
+        )
+
+@pages.route('/admin/mail', methods=['GET'])
+def admin_mail():
+    if request.method == 'GET':
+        db_sessions = get_session()
+        select = get_select()
+        select_iniciators = (
+            select(Initiatorsofprojects.initprEmail, Initiatorsofprojects.FullName + ' - ' + Organizations.orgName)
+            .join(Organizations)
+            .order_by(Initiatorsofprojects.FullName)
+        )
+        iniciators = db_sessions.execute(select_iniciators).all()
+        select_shefforg = (
+            select(Shefforganizations.shefforgEmail, Shefforganizations.FullName + ' - ' + Organizations.orgName)
+            .join(Organizations)
+            .order_by(Shefforganizations.FullName)
+        )
+        shefforg = db_sessions.execute(select_shefforg).all()
+        users = iniciators + shefforg
+        return render_template(
+            "mail.html",
+            users=users
+        )

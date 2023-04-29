@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% set active_page = "projects" %}
+{% block content %}
+<h1>Проекты</h1>
+<br />
+<div class="btn-group" role="group">
+  <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+    aria-controls="collapseFilters">
+    Добавить фильтры
+  </a>
+</div>
+<br />
+<div class="collapse" id="collapseFilters">
+  <br />
+  <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
+    aria-label="projectFilter" aria-describedby="basic-addon1">
+  <br />
+  <div class="btn-group" role="group">
+    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyProjectFilters()">
+      Применить фильтры
+    </button>
+    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropProjectFilter()">
+      Сбросить фильтр
+    </button>
+  </div>
+</div>
+<br />
+<div class="accordion" id="projectsAccordion">
+  {% include "resultAccordionProjects.html" %}
+</div>
+<br>
+<div class="btn-group" role="group">
+  <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">
+    Редактировать паспорт проекта
+  </button>
+</div>
+
+<div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalModifyLabel">Редактировать паспорт проекта</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="modifyProject" method="post">
+          <div class="form-group">
+            <label for="modifyProject" class="form-select-label">Выберите проект</label>
+            <select class="form-select" name="modifyProject" {% if projects==[] %} disabled {% endif %}>
+              {% for el in projects %}
+              <option value="{{ el.Projects.IDprojects }}"> {{ el.PassportOfProjects.passportName }}
+              </option>
+              {% endfor %}
+              {% if projects == [] %}
+              <option value="">Проекты не найдены</option>
+              {% endif %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="projectName" class="form-select-label">Введите название проекта</label>
+            <textarea class="form-control" rows="3" id="projectName" name="projectName"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
+              направлен проект</label>
+            <textarea class="form-control" rows="5" id="problem" name="problem"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="purpose" class="form-select-label">Цель проекта</label>
+            <textarea class="form-control" rows="3" id="purpose" name="purpose"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="tasks" class="form-select-label">Задачи проекта</label>
+            <textarea class="form-control" rows="3" id="tasks" name="tasks"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="result" class="form-select-label">Планируемые результаты проекта</label>
+            <textarea class="form-control" rows="5" id="result" name="result"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="content" class="form-select-label">Краткое содержание проекта</label>
+            <textarea class="form-control" rows="7" id="content" name="content"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="deadline" class="form-select-label">Сроки реализации проекта</label>
+            <textarea class="form-control" rows="3" id="deadline" name="deadline"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="stages" class="form-select-label">Календарный план</label>
+            <textarea class="form-control" rows="5" id="stages" name="stages"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="resource" class="form-select-label">Ресурсное обеспечение</label>
+            <textarea class="form-control" rows="3" id="resource" name="resource"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="cost" class="form-select-label">Затраты на выполнение проекта</label>
+            <textarea class="form-control" rows="3" id="cost" name="cost"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="criteria" class="form-select-label">Критерии оценки результатов проекта</label>
+            <textarea class="form-control" rows="3" id="criteria" name="criteria"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="formResult" class="form-select-label">Форма представления результата проекта</label>
+            <textarea class="form-control" rows="3" id="formResult" name="formResult"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary" {% if projects==[] %} disabled {% endif %}>Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

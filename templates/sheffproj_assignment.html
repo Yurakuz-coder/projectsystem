@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% set active_page = "assignment" %}
+{% block content %}
+<h1>Назначение руководителя проекта</h1>
+<br />
+
+<form action="assignSheffProj" method="post">
+  <div class="form-group">
+    <label for="project" class="form-select-label">Выберите проект</label>
+    <select class="form-select" name="project" {% if projects==[] %} disabled {% endif %}>
+      {% for el in projects %}
+      <option value="{{ el.Projects.IDprojects }}"> {{ el.PassportOfProjects.passportName }}
+      </option>
+      {% endfor %}
+      {% if projects == [] %}
+      <option value="">Проекты не найдены</option>
+      {% endif %}
+    </select>
+  </div>
+  <br>
+  <button type="submit" class="btn btn-primary" {% if projects==[] %} disabled {% endif %}>
+    Стать руководителем проекта
+  </button>
+</form>
+{% endblock content %}

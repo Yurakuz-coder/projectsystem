@@ -1,0 +1,54 @@
+{% block content %}
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+  <br>
+  <div class="position-sticky pt-3">
+    <h5 align="center">
+      <h5 align="center">{{ session['fullName'][0] }} <br> {{ session['fullName'][1] }} <br> {{
+        session['fullName'][2] }} <br>{{ session['fullName'][3] }}
+      </h5>
+      <h3 align="center"></h3>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="{{ 'nav-link active' if active_page == 'assignment' else 'nav-link' }}" aria-current="page"
+            href="/{{ session['url'] }}/assignment">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
+              <path
+                d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z" />
+              <path
+                d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
+            </svg>
+            Назначение руководителя проекта
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="{{ 'nav-link active' if active_page == 'projects' else 'nav-link' }}" aria-current="page"
+            href="/{{ session['url'] }}/projects">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-file-earmark" viewBox="0 0 16 16">
+              <path
+                d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
+            </svg>
+            Проекты
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="{{ 'nav-link active' if active_page == 'members' else 'nav-link' }}" aria-current="page"
+            href="/{{ session['url'] }}/members">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-file-earmark-person" viewBox="0 0 16 16">
+              <path d="M11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+              <path
+                d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2v9.255S12 12 8 12s-5 1.755-5 1.755V2a1 1 0 0 1 1-1h5.5v2z" />
+            </svg>
+            Участники проектов
+          </a>
+        </li>
+        <div class="d-flex justify-content-center">
+          <form action="/exit" method="post">
+            <button type="submit" class="btn btn-danger">Выйти из системы</button>
+          </form>
+        </div>
+  </div>
+</nav>
+{% endblock content %}

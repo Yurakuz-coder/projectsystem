@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% set active_page = "mail" %}
+{% block content %}
+<h1>Отправить сообщение администратору системы</h1>
+
+
+<div class="form-group">
+  <label for="admin" class="form-select-label">Выберите пользователя</label>
+  <select class="form-select" aria-label="Default select example" name="admin" id="admin" {% if users==[] %} disabled {%
+    endif %} required>
+    {% for el in users %}
+    <option value="{{ el[0] }}"> {{ el[1] }} </option>
+    {% endfor %}
+    {% if admins == [] %}
+    <option value="">Пользователи не найдены</option>
+    {% endif %}
+  </select>
+</div>
+<div class="form-group">
+  <label for="subject" class="form-control-label">Тема письма</label>
+  <textarea class="form-control" name="subject" rows="1" id="subject" required></textarea>
+</div>
+<div class="form-group">
+  <label for="message" class="form-control-label">Содержимое письма</label>
+  <textarea class="form-control" name="message" rows="10" id="message" required></textarea>
+</div>
+<br>
+<label for="files" class="form-control-label">Приложение к письму</label>
+<input type="file" class="form-control" name="attached_files" id="attachedFiles" multiple>
+
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" id='sendMailButton' onclick="sendMail()" {% if users==[] %} disabled {%
+    endif %}>Отправить письмо</button>
+</div>
+{% endblock content %}

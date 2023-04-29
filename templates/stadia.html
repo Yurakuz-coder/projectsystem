@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% set active_page = "stadia" %}
+{% block content %}
+<h1>Изменение стадии проекта</h1>
+<br />
+
+<form action="changeStadia" method="post">
+  <div class="form-group">
+    <label for="project" class="form-select-label">Выберите проект</label>
+    <select class="form-select" name="project" {% if projects==[] %} disabled {% endif %}>
+      {% for el in projects %}
+      <option value="{{ el.Projects.IDprojects }}"> {{ el.PassportOfProjects.passportName }}
+      </option>
+      {% endfor %}
+      {% if projects == [] %}
+      <option value="">Проекты не найдены</option>
+      {% endif %}
+    </select>
+  </div>
+  <br>
+  <button type="submit" class="btn btn-primary" {% if projects==[] %} disabled {% endif %}>
+    Одобрить проект
+  </button>
+</form>
+{% endblock content %}

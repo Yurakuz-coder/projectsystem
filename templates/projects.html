@@ -15,6 +15,15 @@
     <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
         aria-label="projectFilter" aria-describedby="basic-addon1">
     <br />
+    <select class="form-select" id="stadiaFilter">
+        <option value="">Не использовать фильтр по стадии</option>
+        {% for el in stadia %}
+        <option value="{{ el.StadiaOfProjects.IDstadiaofpr }}"> {{
+            el.StadiaOfProjects.stadiaofprName }}
+        </option>
+        {% endfor %}
+    </select>
+    <br />
     <div class="btn-group" role="group">
         <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyProjectFilters()">
             Применить фильтры
@@ -165,27 +174,25 @@
                         <label for="projectName" class="form-select-label">Введите название проекта</label>
                         <textarea class="form-control" rows="3" id="projectName" name="projectName"></textarea>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="stadia" class="form-select-label">Выберите стадию проекта</label>
-                        <select class="form-select" name="stadia" {% if stadia==[] %} disabled {% endif %}>
-                            {% for el in stadia %}
-                            <option value="{{ el.StadiaOfProjects.IDstadiaofpr }}"> {{
+                        <select class="form-select" name="stadia" id="stadia" {% if stadia_modify==[] or
+                            stadia_modify|length==1 %} disabled {% endif %}>
+                            {% for el in stadia_modify %}
+                            <option value="{{ el.StadiaOfProjects.IDstadiaofpr if stadia_modify|length != 1 else '' }}">
+                                {{
                                 el.StadiaOfProjects.stadiaofprName }}
                             </option>
                             {% endfor %}
-                            {% if stadia == [] %}
+                            {% if stadia_modify == [] %}
                             <option value="">Стадии проекта отсутствуют</option>
                             {% endif %}
                         </select>
-                    </div>
+                    </div> -->
                     <div class="form-group">
                         <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
                         <textarea class="form-control" rows="5" id="problem" name="problem"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="startDate" class="form-control-label">Дата начала</label>
-                        <input class="form-control" id="startDate" name="startDate" type="date"></input>
                     </div>
                     <div class="form-group">
                         <label for="purpose" class="form-select-label">Цель проекта</label>
@@ -229,8 +236,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary" {% if iniciators==[] or projects==[] %} disabled
-                            {% endif %}>Сохранить</button>
+                        <button type="submit" class="btn btn-primary" {% if projects==[] %} disabled {% endif
+                            %}>Сохранить</button>
                     </div>
                 </form>
             </div>

@@ -1,0 +1,52 @@
+{% for el in members %}
+<div class="accordion-item">
+    <h2 class="accordion-header" id="accordion{{ el.Projects.IDprojects }}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapse{{ el.Projects.IDprojects }}" aria-expanded="false"
+            aria-controls="collapse{{ el.Projects.IDprojects }}">
+            {{ el.PassportOfProjects.passportName }}
+        </button>
+    </h2>
+    <div id="collapse{{ el.Projects.IDprojects }}" class="accordion-collapse collapse"
+        aria-labelledby="heading{{ el.Projects.IDprojects }}" data-bs-parent="#projectsAccordion">
+        <div class="accordion-body">
+            {% for mem in members %}
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <h5 class="mb-1">Роль в проекте</h5>{{ el.RolesOfProjects.rolesRole }}
+                </li>
+                <li class="list-group-item">
+                    <h5 class="mb-1">Количество вакантных мест</h5>{{ el.RolesOfProjects.rolesAmount if
+                    el.RolesOfProjects.passportDate else "Не указана дата" }}
+                </li>
+                <li class="list-group-item">
+                    <h5 class="mb-1">Функции участника проекта</h5>{{ el.RolesOfProjects.rolesFunction }}
+                </li>
+                <li class="list-group-item">
+                    <h5 class="mb-1">Опоп</h5> {{ el.RolesOfProjects.passportPurpose }}
+                </li>
+                <li class="list-group-item">
+                    <h5 class="mb-1">Трудоемкость (з.е.)</h5>{{ el.RolesOfProjects.rolesCost }}
+                </li>
+                <li class="list-group-item">
+                    <h5 class="mb-1">Перечень компетенций</h5>{{ el.RolesOfProjects.passportResults }}
+                </li>
+                <li class="list-group-item">
+                    <h5 class="mb-1">Требования к участникам</h5> {{ el.RolesOfProjects.rolesRequirements }}
+                </li>
+            </ul>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% if members == [] %}
+<div class="accordion-item">
+    <h2 class="accordion-header">
+        <button class="accordion-button" type="button" disabled>
+            Данные не найдены
+        </button>
+    </h2>
+</div>
+{% endif %}

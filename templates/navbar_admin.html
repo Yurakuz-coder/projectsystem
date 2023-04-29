@@ -116,8 +116,29 @@
           Проекты
         </a>
       </li>
-
+      <li class="nav-item">
+        <a class="{{ 'nav-link active' if active_page == 'stadia' else 'nav-link' }}" aria-current="page"
+          href="/{{ session['url'] }}/stadia">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+            class="bi bi-file-earmark-check-fill" viewBox="0 0 16 16">
+            <path
+              d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm1.354 4.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708.708z" />
+          </svg>
+          Изменение стадии проекта
+        </a>
+      </li>
     </ul>
+    <li class="nav-item">
+      <a class="{{ 'nav-link active' if active_page == 'mail' else 'nav-link' }}" aria-current="page"
+        href="/{{ session['url'] }}/mail">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope"
+          viewBox="0 0 16 16">
+          <path
+            d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z" />
+        </svg>
+        Отправить сообщение пользователю
+      </a>
+    </li>
     <div class="d-flex justify-content-center">
       <form action="/exit" method="post">
         <button type="submit" class="btn btn-danger">Выйти из системы</button>

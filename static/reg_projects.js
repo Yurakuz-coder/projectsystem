@@ -1,21 +1,24 @@
 function applyProjectFilters() {
   const projectFilter = document.getElementById("projectFilter").value;
-  if (!projectFilter) {
+  const stadiaFilter = document.getElementById("stadiaFilter").value;
+
+  if (!projectFilter && !stadiaFilter) {
     return;
   }
-  getDataProject(projectFilter);
+  getDataProject(projectFilter, stadiaFilter);
 }
 
 function dropProjectFilter() {
-  getDataProject(null);
+  getDataProject(null, null);
 }
 
-function getDataProject(projectFilter) {
+function getDataProject(projectFilter, stadiaFilter) {
+  const url = window.location.pathname.split('/')[1]
   $.ajax({
     type: "POST",
-    url: "/iniciators/projects",
+    url: "/" + url + "/projects",
     dataSrc: "data",
-    data: { projectFilter },
+    data: { projectFilter, stadiaFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
@@ -59,5 +62,41 @@ function deletePassportFile(id) {
       const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;
     },
+  });
+}
+
+function checkStadia(id) {
+  $.ajax({
+    type: "GET",
+    dataSrc: "data",
+    data: { idProject: id },
+    url: "/checkStadia",
+    success: function (data) {
+      const select = document.getElementById("stadia");
+      select.innerHTML = "";
+      if (data.IDstadiaofpr) {
+        select.disabled = true;
+        select.add(
+          new Option(
+            `${data.stadiaofprName}`,
+            ''
+          )
+        )
+      }
+      else {
+        select.disabled = false;
+        data.map(item => {
+          select.add(
+            new Option(
+              `${item.stadiaofprName}`,
+              item.IDstadiaofpr
+            )
+          )
+        })
+      }
+    },
+    error: function (data) {
+      console.log(data)
+    }
   });
 }

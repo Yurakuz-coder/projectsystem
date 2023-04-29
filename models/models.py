@@ -134,7 +134,6 @@ class PassportOfProjects(Base):
     IDinitpr = mapped_column(ForeignKey("initiatorsofprojects.IDinitpr"))
     IDsheffpr = mapped_column(ForeignKey("sheffofprojects.IDsheffpr"))
     passportName = mapped_column(String(255), nullable=False)
-    passportDate = mapped_column(Date, nullable=False)
     passportProblem = mapped_column(String)
     passportPurpose = mapped_column(String)
     passportTasks = mapped_column(String)
@@ -163,3 +162,25 @@ class Projects(Base):
     IDpassport = mapped_column(ForeignKey("passportofprojects.IDpassport"))
     IDstadiaofpr = mapped_column(ForeignKey("stadiaofprojects.IDstadiaofpr"))
     projectsFull = mapped_column(String(1000))
+
+class RolesOfProjects(Base):
+    __tablename__ = 'rolesofprojects'
+    IDroles = mapped_column(Integer, primary_key=True)
+    IDpassport = mapped_column(ForeignKey("passportofprojects.IDpassport"))
+    rolesRole = mapped_column(String(500), nullable=False)
+    rolesAmount = mapped_column(Integer, nullable=False)
+    rolesFunction = mapped_column(String, nullable=False)
+    rolesCost = mapped_column(Integer)
+    rolesRequirements = mapped_column(String, nullable=False)
+
+class SpecializationInProjects(Base):
+    __tablename__ = 'specializationsinprojects'
+    IDspecinpr = mapped_column(Integer, primary_key=True)
+    IDroles = mapped_column(ForeignKey("rolesofprojects.IDroles"))
+    IDspec = mapped_column(ForeignKey("specializations.IDspec"))
+
+class CompetensionsInProject(Base):
+    __tablename__ = 'competensionsinproject'
+    IDcompetensionspr = mapped_column(Integer, primary_key=True)
+    IDroles = mapped_column(ForeignKey("rolesofprojects.IDroles"))
+    IDcompetensions = mapped_column(ForeignKey("competensions.IDcompetensions"))
