@@ -1,20 +1,20 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 20.04.2023 23:53:02
+-- Дата скрипта: 29.04.2023 18:03:09
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
---
+-- 
 -- Отключение внешних ключей
---
+-- 
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 
---
+-- 
 -- Установка кодировки, с использованием которой клиент будет посылать запросы на сервер
 --
 SET NAMES 'utf8';
 
---
+-- 
 -- Установка базы данных по умолчанию
 --
 USE projectsystem;
@@ -125,7 +125,8 @@ CREATE TABLE stadiaofprojects (
   UNIQUE INDEX UK_stadiaofprojects_stadiaofprName (stadiaofprName)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 6
+AVG_ROW_LENGTH = 3276
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Стадии проекта';
@@ -163,7 +164,7 @@ CREATE TABLE competensions (
 )
 ENGINE = INNODB
 AUTO_INCREMENT = 4
-AVG_ROW_LENGTH = 5461
+AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Компетенции учебного плана';
@@ -240,8 +241,8 @@ CREATE TABLE sheffofprojects (
     REFERENCES positions(IDpositions) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 2
-AVG_ROW_LENGTH = 16384
+AUTO_INCREMENT = 7
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Руководители проектов';
@@ -269,7 +270,8 @@ CREATE TABLE initiatorsofprojects (
     REFERENCES organizations(IDorg) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 5
+AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Инициаторы проектов';
@@ -324,7 +326,8 @@ CREATE TABLE students (
     REFERENCES groups(IDgroups) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Студенты';
@@ -363,7 +366,8 @@ CREATE TABLE passportofprojects (
     REFERENCES sheffofprojects(IDsheffpr) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 3
+AVG_ROW_LENGTH = 16384
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Паспорта проектов';
@@ -385,7 +389,8 @@ CREATE TABLE projects (
     REFERENCES stadiaofprojects(IDstadiaofpr) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 3
+AVG_ROW_LENGTH = 16384
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Проекты';
@@ -542,7 +547,7 @@ CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Студенты в проекте';
 
---
+-- 
 -- Вывод данных для таблицы form_studing
 --
 INSERT INTO form_studing VALUES
@@ -550,13 +555,13 @@ INSERT INTO form_studing VALUES
 (1, 'очная'),
 (2, 'очно-заочная');
 
---
+-- 
 -- Вывод данных для таблицы levels
 --
 
 -- Таблица projectsystem.levels не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы positions
 --
 INSERT INTO positions VALUES
@@ -565,14 +570,14 @@ INSERT INTO positions VALUES
 (4, 'Профессор кафедры ИВТ'),
 (3, 'Старший преподаватель кафедры ИВТ');
 
---
+-- 
 -- Вывод данных для таблицы shefforganizations
 --
 INSERT INTO shefforganizations VALUES
-(1, 'Кузнецов', 'Юрий', 'Александрович', 'начальник', 'Доверенность', 'iurij.kuznetsov2011@yandex.ru', '+7913197341', 'Admin', '9e727fdd3aec8274f46685441900280d'),
-(3, 'Борисов', 'Алишер', 'Александрович', 'директор', 'доверенность', '432@yandex.ru', '+72334561231', 'Boris', '4dbf44c6b1be736ee92ef90090452fc2');
+(1, 'Кузнецов', 'Василий', 'Александрович', 'директор', 'Доверенность', 'sibir124@hotmail.com', '+7913197341', 'prazdnik', '358b3ade2fed6f80e801633b056c4d78'),
+(3, 'Борисов', 'Алишер', 'Александрович', 'директор', 'доверенность', '432@yandex.ru', '+72334561231', 'boris', '4dbf44c6b1be736ee92ef90090452fc2');
 
---
+-- 
 -- Вывод данных для таблицы specializations
 --
 INSERT INTO specializations VALUES
@@ -580,27 +585,30 @@ INSERT INTO specializations VALUES
 (3, '09.04.02', 'Информационные системы и технологии', 'Мультимедиатехнологии'),
 (5, '09.04.02', 'Информационные системы и технологии', 'Управление данными');
 
---
+-- 
 -- Вывод данных для таблицы stadiaofprojects
 --
+INSERT INTO stadiaofprojects VALUES
+(1, 'На рассмотрении'),
+(2, 'Одобрено администратором, идёт поиск руководителя'),
+(3, 'Поиск участников'),
+(5, 'Проект завершён'),
+(4, 'Участники найдены, идёт работа над проектом');
 
--- Таблица projectsystem.stadiaofprojects не содержит данных
-
---
+-- 
 -- Вывод данных для таблицы stadiaofworks
 --
 
 -- Таблица projectsystem.stadiaofworks не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы competensions
 --
 INSERT INTO competensions VALUES
 (1, 4, 'ПК-1', 'Способен критически воспринимать информацию'),
-(2, 3, 'ПК-1', 'Способен думать'),
 (3, 4, 'ПК-2', 'Плавать');
 
---
+-- 
 -- Вывод данных для таблицы groups
 --
 INSERT INTO groups VALUES
@@ -608,102 +616,92 @@ INSERT INTO groups VALUES
 (4, 'МИД21-01', 2021, 1, 5),
 (5, 'МИИ21-01', 2021, 1, 4);
 
---
+-- 
 -- Вывод данных для таблицы organizations
 --
 INSERT INTO organizations VALUES
-(1, 1, 'ООО "Праздник 1"', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 2', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 2', 'sibir124@hotmail.com', '+73913132244'),
+(1, 1, 'ООО "Праздник 1"', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 3', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 2', 'sibir124@hotmail.com', '+73913132244'),
 (4, 3, 'ТО КГКУ УСЗН', 'Красноярск', 'Красноярск', 'uszn21@mail.ru', '+73913123345');
 
---
+-- 
 -- Вывод данных для таблицы sheffofprojects
 --
 INSERT INTO sheffofprojects VALUES
-(1, 1, 'Козлова', 'Юлия', 'Борисовна', '83912139623', 'yulya_sib_gau@mail.ru\r\n', 'Admin', '9e727fdd3aec8274f46685441900280d');
+(1, 1, 'Козлова', 'Юлия', 'Борисовна', '83912139623', 'iurij.kuznetsov2011@yandex.ru', 'Admin', '9e727fdd3aec8274f46685441900280d'),
+(2, 2, 'Козлова', 'Юлия', 'Борисовна', '+78927892144', 'yulya_sib_gau@mail.ru', 'yulia', '03be66295cd7eb6cf6001c9181bb904d'),
+(6, 1, 'Кузнецов', 'Юрий', 'Александрович', '+79121973415', 'iu@yandex.ru', '33', '182be0c5cdcd5072bb1864cdee4d3d6e');
 
---
+-- 
 -- Вывод данных для таблицы initiatorsofprojects
 --
+INSERT INTO initiatorsofprojects VALUES
+(3, 4, 'f', 'f', 'f', 'проба', 'iurij.kuznetsov2011@yandex.ru', '+73912256799', 'а', '0cc175b9c0f1b6a831c399e269772661'),
+(4, 1, 'Игорев', 'Игорь', 'Игоревич', 'начальник IT-отдела', 'igor10@mail.ru', '+79123334455', 'igor', 'dd97813dd40be87559aaefed642c3fbb');
 
--- Таблица projectsystem.initiatorsofprojects не содержит данных
-
---
+-- 
 -- Вывод данных для таблицы projectsudycontracts
 --
 INSERT INTO projectsudycontracts VALUES
 (7, 4, 122, '2023-04-13', '2024-04-15', 'test', 'full', NULL),
 (9, 1, 123, '2023-04-13', '2024-04-15', 'test', 'full', NULL);
 
---
+-- 
 -- Вывод данных для таблицы students
 --
+INSERT INTO students VALUES
+(1, 4, 'Тимофеев', 'Сергей', 'Николаевич', 125678096, '+79131973415', 'iurij.kuznetsov2011@yandex.ru', '125678096', '4fddf81f8acb968856d7a668cc6510f2'),
+(2, 5, 'Сергеев', 'Сергей', 'Николаевич', 123456789, '+79082209565', 'e.star00@mail.ru', '123456789', '25f9e794323b453885f5181f1b624d0b'),
+(3, 4, 'Вакарчук', 'Анатолий', 'Петрович', 234489012, '+78927892144', '1@ya.ru', '234489012', '9d6b7e06a07cef69baf2e2b52e43cf49');
 
--- Таблица projectsystem.students не содержит данных
-
---
+-- 
 -- Вывод данных для таблицы passportofprojects
 --
+INSERT INTO passportofprojects VALUES
+(2, 4, 2, 'Разработка web-сайта компании ООО "Праздник 1"', '2023-04-28', 'Компании необходим сайт', 'Разработать сайт', 'Разработать сайт', 'Web-сайта компании ООО "Праздник 1"', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '', '');
 
--- Таблица projectsystem.passportofprojects не содержит данных
-
---
+-- 
 -- Вывод данных для таблицы projects
 --
+INSERT INTO projects VALUES
+(2, 2, 5, NULL);
 
--- Таблица projectsystem.projects не содержит данных
-
---
+-- 
 -- Вывод данных для таблицы rolesofprojects
 --
 
 -- Таблица projectsystem.rolesofprojects не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы applications
 --
 
 -- Таблица projectsystem.applications не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы competensionsinproject
 --
 
 -- Таблица projectsystem.competensionsinproject не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы specializationsinprojects
 --
 
 -- Таблица projectsystem.specializationsinprojects не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы confirmation
 --
 
 -- Таблица projectsystem.confirmation не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы studentsinprojects
 --
 
 -- Таблица projectsystem.studentsinprojects не содержит данных
 
---
+-- 
 -- Включение внешних ключей
---
+-- 
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-INSERT INTO projectsystem.stadiaofprojects
-(IDstadiaofpr, stadiaofprName)
-VALUES(1, 'На рассмотрении');
-INSERT INTO projectsystem.stadiaofprojects
-(IDstadiaofpr, stadiaofprName)
-VALUES(2, 'Участники найдены, идет работа над проектом');
-INSERT INTO projectsystem.stadiaofprojects
-(IDstadiaofpr, stadiaofprName)
-VALUES(3, 'Одобрено администратором, идет поиск руководителя');
-INSERT INTO projectsystem.stadiaofprojects
-(IDstadiaofpr, stadiaofprName)
-VALUES(4, 'Поиск участников');
-INSERT INTO projectsystem.stadiaofprojects
-(IDstadiaofpr, stadiaofprName)
-VALUES(5, 'Проект завершен');
