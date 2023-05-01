@@ -25,7 +25,8 @@ from models.models import (
     StadiaOfProjects,
     RolesOfProjects,
     SpecializationInProjects,
-    CompetensionsInProject
+    CompetensionsInProject,
+    StudentsInProjects
 )
 from models.database import get_session, get_select
 
@@ -2323,7 +2324,7 @@ def admin_stadia():
             select(Projects, PassportOfProjects, StadiaOfProjects)
             .join(PassportOfProjects)
             .join(StadiaOfProjects)
-            .filter(StadiaOfProjects.IDstadiaofpr != 5)
+            .filter(StadiaOfProjects.IDstadiaofpr == 1)
             .order_by(PassportOfProjects.passportName)
         )
         projects = db_sessions.execute(select_projects).all()
@@ -2344,32 +2345,113 @@ def admin_change_stadia():
             .filter(PassportOfProjects.IDpassport == project.IDpassport)
             .first()
         )
-        project.IDstadiaofpr = 5
+        project.IDstadiaofpr = 2
         db_sessions.commit()
         return redirect('/admin/stadia')
 
-@pages.route('/sheffproj/members', methods=['GET'])
+@pages.route('/sheffproj/members', methods=['GET', 'POST'])
 def sheffproj_members():
     if request.method == 'GET':
         db_sessions = get_session()
         select = get_select()
         idsheffpr = session["user"][0]
-        # select_members = (
-        #     select(RolesOfProjects, PassportOfProjects, Specializations, CompetensionsInProject)
-        #     .join(PassportOfProjects)
-        #     .join(SpecializationInProjects)
-        #     .join(Specializations)
-        #     .join(CompetensionsInProject)
-        #     .filter(PassportOfProjects.IDsheffpr == idsheffpr)
-        # )
-        # members = db_sessions.execute(select_members).all()
+        select_projects = select(PassportOfProjects.IDpassport, PassportOfProjects.passportName, Projects.IDprojects).join(Projects).filter(PassportOfProjects.IDsheffpr == idsheffpr)
+        select_roles = (
+            select(RolesOfProjects)
+            .join(PassportOfProjects)
+            .filter(PassportOfProjects.IDsheffpr == idsheffpr)
+        )
+        exists_roles = db_sessions.query(RolesOfProjects.IDpassport).distinct().all()
+
+        select_students = select(Students.FullName, StudentsInProjects.IDroles, Groups.groupsName).join(StudentsInProjects).join(Groups).join(Projects).join(PassportOfProjects).filter(PassportOfProjects.IDsheffpr == idsheffpr)
+        select_spec = select(SpecializationInProjects.IDroles, Specializations.FullSpec).join(Specializations)
+        select_comp = select(CompetensionsInProject.IDroles, Competensions.competensionsShifr, Competensions.competensionsFull).join(Competensions)
+        select_check_spec = select(Specializations)
+        spec = db_sessions.execute(select_spec).all()
+        comp = db_sessions.execute(select_comp).all()
+        roles = db_sessions.execute(select_roles).all()
+        projects = db_sessions.execute(select_projects).all()
+        students = db_sessions.execute(select_students).all()
+        check_spec = db_sessions.execute(select_check_spec).all()
         return render_template(
             "sheffproj_members.html",
-            # members=members
+            students=students,
+            projects=projects,
+            spec=spec,
+            comp=comp,
+            exists_members=exists_roles[0],
+            roles=roles
+        )
+    if request.method == 'POST':
+        db_sessions = get_session()
+        select = get_select()
+        fio_filter = request.form['projectFioFilter']
+        role_filter = request.form['projectRoleFilter']
+        napr_filter = request.form['projectNaprFilter']
+        idsheffpr = session["user"][0]
+        where_fio_filter = (
+            Students.FullName.ilike("%" + fio_filter + "%")
+            if fio_filter
+            else text("1=1")
+        )
+        where_role_filter = (
+            RolesOfProjects.rolesRole.ilike("%" + role_filter + "%")
+            if role_filter
+            else text("1=1")
+        )
+        where_napr_filter = (
+            Specializations.FullSpec.ilike("%" + napr_filter + "%")
+            if napr_filter
+            else text("1=1")
+        )
+        select_projects = select(PassportOfProjects.IDpassport, PassportOfProjects.passportName, Projects.IDprojects).join(Projects).filter(PassportOfProjects.IDsheffpr == idsheffpr)
+        select_roles = (
+            select(RolesOfProjects)
+            .join(PassportOfProjects)
+            .filter(PassportOfProjects.IDsheffpr == idsheffpr)
+            .filter(where_role_filter)
+        )
+        exists_roles = db_sessions.query(RolesOfProjects.IDpassport).distinct().all()
+
+        select_students = select(Students.FullName, StudentsInProjects.IDroles, Groups.groupsName).join(StudentsInProjects).join(Groups).join(Projects).join(PassportOfProjects).filter(PassportOfProjects.IDsheffpr == idsheffpr).filter(where_fio_filter)
+        select_spec = select(SpecializationInProjects.IDroles, Specializations.FullSpec).join(Specializations).filter(where_napr_filter)
+        select_comp = select(CompetensionsInProject.IDroles, Competensions.competensionsShifr, Competensions.competensionsFull).join(Competensions)
+        select_check_spec = select(Specializations)
+        spec = db_sessions.execute(select_spec).all()
+        comp = db_sessions.execute(select_comp).all()
+        roles = db_sessions.execute(select_roles).all()
+        projects = db_sessions.execute(select_projects).all()
+        students = db_sessions.execute(select_students).all()
+        check_spec = db_sessions.execute(select_check_spec).all()
+        return render_template(
+            "resultAccordionMembers.html",
+            students=students,
+            projects=projects,
+            spec=spec,
+            comp=comp,
+            exists_members=exists_roles[0],
+            roles=roles,
+            check_spec=check_spec
         )
 
-@pages.route('/admin/mail', methods=['GET'])
-def admin_mail():
+@pages.route('/admin/mail_shefforg', methods=['GET'])
+def admin_mail_shefforg():
+    if request.method == 'GET':
+        db_sessions = get_session()
+        select = get_select()
+        select_shefforg = (
+            select(Shefforganizations.shefforgEmail, Shefforganizations.FullName + ' - ' + Organizations.orgName)
+            .join(Organizations)
+            .order_by(Shefforganizations.FullName)
+        )
+        shefforg = db_sessions.execute(select_shefforg).all()
+        return render_template(
+            "mail_shefforg.html",
+            users=shefforg
+        )
+
+@pages.route('/admin/mail_inic', methods=['GET'])
+def admin_mail_inic():
     if request.method == 'GET':
         db_sessions = get_session()
         select = get_select()
@@ -2379,14 +2461,155 @@ def admin_mail():
             .order_by(Initiatorsofprojects.FullName)
         )
         iniciators = db_sessions.execute(select_iniciators).all()
-        select_shefforg = (
-            select(Shefforganizations.shefforgEmail, Shefforganizations.FullName + ' - ' + Organizations.orgName)
-            .join(Organizations)
-            .order_by(Shefforganizations.FullName)
-        )
-        shefforg = db_sessions.execute(select_shefforg).all()
-        users = iniciators + shefforg
         return render_template(
-            "mail.html",
-            users=users
+            "mail_inic.html",
+            users=iniciators
         )
+
+@pages.route('/getCompetitionsSpec', methods=['GET'])
+def get_competitions_spec():
+    if request.method == 'GET':
+        db_sessions = get_session()
+        select = get_select()
+        idcomp = request.args.get("id")
+        select_spec = select(Specializations.IDspec, Specializations.FullSpec).join(Competensions).filter(Competensions.IDcompetensions == idcomp)
+        spec = db_sessions.execute(select_spec).all()
+        return jsonify(dict(spec)), 200
+
+@pages.route("/shefforg/projects", methods=["GET", "POST"])
+def shefforg_project():
+    if request.method == "GET":
+        idorg = session['user'][0]
+        select = get_select()
+        db_sessions = get_session()
+        select_stadia = select(StadiaOfProjects).order_by(StadiaOfProjects.IDstadiaofpr)
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .join(Initiatorsofprojects)
+            .filter(Initiatorsofprojects.IDorg == idorg)
+            .order_by(PassportOfProjects.passportName)
+        )
+        stadia = db_sessions.execute(select_stadia).all()
+        projects = db_sessions.execute(select_projects).all()
+        return render_template("sheff_org_projects.html", projects=projects, stadia=stadia)
+    if request.method == "POST":
+        idorg = session['user'][0]
+        select = get_select()
+        db_sessions = get_session()
+        project_filter = request.form["projectFilter"]
+        stadia_filter = request.form["stadiaFilter"]
+        where_project_filter = (
+            PassportOfProjects.passportName.ilike("%" + project_filter + "%")
+            if project_filter
+            else text("1=1")
+        )
+        where_stadia_filter = (
+            StadiaOfProjects.IDstadiaofpr == stadia_filter
+            if stadia_filter
+            else text("1=1")
+        )
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .join(Initiatorsofprojects)
+            .filter(Initiatorsofprojects.IDorg == idorg)
+            .where(where_project_filter)
+            .where(where_stadia_filter)
+
+            .order_by(PassportOfProjects.passportName)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        return render_template("resultAccordionProjects.html", projects=projects)
+
+@pages.route('/sheffproj/roles', methods=['GET'])
+def sheffproj_roles():
+    if request.method == 'GET':
+        db_sessions = get_session()
+        select = get_select()
+        idsheffpr = session["user"][0]
+        select_projects = select(PassportOfProjects.IDpassport, PassportOfProjects.passportName, Projects.IDprojects).join(Projects).filter(PassportOfProjects.IDsheffpr == idsheffpr)
+        select_roles = (
+            select(RolesOfProjects)
+            .join(PassportOfProjects)
+            .filter(PassportOfProjects.IDsheffpr == idsheffpr)
+        )
+        select_spec = select(SpecializationInProjects.IDroles, Specializations.FullSpec).join(Specializations)
+        select_comp = select(CompetensionsInProject.IDroles, Competensions.competensionsShifr, Competensions.competensionsFull).join(Competensions)
+
+        spec = db_sessions.execute(select_spec).all()
+        comp = db_sessions.execute(select_comp).all()
+        roles = db_sessions.execute(select_roles).all()
+        projects = db_sessions.execute(select_projects).all()
+        check_spec = db_sessions.execute(select(Specializations)).all()
+        return render_template(
+            "sheffproj_roles.html",
+            projects=projects,
+            spec=spec,
+            comp=comp,
+            roles=roles,
+            check_spec=check_spec
+        )
+
+@pages.route("/sheffproj/addRole", methods=["POST"])
+def sheffproj_add_role():
+    db_sessions = get_session()
+    project = request.form["project"]
+    role = str(request.form["role"])
+    amount = request.form["amount"]
+    function = str(request.form["function"])
+    spec = request.form.getlist('spec')
+    cost = str(request.form["cost"])
+    spec_comp = str(request.form["spec-comp"])
+    comp = request.form.getlist('comp')
+    resource = str(request.form["require"])
+
+@pages.route("/sheffproj/modifyRole", methods=["POST"])
+def sheffproj_modify_role():
+    db_sessions = get_session()
+    idroles = request.form["roles"]
+    project = request.form["project"]
+    role = str(request.form["role"])
+    amount = request.form["amount"]
+    function = str(request.form["function"])
+    spec = request.form["spec"]
+    cost = str(request.form["cost"])
+    spec_comp = str(request.form["spec-comp"])
+    comp = request.form["comp"]
+    resource = str(request.form["require"])
+
+    project = db_sessions.query(Projects).filter(Projects.IDprojects == idprojects).first()
+    npr = (
+        db_sessions.query(PassportOfProjects)
+        .filter(PassportOfProjects.IDpassport == project.IDpassport)
+        .first()
+    )
+
+    if str(project_name) != "":
+        npr.passportName = str(project_name)
+    if str(problem) != "":
+        npr.passportProblem = str(problem)
+    if str(purpose) != "":
+        npr.passportPurpose = str(purpose)
+    if str(tasks) != "":
+        npr.passportTasks = str(tasks)
+    if str(result) != "":
+        npr.passportResults = str(result)
+    if str(content) != "":
+        npr.passportContent = str(content)
+    if str(deadline) != "":
+        npr.passportDeadlines = str(deadline)
+    if str(stages) != "":
+        npr.passportStages = str(stages)
+    if str(resource) != "":
+        npr.passportResources = str(resource)
+    if str(cost) != "":
+        npr.passportCost = str(cost)
+    if str(criteria) != "":
+        npr.passportCriteria = str(criteria)
+    if str(formResult) != "":
+        npr.passportFormresults = str(formResult)
+    db_sessions.commit()
+    return redirect("/admin/projects")

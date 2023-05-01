@@ -184,3 +184,46 @@ class CompetensionsInProject(Base):
     IDcompetensionspr = mapped_column(Integer, primary_key=True)
     IDroles = mapped_column(ForeignKey("rolesofprojects.IDroles"))
     IDcompetensions = mapped_column(ForeignKey("competensions.IDcompetensions"))
+
+class StadiaOfWorks(Base):
+    __tablename__ = 'stadiaofworks'
+    IDstadiaofworks = mapped_column(Integer, primary_key=True)
+    stadiaofworksName = mapped_column(String(255), nullable=False)
+
+class Applications(Base):
+    __tablename__ = 'applications'
+    IDapplications = mapped_column(Integer, primary_key=True)
+    IDprojects = mapped_column(ForeignKey("projects.IDprojects"))
+    IDstudents = mapped_column(ForeignKey("students.IDstudents"))
+    applicationsCourse = mapped_column(Integer, nullable=False)
+    IDroles = mapped_column(ForeignKey("rolesofprojects.IDroles"))
+    applicationsPurpose = mapped_column(String)
+    applicationsPattern = mapped_column(String(1000), nullable=False)
+    applicationsFull = mapped_column(String(1000), nullable=False)
+    applicationsSigned = mapped_column(String(1000))
+
+class Levels(Base):
+    __tablename__ = 'levels'
+    IDlevels = mapped_column(Integer, primary_key=True)
+    levelsName = mapped_column(String(255), nullable=False)
+
+class Confirmation(Base):
+    __tablename__ = 'confirmation'
+    IDconfirmation = mapped_column(Integer, primary_key=True)
+    IDapplications = mapped_column(ForeignKey("applications.IDapplications"))
+    confirmationPeriod = mapped_column(String(255), nullable=False)
+    confirmationResults = mapped_column(String, nullable=False)
+    IDlevels = mapped_column(ForeignKey("levels.IDlevels"))
+    confirmationPattern = mapped_column(String(1000), nullable=False)
+    confirmationFull = mapped_column(String(1000), nullable=False)
+    confirmationSigned = mapped_column(String(1000))
+
+class StudentsInProjects(Base):
+    __tablename__ = 'studentsinprojects'
+    IDstudentspr = mapped_column(Integer, primary_key=True)
+    IDstudents = mapped_column(ForeignKey("students.IDstudents"))
+    IDprojects = mapped_column(ForeignKey("projects.IDprojects"))
+    IDroles = mapped_column(ForeignKey("rolesofprojects.IDroles"))
+    IDconfirmation = mapped_column(ForeignKey("confirmation.IDconfirmation"))
+    IDstadiaofworks = mapped_column(ForeignKey("stadiaofworks.IDstadiaofworks"))
+    studentsinprFull = mapped_column(String(1000))

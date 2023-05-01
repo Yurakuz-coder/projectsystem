@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% set active_page = "roles" %}
+{% block content %}
+<h1>Роли проектов</h1>
+<br />
+<!-- <div class="btn-group" role="group">
+  <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+    aria-controls="collapseFilters">
+    Добавить фильтры
+  </a>
+</div>
+<br />
+<div class="collapse" id="collapseFilters">
+  <br />
+  <input type="text" id="projectRoleFilter" class="form-control" placeholder="Фильтр по ролям"
+    aria-label="projectRoleFilter" aria-describedby="basic-addon1">
+  <br />
+  <input type="text" id="projectNaprFilter" class="form-control" placeholder="Фильтр по направлениям"
+    aria-label="projectNaprFilter" aria-describedby="basic-addon1">
+  <br />
+  <div class="btn-group" role="group">
+    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyMembersFilters()">
+      Применить фильтры
+    </button>
+    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropMembersFilter()">
+      Сбросить фильтр
+    </button>
+  </div>
+</div> -->
+<br />
+<div class="accordion" id="membersAccordion">
+  {% include "resultAccordionRoles.html" %}
+</div>
+<br>
+<div class="btn-group" role="group">
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+    Добавить роль в проекте
+  </button>
+  <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">
+    Редактировать роль в проекте
+  </button>
+  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDel">
+    Удалить роль в проекте
+  </button>
+</div>
+
+<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAddLabel">Добавить роль</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="addRole" method="post">
+          <div class="form-group">
+            <label for="project" class="form-select-label">Выберите проект</label>
+            <select class="form-select" aria-label="Default select example" name="project" {% if projects==[] %}
+              disabled {% endif %}>
+              {% for el in projects %}
+              <option value="{{ el[2] }}"> {{ el[1] }}</option>
+              {% endfor %}
+              {% if projects == [] %}
+              <option value="">Проекты не найдены</option>
+              {% endif %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="role" class="form-control-label">Роль в проекте</label>
+            <input class="form-control" id="role" name="role" type="text" required>
+          </div>
+          <div class="form-group">
+            <label for="amount" class="form-control-label">Количество вакантных мест</label>
+            <input class="form-control" id="amount" name="amount" type="number" min="1" required>
+          </div>
+          <div class="form-group">
+            <label for="function" class="form-control-label">Функции участника проекта</label>
+            <textarea class="form-control" id="function" name="function" rows="3" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="function" class="form-control-label">Опоп</label>
+            {% for cs in check_spec %}
+            <div class="form-check">
+              <input class="form-check-input" name="spec" type="checkbox" value="{{ cs.Specializations.IDspec }}"
+                id="check_spec_{{ cs.Specializations.IDspec }}">
+              <label class="form-check-label" for="check_spec_{{ cs.Specializations.IDspec }}">
+                {{ cs.Specializations.FullSpec }}
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            <label for="cost" class="form-control-label">Трудоемкость проекта для участника</label>
+            <input class="form-control" id="cost" name="cost" type="text" required>
+          </div>
+          <div class="form-group">
+            <label for="comp" class="form-control-label">Перечень компетенций</label>
+            <select class="form-select" aria-label="Default select example" name="spec-comp" {% if check_spec==[] %}
+              disabled {% endif %} onchange="getCompetitionsSpec(this.value, 'add')">
+              <option value="">Выберите специализацию</option>
+              {% for cs in check_spec %}
+              <option value="{{ cs.Specializations.IDspec }}"> {{ cs.Specializations.FullSpec }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cost" class="form-control-label">Выберите компетенции</label>
+            <div id="addWrapper">
+              <p>Не выбрана специализация</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="require" class="form-control-label">Требования к участникам (при наличии)</label>
+            <textarea class="form-control" id="require" name="require" rows="3"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary" {% if projects==[] %} disabled {% endif %}>Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalModifyLabel">Изменить роль</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="modifyRole" method="post">
+          <div class="form-group">
+            <label for="roles" class="form-select-label">Выберите роль</label>
+            <select class="form-select" aria-label="Default select example" name="roles" {% if roles==[] %} disabled {%
+              endif %}>
+              {% for el in roles %}
+              <option value="{{ el.RolesOfProjects.IDroles }}"> {{ el.RolesOfProjects.rolesRole }}</option>
+              {% endfor %}
+              {% if roles == [] %}
+              <option value="">Роли не найдены</option>
+              {% endif %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="project" class="form-select-label">Выберите проект</label>
+            <select class="form-select" aria-label="Default select example" name="project" {% if projects==[] %}
+              disabled {% endif %}>
+              {% for el in projects %}
+              <option value="{{ el[2] }}"> {{ el[1] }}</option>
+              {% endfor %}
+              {% if projects == [] %}
+              <option value="">Проекты не найдены</option>
+              {% endif %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="role" class="form-control-label">Роль в проекте</label>
+            <input class="form-control" id="role" name="role" type="text">
+          </div>
+          <div class="form-group">
+            <label for="amount" class="form-control-label">Количество вакантных мест</label>
+            <input class="form-control" id="amount" name="amount" type="number" min="1">
+          </div>
+          <div class="form-group">
+            <label for="function" class="form-control-label">Функции участника проекта</label>
+            <textarea class="form-control" id="function" name="function" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="function" class="form-control-label" {% if check_spec==[] %} disabled {% endif %}>Опоп</label>
+            {% for cs in check_spec %}
+            <div class="form-check">
+              <input class="form-check-input" name="spec[]" type="checkbox" value="{{ cs.Specializations.IDspec }}"
+                id="check_spec_{{ cs.Specializations.IDspec }}">
+              <label class="form-check-label" for="check_spec_{{ cs.Specializations.IDspec }}">
+                {{ cs.Specializations.FullSpec }}
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            <label for="cost" class="form-control-label">Трудоемкость проекта для участника</label>
+            <input class="form-control" id="cost" name="cost" type="text">
+          </div>
+          <div class="form-group">
+            <label for="comp" class="form-control-label">Перечень компетенций</label>
+            <select class="form-select" aria-label="Default select example" name="spec-comp" {% if check_spec==[] %}
+              disabled {% endif %} onchange="getCompetitionsSpec(this.value, 'modify')">
+              <option value="">Выберите специализацию</option>
+              {% for cs in check_spec %}
+              <option value="{{ cs.Specializations.IDspec }}"> {{ cs.Specializations.FullSpec }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cost" class="form-control-label">Выберите компетенции</label>
+            <div id="modifyWrapper">
+              <p>Не выбрана специализация</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="require" class="form-control-label">Требования к участникам (при наличии)</label>
+            <textarea class="form-control" id="require" name="require" rows="3"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary" {% if projects==[] %} disabled {% endif %}>Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="modalDel" tabindex="-1" aria-labelledby="modalDelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDelLabel">Редактировать договор</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="deleteRole" method="post">
+          <div class="form-group">
+            <label for="roles" class="form-select-label">Выберите роль</label>
+            <select class="form-select" aria-label="Default select example" name="roles" {% if roles==[] %} disabled {%
+              endif %}>
+              {% for el in roles %}
+              <option value="{{ el.RolesOfProjects.IDroles }}"> {{ el.RolesOfProjects.rolesRole }}</option>
+              {% endfor %}
+              {% if roles == [] %}
+              <option value="">Роли не найдены</option>
+              {% endif %}
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary" {% if roles==[] %} disabled {% endif %}>Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -22,36 +22,17 @@
       <input type="text" id="login" name="login" class="form-control" placeholder="Введите логин" required autofocus>
       <label for="pass" class="visually-hidden">Пароль</label>
       <input type="password" id="pass" name="pass" class="form-control" placeholder="Введите пароль" required>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="role" id="students" value="students" checked>
-        <label class="form-check-label" for="students">
-          Я студент
-        </label>
+      <div class="form-group">
+        <label for="role" class="form-select-label">Выберите роль</label>
+        <select class="form-select" aria-label="Default select example" name="role" id="role" required>
+          <option value="students">Студент</option>
+          <option value="sheffofprojects">Руководитель проекта</option>
+          <option value="initiatorsofprojects">Инициатор проекта</option>
+          <option value="shefforganizations">Руководитель организации</option>
+          <option value="administrator">Администратор</option>
+        </select>
       </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="role" id="sheffofprojects" value="sheffofprojects">
-        <label class="form-check-label" for="sheffofprojects">
-          Я руководитель проекта
-        </label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="role" id="initiatorsofprojects" value="initiatorsofprojects">
-        <label class="form-check-label" for="initiatorsofprojects">
-          Я инициатор проекта
-        </label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="role" id="shefforganizations" value="shefforganizations">
-        <label class="form-check-label" for="shefforganizations">
-          Я руководитель организации
-        </label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="role" id="administrator" value="administrator">
-        <label class="form-check-label" for="administrator">
-          Я администратор
-        </label>
-      </div>
+      <br>
       <input class="w-100 btn btn-lg btn-primary" type="submit" value="Войти">
       <p class="mt-5 mb-3 text-danger" style="font-size: 25px"> {{title}}</p>
       <p class="mt-5 mb-3 text-muted">Для регистрации организации напишите на <a

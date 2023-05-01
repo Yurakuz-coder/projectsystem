@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% set active_page = "mail" %}
+{% set active_page = "mail_shefforg" %}
 {% block content %}
-<h1>Отправить сообщение администратору системы</h1>
+<h1>Отправить сообщение руководителю организации</h1>
 
 
 <div class="form-group">
-  <label for="admin" class="form-select-label">Выберите пользователя</label>
+  <label for="admin" class="form-select-label">Выберите руководителя</label>
   <select class="form-select" aria-label="Default select example" name="admin" id="admin" {% if users==[] %} disabled {%
     endif %} required>
     {% for el in users %}
     <option value="{{ el[0] }}"> {{ el[1] }} </option>
     {% endfor %}
     {% if admins == [] %}
-    <option value="">Пользователи не найдены</option>
+    <option value="">Руководители не найдены</option>
     {% endif %}
   </select>
 </div>

@@ -1,47 +1,87 @@
-{% for el in members %}
-<div class="accordion-item">
-    <h2 class="accordion-header" id="accordion{{ el.Projects.IDprojects }}">
+{% for el in projects %}
+<div id='accordionProjectWrapper' class="accordion-item">
+    <h2 class="accordion-header" id="accordion{{ el[0] }}">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-            data-bs-target="#collapse{{ el.Projects.IDprojects }}" aria-expanded="false"
-            aria-controls="collapse{{ el.Projects.IDprojects }}">
-            {{ el.PassportOfProjects.passportName }}
+            data-bs-target="#collapse{{ el[0] }}" aria-expanded="false" aria-controls="collapse{{ el[0] }}">
+            {{ el[1] }}
         </button>
     </h2>
-    <div id="collapse{{ el.Projects.IDprojects }}" class="accordion-collapse collapse"
-        aria-labelledby="heading{{ el.Projects.IDprojects }}" data-bs-parent="#projectsAccordion">
-        <div class="accordion-body">
-            {% for mem in members %}
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                    <h5 class="mb-1">Роль в проекте</h5>{{ el.RolesOfProjects.rolesRole }}
-                </li>
-                <li class="list-group-item">
-                    <h5 class="mb-1">Количество вакантных мест</h5>{{ el.RolesOfProjects.rolesAmount if
-                    el.RolesOfProjects.passportDate else "Не указана дата" }}
-                </li>
-                <li class="list-group-item">
-                    <h5 class="mb-1">Функции участника проекта</h5>{{ el.RolesOfProjects.rolesFunction }}
-                </li>
-                <li class="list-group-item">
-                    <h5 class="mb-1">Опоп</h5> {{ el.RolesOfProjects.passportPurpose }}
-                </li>
-                <li class="list-group-item">
-                    <h5 class="mb-1">Трудоемкость (з.е.)</h5>{{ el.RolesOfProjects.rolesCost }}
-                </li>
-                <li class="list-group-item">
-                    <h5 class="mb-1">Перечень компетенций</h5>{{ el.RolesOfProjects.passportResults }}
-                </li>
-                <li class="list-group-item">
-                    <h5 class="mb-1">Требования к участникам</h5> {{ el.RolesOfProjects.rolesRequirements }}
-                </li>
-            </ul>
+    <div id="collapse{{ el[0] }}" class="accordion-collapse collapse" aria-labelledby="heading{{ el[0] }}"
+        data-bs-parent="#accordionProjectWrapper">
+        <div id='accordionRolesWrapper' class="accordion-body">
+            {% for mem in roles %}
+            {% if el[0] == mem.RolesOfProjects.IDpassport %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="accordion{{ el[0] }}_{{ mem.RolesOfProjects.IDroles }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{ el[0] }}_{{ mem.RolesOfProjects.IDroles }}" aria-expanded="false"
+                        aria-controls="collapse{{ el[0] }}_{{ mem.RolesOfProjects.IDroles }}">
+                        {{ mem.RolesOfProjects.rolesRole }} - Количество мест: {{ mem.RolesOfProjects.rolesAmount }}
+                    </button>
+                </h2>
+                <div id="collapse{{ el[0] }}_{{ mem.RolesOfProjects.IDroles }}" class="accordion-collapse collapse"
+                    aria-labelledby="heading{{ el[0] }}_{{ mem.RolesOfProjects.IDroles }}"
+                    data-bs-parent="#accordionRolesWrapper">
+                    <div class="accordion-body">
+                        {% for stud in students %}
+                        {% if stud[1] == mem.RolesOfProjects.IDroles %}
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <h5 class="mb-1">ФИО</h5>{{ stud[0] }}
+                            </li>
+                            <li class="list-group-item">
+                                <h5 class="mb-1">Группа</h5>{{ stud[2] }}
+                            </li>
+                            <li class="list-group-item">
+                                <h5 class="mb-1">Функции участника проекта</h5>{{ mem.RolesOfProjects.rolesFunction }}
+                            </li>
+                            <li class="list-group-item">
+                                <h5 class="mb-1">Опоп</h5> {% for sp in spec %}
+                                {% if stud[1] == sp[0] %}
+                                {{ sp[1] }}
+                                <br>
+                                {% endif %}
+                                {% endfor %}
+                            </li>
+                            <li class="list-group-item">
+                                <h5 class="mb-1">Трудоемкость (з.е.)</h5>{{ mem.RolesOfProjects.rolesCost if
+                                mem.RolesOfProjects.rolesCost else 'Трудоемкость не указана' }}
+                            </li>
+                            <li class="list-group-item">
+                                <h5 class="mb-1">Перечень компетенций</h5>{% for cm in comp %}
+                                {% if stud[1] == cm[0] %}
+                                {{ cm[1] }} - {{cm[2]}}
+                                <br>
+                                {% endif %}
+                                {% endfor %}
+                            </li>
+                            <li class="list-group-item">
+                                <h5 class="mb-1">Требования к участникам</h5> {{ mem.RolesOfProjects.rolesRequirements
+                                }}
+                            </li>
+                        </ul>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% if el[0] not in exists_members %}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" disabled>
+                        Участники не найдены
+                    </button>
+                </h2>
+            </div>
+            {% endif %}
+            {% endif %}
             {% endfor %}
         </div>
     </div>
 </div>
 {% endfor %}
 
-{% if members == [] %}
+{% if projects == [] %}
 <div class="accordion-item">
     <h2 class="accordion-header">
         <button class="accordion-button" type="button" disabled>

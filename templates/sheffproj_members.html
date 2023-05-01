@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Участники проектов</h1>
 <br />
-<!-- <div class="btn-group" role="group">
+<div class="btn-group" role="group">
   <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
     aria-controls="collapseFilters">
     Добавить фильтры
@@ -12,175 +12,27 @@
 <br />
 <div class="collapse" id="collapseFilters">
   <br />
-  <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
-    aria-label="projectFilter" aria-describedby="basic-addon1">
+  <input type="text" id="projectFioFilter" class="form-control" placeholder="Фильтр по ФИО студента"
+    aria-label="projectFioFilter" aria-describedby="basic-addon1">
+  <br />
+  <input type="text" id="projectRoleFilter" class="form-control" placeholder="Фильтр по ролям"
+    aria-label="projectRoleFilter" aria-describedby="basic-addon1">
+  <br />
+  <input type="text" id="projectNaprFilter" class="form-control" placeholder="Фильтр по направлениям"
+    aria-label="projectNaprFilter" aria-describedby="basic-addon1">
   <br />
   <div class="btn-group" role="group">
-    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyProjectFilters()">
+    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyMembersFilters()">
       Применить фильтры
     </button>
-    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropProjectFilter()">
+    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropMembersFilter()">
       Сбросить фильтр
     </button>
   </div>
 </div>
-<br /> -->
-<div class="accordion" id="projectsAccordion">
+<br />
+<div class="accordion" id="membersAccordion">
   {% include "resultAccordionMembers.html" %}
 </div>
 <br>
-<div class="btn-group" role="group">
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
-    Добавить участников проекта
-  </button>
-  <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">
-    Редактировать участников проекта
-  </button>
-  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDel">
-    Удалить участников проекта
-  </button>
-</div>
-
-<!-- <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalAddLabel">Добавить договор</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="addContract" method="post">
-          <div class="form-group">
-            <label for="addorg" class="form-select-label">Выберите организацию</label>
-            <select class="form-select" aria-label="Default select example" name="addorg" {% if organizations==[] %}
-              disabled {% endif %}>
-              {% for el in organizations %}
-              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - {{
-                el.Organizations.orgYuraddress }} </option>
-              {% endfor %}
-              {% if organizations == [] %}
-              <option value="">Организации не найдены</option>
-              {% endif %}
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="contractNumber" class="form-control-label">Номер договора</label>
-            <input class="form-control" id="contractNumber" name="contractNumber" type="number" min="0" step="1"
-              oninput="validity.valid||(value='');" required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="contractStart" class="form-control-label">Дата заключения</label>
-            <input class="form-control" id="contractStart" name="contractStart" type="date" required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="contractEnd" class="form-control-label">Дата окончания</label>
-            <input class="form-control" id="contractEnd" name="contractEnd" type="date" required></textarea>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary" {% if organizations==[] %} disabled {% endif
-              %}>Сохранить</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="modal fade" id="modalDel" tabindex="-1" aria-labelledby="modalDelLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalDelLabel">Удалить договор</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="delContract" method="post">
-          <div class="form-group">
-            <label for="delContract" class="form-select-label">Выберите договор</label>
-            <select class="form-select" aria-label="Default select example" name="delContract" {% if contracts_order==[]
-              %} disabled {% endif %}>
-              {% for el in contracts_order %}
-              <option value="{{ el.Contracts.IDcontracts }}"> {{ el.Contracts.organizations.orgName }} - № {{
-                el.Contracts.contractsNumber }} от {{
-                el.Contracts.contractsStart }}
-              </option>
-              {% endfor %}
-              {% if contracts_order == [] %}
-              <option value="">Договоры не найдены</option>
-              {% endif %}
-            </select>
-          </div>
-          <br>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          <button type="submit" class="btn btn-danger" {% if contracts_order==[] %} disabled {% endif
-            %}>Удалить</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalModifyLabel">Редактировать договор</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="modifyContract" method="post">
-          <div class="form-group">
-            <label for="modifyContract" class="form-select-label">Выберите договор</label>
-            <select class="form-select" aria-label="Default select example" name="modifyContract" {% if
-              contracts_order==[] %} disabled {% endif %}>
-              {% for el in contracts_order %}
-              <option value="{{ el.Contracts.IDcontracts }}"> {{
-                el.Contracts.organizations.orgName }} - № {{ el.Contracts.contractsNumber }} от {{
-                el.Contracts.contractsStart }}
-              </option>
-              {% endfor %}
-              {% if contracts_order == [] %}
-              <option value="">Договоры не найдены</option>
-              {% endif %}
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="addorg" class="form-select-label">Выберите организацию</label>
-            <select class="form-select" aria-label="Default select example" name="addorg" {% if organizations==[] %}
-              disabled {% endif %}>
-              {% for el in organizations %}
-              <option value="{{ el.Organizations.IDorg }}"> {{ el.Organizations.orgName }} - {{
-                el.Organizations.orgYuraddress }}</option>
-              {% endfor %}
-              {% if organizations == [] %}
-              <option value="">Организации не найдены</option>
-              {% endif %}
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="contractNumber" class="form-control-label">Номер договора</label>
-            <input class="form-control" id="contractNumber" name="contractNumber" type="number" min="0" step="1"
-              oninput="validity.valid||(value='');"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="contractStart" class="form-control-label">Дата заключения</label>
-            <input class="form-control" id="contractStart" name="contractStart" type="date"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="contractEnd" class="form-control-label">Дата окончания</label>
-            <input class="form-control" id="contractEnd" name="contractEnd" type="date"></textarea>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary" {% if contracts_order==[] %} disabled {% endif %} {% if
-              organizations==[] %} disabled {% endif %}>Сохранить</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div> -->
 {% endblock content %}

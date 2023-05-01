@@ -1,0 +1,76 @@
+{% for el in projects %}
+<div id='accordionProjectWrapper' class="accordion-item">
+  <h2 class="accordion-header" id="accordion{{ el[0] }}">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+      data-bs-target="#collapse{{ el[0] }}" aria-expanded="false" aria-controls="collapse{{ el[0] }}">
+      {{ el[1] }}
+    </button>
+  </h2>
+  <div id="collapse{{ el[0] }}" class="accordion-collapse collapse" data-bs-parent="#accordionProjectWrapper">
+    <div id='accordionRolesWrapper' class="accordion-body">
+      {% for role in roles %}
+      {% if role.RolesOfProjects.IDpassport == el[0] %}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="accordion{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapse{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}" aria-expanded="false"
+            aria-controls="collapse{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}">
+            {{ role.RolesOfProjects.rolesRole }}
+          </button>
+        </h2>
+        <div id="collapse{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}" class="accordion-collapse collapse"
+          aria-labelledby="heading{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}"
+          data-bs-parent="#accordionRolesWrapper">
+          <div class="accordion-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <h5 class="mb-1">Роль в проекте</h5>{{ role.RolesOfProjects.rolesRole }}
+              </li>
+              <li class="list-group-item">
+                <h5 class="mb-1">Количество вакантных мест</h5>{{ role.RolesOfProjects.rolesAmount }}
+              </li>
+              <li class="list-group-item">
+                <h5 class="mb-1">Функции участника проекта</h5>{{ role.RolesOfProjects.rolesFunction }}
+              </li>
+              <li class="list-group-item">
+                <h5 class="mb-1">Опоп</h5> {% for sp in spec %}
+                {% if role.RolesOfProjects.IDroles == sp[0] %}
+                {{ sp[1] }}
+                <br>
+                {% endif %}
+                {% endfor %}
+              </li>
+              <li class="list-group-item">
+                <h5 class="mb-1">Трудоемкость (з.е.)</h5>{{ role.RolesOfProjects.rolesCost }}
+              </li>
+              <li class="list-group-item">
+                <h5 class="mb-1">Перечень компетенций</h5>{% for cm in comp %}
+                {% if role.RolesOfProjects.IDroles == cm[0] %}
+                {{ cm[1] }} - {{ cm[2] }}
+                <br>
+                {% endif %}
+                {% endfor %}
+              </li>
+              <li class="list-group-item">
+                <h5 class="mb-1">Требования к участникам</h5> {{ role.RolesOfProjects.rolesRequirements }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% if role == [] %}
+<div class="accordion-item">
+  <h2 class="accordion-header">
+    <button class="accordion-button" type="button" disabled>
+      Данные не найдены
+    </button>
+  </h2>
+</div>
+{% endif %}
