@@ -1,6 +1,6 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 02.05.2023 21:59:16
+-- Дата скрипта: 02.05.2023 23:06:09
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
@@ -435,6 +435,7 @@ CREATE TABLE applications (
   applicationsPattern VARCHAR(1000) NOT NULL DEFAULT 'C:\\MyProject\\3.docx',
   applicationsFull VARCHAR(1000) NOT NULL,
   applicationsSigned VARCHAR(1000) DEFAULT NULL,
+  applicationApproved TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (IDapplications),
   INDEX IDX_applications_IDprojects (IDprojects),
   UNIQUE INDEX UK_applications (IDprojects, IDstudents),
@@ -685,7 +686,7 @@ INSERT INTO rolesofprojects VALUES
 -- Вывод данных для таблицы applications
 --
 INSERT INTO applications VALUES
-(1, 3, 2, 2, 2, 'Просто так', '', '', '');
+(1, 3, 2, 2, 2, 'Просто так', '', '', '', 0);
 
 -- 
 -- Вывод данных для таблицы competensionsinproject
