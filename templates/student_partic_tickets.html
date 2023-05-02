@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% set active_page = "partic_ticket" %}
+{% block content %}
+<h1>Подать заявку на участие в проекте</h1>
+<br>
+<div class="btn-group" role="group">
+    <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+        aria-controls="collapseFilters">
+        Добавить фильтры
+    </a>
+</div>
+<br>
+<div class="collapse" id="collapseFilters">
+    <br>
+    <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
+        aria-label="projectFilter" aria-describedby="basic-addon1">
+    <br>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyProjectFilters()">
+            Применить фильтры
+        </button>
+        <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropProjectFilter()">
+            Сбросить фильтр
+        </button>
+    </div>
+</div>
+<br>
+<div class="accordion" id="projectsAccordion">
+    {% include "resultAccordionProjects.html" %}
+</div>
+<br>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+        Подать заявку
+    </button>
+</div>
+
+<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAddLabel"> Подать заявку на участие в проекте</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="addTicket" method="post">
+                    <div class="form-group">
+                        <label for="project" class="form-select-label">Выберите проект</label>
+                        <select onchange="getRoles(this.value)" class="form-select" name="project" {% if projects==[] %}
+                            disabled {% endif %}>
+                            {% for el in projects %}
+                            <option value="{{ el.Projects.IDprojects }}"> {{ el.PassportOfProjects.passportName }}
+                            </option>
+                            {% endfor %}
+                            {% if projects == [] %}
+                            <option value="">Проекты не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="role" class="form-select-label">Выберите роль</label>
+                        <select class="form-select" name="role" id="role" {% if roles==[] %} disabled {% endif %}>
+                            {% for el in roles %}
+                            <option value="{{ el[0] }}"> {{ el[1] }} - {{ el[2] }}
+                            </option>
+                            {% endfor %}
+                            {% if roles == [] %}
+                            <option value="">Роли не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="courseYear" class="form-select-label">Введите курс обучения</label>
+                        <textarea class="form-control" rows="1" id="courseYear" name="courseYear" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="reason" class="form-select-label">Почему вы решили принять участие в проекте</label>
+                        <textarea class="form-control" rows="5" id="reason" name="reason" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary" id="studentTicketButton" {% if roles==[] %}
+                            disabled {% endif %}>Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

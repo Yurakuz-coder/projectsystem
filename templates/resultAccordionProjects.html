@@ -68,15 +68,16 @@
                     <div class="btn-toolbar justify-content-between" role="toolbar">
                         <div class="d-grid gap-2 col-3">
                             <a href="/getPassport?idPassport={{ el.PassportOfProjects.IDpassport }}" role="button"
-                                class="btn btn-primary h-50 {{ 'disabled' if el.StadiaOfProjects.IDstadiaofpr < 2 else '' }} d-inline-block">Скачать
+                                class="btn btn-primary {{ 'h-100' if session['url']=='shefforg' or
+                                session['url']=='student' else h-50 }} {{ 'disabled' if el.StadiaOfProjects.IDstadiaofpr < 2 else '' }} d-inline-block">Скачать
                                 электронную версию</a>
                         </div>
                         <div class="d-grid gap-2 col-3" role="group">
                             <a href="/getPassportSigned?idPassport={{ el.PassportOfProjects.IDpassport }}" role="button"
                                 class="btn btn-primary btn {{ 'disabled' if el.PassportOfProjects.passportSigned == '' else '' }}">Скачать
                                 подписанную версию</a>
-                            <button {% if el.PassportOfProjects.passportSigned=='' or session['url']=='shefforg' %}
-                                disabled {% endif %} class="btn btn-danger btn"
+                            <button {% if el.PassportOfProjects.passportSigned=='' or session['url']=='shefforg' or
+                                session['url']=='student' %} hidden {% endif %} class="btn btn-danger btn"
                                 value="{{ el.PassportOfProjects.IDpassport }}"
                                 onclick="deletePassportFile(this.value)">Удалить подписанную версию</button>
                         </div>
@@ -86,12 +87,12 @@
                                 id="input-upload{{ el.PassportOfProjects.IDpassport }}"
                                 aria-describedby="button-upload{{ el.PassportOfProjects.IDpassport }}"
                                 aria-label="Upload" {% if el.StadiaOfProjects.IDstadiaofpr < 2 or
-                                session['url']=='shefforg' %} disabled {% endif %}>
+                                session['url']=='shefforg' or session['url']=='student' %} hidden {% endif %}>
                             <button class="btn btn-outline-secondary" value="{{ el.PassportOfProjects.IDpassport }}"
                                 type="button" onclick="uploadPassportFile(this.value)"
                                 id="button-upload{{ el.PassportOfProjects.IDpassport }}" {% if
-                                el.StadiaOfProjects.IDstadiaofpr < 2 or session['url']=='shefforg' %} disabled {% endif
-                                %}>Загрузить</button>
+                                el.StadiaOfProjects.IDstadiaofpr < 2 or session['url']=='shefforg' or
+                                session['url']=='student' %} hidden {% endif %}>Загрузить</button>
 
                         </div>
                     </div>

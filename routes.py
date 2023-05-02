@@ -27,6 +27,7 @@ from models.models import (
     SpecializationInProjects,
     CompetensionsInProject,
     StudentsInProjects,
+    Applications,
 )
 from models.database import get_session, get_select
 
@@ -141,6 +142,25 @@ def index():
         session["email"] = data_workers.initprEmail
         session["user"] = [org.IDorg, data_workers.IDinitpr]
         return redirect("/iniciators/projects")
+    if role == "students":
+        data_workers = db_sessions.query(Students).filter(Students.Login == login).first()
+        if not (
+            data_workers is not None
+            and (data_workers.Login == login and data_workers.Pass == rendered_pass)
+        ):
+            return render_template("index.html", title="Неверный логин и/или пароль!!!")
+        group = db_sessions.query(Groups).filter(Groups.IDgroups == data_workers.IDgroups).first()
+        session["fullName"] = [
+            data_workers.studentsFirstname,
+            data_workers.studentsName,
+            data_workers.studentsFathername,
+        ]
+        session["url"] = "student"
+        session["pos"] = group.groupsName
+        session["firstNav"] = "Панель студента"
+        session["email"] = data_workers.studentsEmail
+        session["user"] = [group.IDgroups, data_workers.IDstudents]
+        return redirect("/student/participation_ticket")
 
 
 @pages.route("/exit", methods=["POST", "GET"])  # кнопка выхода из системы
@@ -2720,3 +2740,140 @@ def sheffproj_delete_role():
     db_sessions.query(RolesOfProjects).filter(RolesOfProjects.IDroles == idrole).delete()
     db_sessions.commit()
     return redirect("/sheffproj/roles")
+
+
+@pages.route("/student/participation_ticket", methods=["GET", "POST"])
+def student_participation_ticket():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        idgroup = session["user"][0]
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .distinct()
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .join(RolesOfProjects)
+            .join(SpecializationInProjects)
+            .join_from(
+                SpecializationInProjects,
+                Groups,
+                SpecializationInProjects.IDspec == Groups.IDspec,
+                isouter=True,
+            )
+            .filter(Groups.IDgroups == idgroup)
+            .filter(Projects.IDstadiaofpr == 3)
+            .order_by(PassportOfProjects.passportName)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        first_project = projects[0] if projects else None
+        roles = []
+        if first_project:
+            select_roles = select(
+                RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction
+            ).filter(RolesOfProjects.IDpassport == first_project.PassportOfProjects.IDpassport)
+            roles = db_sessions.execute(select_roles).all()
+        return render_template("student_partic_tickets.html", projects=projects, roles=roles)
+    if request.method == "POST":
+        select = get_select()
+        db_sessions = get_session()
+        project_filter = request.form["projectFilter"]
+        where_project_filter = (
+            PassportOfProjects.passportName.ilike("%" + project_filter + "%")
+            if project_filter
+            else text("1=1")
+        )
+        select_projects = (
+            select(Projects, PassportOfProjects, StadiaOfProjects)
+            .distinct()
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .join(RolesOfProjects)
+            .join(SpecializationInProjects)
+            .join_from(
+                SpecializationInProjects,
+                Groups,
+                SpecializationInProjects.IDspec == Groups.IDspec,
+                isouter=True,
+            )
+            .filter(Groups.IDgroups == idgroup)
+            .filter(Projects.IDstadiaofpr == 3)
+            .where(where_project_filter)
+            .order_by(PassportOfProjects.passportName)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        return render_template("resultAccordionProjects.html", projects=projects)
+
+
+@pages.route("/student/getRoles", methods=["GET"])
+def student_get_roles():
+    args = request.args
+    idpassport = args.get("id")
+    select = get_select()
+    db_sessions = get_session()
+    select_roles = select(
+        RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction
+    ).filter(RolesOfProjects.IDpassport == idpassport)
+    roles = db_sessions.execute(select_roles).all()
+    return jsonify([dict(row._mapping) for row in roles]), 200
+
+
+@pages.route("/student/addTicket", methods=["POST"])
+def student_add_ticket():
+    db_sessions = get_session()
+    idproject = request.form["project"]
+    idrole = request.form["role"]
+    courseYear = request.form["courseYear"]
+    reason = str(request.form["reason"])
+    idstudent = session["user"][1]
+
+    add_application = Applications(
+        IDprojects=idproject,
+        IDstudents=idstudent,
+        applicationsCourse=courseYear,
+        IDroles=idrole,
+        applicationsPurpose=reason,
+        applicationsPattern="",
+        applicationsFull="",
+        applicationsSigned="",
+    )
+    db_sessions.add(add_application)
+    db_sessions.commit()
+
+    return redirect("/student/participation_ticket")
+
+
+@pages.route("/student/tickets", methods=["GET"])
+def student_tickets():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        idgroup = session["user"][0]
+        select_applications = (
+            select(
+                Applications,
+            )
+            .distinct()
+            .join(PassportOfProjects)
+            .join(StadiaOfProjects)
+            .join(RolesOfProjects)
+            .join(SpecializationInProjects)
+            .join_from(
+                SpecializationInProjects,
+                Groups,
+                SpecializationInProjects.IDspec == Groups.IDspec,
+                isouter=True,
+            )
+            .filter(Groups.IDgroups == idgroup)
+            .filter(Projects.IDstadiaofpr == 3)
+            .order_by(PassportOfProjects.passportName)
+        )
+        projects = db_sessions.execute(select_projects).all()
+        first_project = projects[0] if projects else None
+        roles = []
+        if first_project:
+            select_roles = select(
+                RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction
+            ).filter(RolesOfProjects.IDpassport == first_project.PassportOfProjects.IDpassport)
+            roles = db_sessions.execute(select_roles).all()
+        return render_template("student_partic_tickets.html", projects=projects, roles=roles)
