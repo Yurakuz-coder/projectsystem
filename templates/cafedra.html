@@ -2,7 +2,7 @@
 {% set active_page = "cafedra" %}
 {% block content %}
 <h1>Состав кафедры ИВТ</h1>
-<br />
+<br>
 <div class="btn-group" role="group">
   <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
     aria-controls="collapseTableBody">
@@ -13,15 +13,15 @@
     Добавить фильтры
   </a>
 </div>
-<br />
+<br>
 <div class="collapse" id="collapseFilters">
-  <br />
+  <br>
   <input type="text" id="cafedraFIO" class="form-control" placeholder="Фильтр по ФИО" aria-label="cafedraFIO"
     aria-describedby="basic-addon1">
-  <br />
+  <br>
   <input type="text" id="cafedraPos" class="form-control" placeholder="Фильтр по должности" aria-label="cafedraPos"
     aria-describedby="basic-addon1">
-  <br />
+  <br>
   <div class="btn-group" role="group">
     <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyCafedraFilters()">
       Применить фильтры
@@ -30,7 +30,7 @@
       Сбросить фильтр
     </button>
   </div>
-  <br />
+  <br>
 </div>
 <table class="table table-hover">
   <thead>
@@ -69,8 +69,8 @@
     Удалить сотрудника
   </button>
 </div>
-<br />
-<br />
+<br>
+<br>
 <div class="input-group mb-0">
   <button class="btn btn-outline-secondary" type="button" onclick="uploadCsvCafedraFile()"
     id="button-upload-csv">Загрузить

@@ -2,14 +2,14 @@
 {% set active_page = "group_members" %}
 {% block content %}
 <h1>Состав группы</h1>
-<br />
+<br>
 <label for="spec" class="form-select-label">Выберите группу</label>
 <select class="form-select" aria-label="Default select example" id="group" name="group">
     {% for el in groups %}
     <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{ el.Groups.groupsYear }}</option>
     {% endfor %}
 </select>
-<br />
+<br>
 <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
     aria-controls="collapseTableBody" onClick="applyGroupsMembers()">
     Отобразить данные

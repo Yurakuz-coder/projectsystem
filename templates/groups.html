@@ -2,7 +2,7 @@
 {% set active_page = "groups" %}
 {% block content %}
 <h1>Группы</h1>
-<br />
+<br>
 <div class="btn-group" role="group">
   <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
     aria-controls="collapseTableBody">
@@ -13,18 +13,18 @@
     Добавить фильтры
   </a>
 </div>
-<br />
+<br>
 <div class="collapse" id="collapseFilters">
-  <br />
+  <br>
   <input type="text" id="formEducation" class="form-control" placeholder="Фильтр по форме обучения"
     aria-label="formEducation" aria-describedby="basic-addon1">
-  <br />
+  <br>
   <input type="text" id="directStudy" class="form-control" placeholder="Фильтр по направлению обучения"
     aria-label="directStudy" aria-describedby="basic-addon1">
-  <br />
+  <br>
   <input type="text" id="yearStudy" class="form-control" placeholder="Фильтр по дате набора" aria-label="yearStudy"
     aria-describedby="basic-addon1">
-  <br />
+  <br>
   <div class="btn-group" role="group">
     <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyGroupFilters()">
       Применить фильтры
@@ -33,7 +33,7 @@
       Сбросить фильтр
     </button>
   </div>
-  <br />
+  <br>
 </div>
 <table class="table table-hover">
   <thead>
@@ -70,8 +70,8 @@
     Удалить группу
   </button>
 </div>
-<br />
-<br />
+<br>
+<br>
 <div class="input-group mb-0">
   <button class="btn btn-outline-secondary" type="button" onclick="uploadCsvGroupFile()"
     id="button-upload-csv">Загрузить

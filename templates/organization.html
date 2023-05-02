@@ -2,7 +2,7 @@
 {% set active_page = "organization" %}
 {% block content %}
 <h1>Данные об организациях</h1>
-<br />
+<br>
 <div class="btn-group" role="group">
   <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
     aria-controls="collapseTableBody">
@@ -13,18 +13,18 @@
     Добавить фильтры
   </a>
 </div>
-<br />
+<br>
 <div class="collapse" id="collapseFilters">
-  <br />
+  <br>
   <input type="text" id="fioFilter" class="form-control" placeholder="Фильтр по ФИО руководителя"
     aria-label="fioFilters" aria-describedby="basic-addon1">
-  <br />
+  <br>
   <input type="text" id="orgFilter" class="form-control" placeholder="Фильтр по наименованию организации"
     aria-label="orgFilters" aria-describedby="basic-addon1">
-  <br />
+  <br>
   <input type="text" id="yuradressFilter" class="form-control" placeholder="Фильтр по юридическому адресу организации"
     aria-label="yuradressFilters" aria-describedby="basic-addon1">
-  <br />
+  <br>
   <div class="btn-group" role="group">
     <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyorgFilters()">
       Применить фильтры
@@ -33,7 +33,7 @@
       Сбросить фильтр
     </button>
   </div>
-  <br />
+  <br>
 </div>
 
 <table class="table table-hover">

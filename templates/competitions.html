@@ -2,7 +2,7 @@
 {% set active_page = "competitions" %}
 {% block content %}
 <h1>Компетенции учебных планов</h1>
-<br />
+<br>
 <label for="spec" class="form-select-label">Выберите компетенцию</label>
 <select class="form-select" aria-label="Default select example" id="spec" name="spec" onchange="applySpec()" {% if
   spec==[] %} disabled {% endif %}>
@@ -16,7 +16,7 @@
   <option value="">Специализации не найдены</option>
   {% endif %}
 </select>
-<br />
+<br>
 <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
   aria-controls="collapseTableBody">
   Отобразить данные
@@ -53,8 +53,8 @@
     Удалить компетенцию
   </button>
 </div>
-<br />
-<br />
+<br>
+<br>
 <div class="input-group mb-0">
   <button class="btn btn-outline-secondary" type="button" onclick="uploadCsvCompFile()" id="button-upload-csv">Загрузить
     файл из csv</button>
