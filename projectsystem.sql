@@ -1,6 +1,6 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 29.04.2023 18:03:09
+-- Дата скрипта: 02.05.2023 21:00:01
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
@@ -366,8 +366,8 @@ CREATE TABLE passportofprojects (
     REFERENCES sheffofprojects(IDsheffpr) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 3
-AVG_ROW_LENGTH = 16384
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Паспорта проектов';
@@ -389,8 +389,8 @@ CREATE TABLE projects (
     REFERENCES stadiaofprojects(IDstadiaofpr) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 3
-AVG_ROW_LENGTH = 16384
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Проекты';
@@ -414,7 +414,8 @@ CREATE TABLE rolesofprojects (
     REFERENCES passportofprojects(IDpassport) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 3
+AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Роли в проекте';
@@ -444,7 +445,8 @@ CREATE TABLE applications (
     REFERENCES students(IDstudents) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 2
+AVG_ROW_LENGTH = 16384
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Заявки на участие в проекте';
@@ -464,7 +466,8 @@ CREATE TABLE competensionsinproject (
     REFERENCES rolesofprojects(IDroles) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 5
+AVG_ROW_LENGTH = 4096
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Компетенции в проекте';
@@ -484,7 +487,8 @@ CREATE TABLE specializationsinprojects (
     REFERENCES specializations(IDspec) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 7
+AVG_ROW_LENGTH = 2730
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Специализации в проекте';
@@ -650,44 +654,55 @@ INSERT INTO projectsudycontracts VALUES
 --
 INSERT INTO students VALUES
 (1, 4, 'Тимофеев', 'Сергей', 'Николаевич', 125678096, '+79131973415', 'iurij.kuznetsov2011@yandex.ru', '125678096', '4fddf81f8acb968856d7a668cc6510f2'),
-(2, 5, 'Сергеев', 'Сергей', 'Николаевич', 123456789, '+79082209565', 'e.star00@mail.ru', '123456789', '25f9e794323b453885f5181f1b624d0b'),
+(2, 4, 'Сергеев', 'Сергей', 'Николаевич', 123456789, '+79082209565', 'e.star00@mail.ru', '123456789', '25f9e794323b453885f5181f1b624d0b'),
 (3, 4, 'Вакарчук', 'Анатолий', 'Петрович', 234489012, '+78927892144', '1@ya.ru', '234489012', '9d6b7e06a07cef69baf2e2b52e43cf49');
 
 -- 
 -- Вывод данных для таблицы passportofprojects
 --
 INSERT INTO passportofprojects VALUES
-(2, 4, 2, 'Разработка web-сайта компании ООО "Праздник 1"', '2023-04-28', 'Компании необходим сайт', 'Разработать сайт', 'Разработать сайт', 'Web-сайта компании ООО "Праздник 1"', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '', '');
+(2, 4, 2, 'Разработка web-сайта компании ООО "Праздник 1"', '2023-04-28', 'Компании необходим сайт', 'Разработать сайт', 'Разработать сайт', 'Web-сайта компании ООО "Праздник 1"', 'Что-то разработать', 'До конца марта 2024 года ', '1. Привет\r\n2. Как дела', 'Отсутствует', 'Отсутствует', 'Отсутствуют', 'Разработанное приложение', '', '', ''),
+(3, 4, 2, 'Разработка мобильной игры "Праздник везде"', NULL, 'Компания разрабатывает новую мобильную игру, которая поможет решить многие проблемы наших сотрудников', 'Разработка CRM-системы', 'Разработать CRM-систему', 'Мобильное приложение для ОС Android', 'ампипа', '1\r\n2\r\n3', 'чбвощсторива', 'паитерапоьп', 'апврапо', 'ыеренаое', 'авырпнео', '', '', '');
 
 -- 
 -- Вывод данных для таблицы projects
 --
 INSERT INTO projects VALUES
-(2, 2, 5, NULL);
+(2, 2, 5, NULL),
+(3, 3, 3, NULL);
 
 -- 
 -- Вывод данных для таблицы rolesofprojects
 --
-
--- Таблица projectsystem.rolesofprojects не содержит данных
+INSERT INTO rolesofprojects VALUES
+(1, 2, 'Программист', 2, 'Разрабатывать сайт с адаптивным дизайном', 6, ''),
+(2, 3, 'Программист', 2, 'Разработчики мобильных приложений', 6, 'Отсутствуют');
 
 -- 
 -- Вывод данных для таблицы applications
 --
-
--- Таблица projectsystem.applications не содержит данных
+INSERT INTO applications VALUES
+(1, 3, 2, 2, 2, 'Просто так', '', '', '');
 
 -- 
 -- Вывод данных для таблицы competensionsinproject
 --
-
--- Таблица projectsystem.competensionsinproject не содержит данных
+INSERT INTO competensionsinproject VALUES
+(1, 1, 1),
+(2, 1, 3),
+(3, 2, 1),
+(4, 2, 3);
 
 -- 
 -- Вывод данных для таблицы specializationsinprojects
 --
-
--- Таблица projectsystem.specializationsinprojects не содержит данных
+INSERT INTO specializationsinprojects VALUES
+(1, 1, 4),
+(2, 1, 3),
+(3, 1, 5),
+(4, 2, 4),
+(5, 2, 3),
+(6, 2, 5);
 
 -- 
 -- Вывод данных для таблицы confirmation
