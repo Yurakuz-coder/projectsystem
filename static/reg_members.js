@@ -13,8 +13,12 @@ function dropMembersFilter() {
   getDataMembers(null, null, null);
 }
 
-function getDataMembers(projectFioFilter, projectRoleFilter, projectNaprFilter) {
-  const url = window.location.pathname.split('/')[1]
+function getDataMembers(
+  projectFioFilter,
+  projectRoleFilter,
+  projectNaprFilter
+) {
+  const url = window.location.pathname.split("/")[1];
   $.ajax({
     type: "POST",
     url: "/" + url + "/members",
@@ -68,29 +72,37 @@ function deletePassportFile(id) {
 
 function getCompetitionsSpec(id, operation) {
   $.ajax({
-    type: 'GET',
-    dataSrc: 'data',
+    type: "GET",
+    dataSrc: "data",
     data: { id },
     url: "/getCompetitionsSpec",
     success: function (data) {
-      const checkboxes = document.getElementById(operation + 'Wrapper');
-      const elements = document.querySelectorAll('#' + operation + 'Wrapper input[type="checkbox"]:checked')
-      let checkboxData = '';
+      const checkboxes = document.getElementById(operation + "Wrapper");
+      const elements = document.querySelectorAll(
+        "#" + operation + 'Wrapper input[type="checkbox"]:checked'
+      );
+      let checkboxData = "";
       for (el of elements) {
-        checkboxData += `<div class="form-check">${el.outerHTML.replace('>', ' checked>')}${el.nextElementSibling.outerHTML}</div>`
+        checkboxData += `<div class="form-check">${el.outerHTML.replace(
+          ">",
+          " checked>"
+        )}${el.nextElementSibling.outerHTML}</div>`;
       }
-      for (el in data) {
-        if (!elements.length || !document.getElementById(`add_spec_${el}_${id}`))
+      for (el of data) {
+        if (
+          !elements.length ||
+          !document.getElementById(`add_spec_${el[0]}_${id}`)
+        )
           checkboxData += `<div class="form-check">
-          <input class="form-check-input" name="comp" type="checkbox" value="${el}"
-            id="add_spec_${el}_${id}">
-          <label class="form-check-label" for="add_spec_${el}_${id}">
-            ${data[el]}
+          <input class="form-check-input" name="comp" type="checkbox" value="${el[0]}"
+            id="add_spec_${el[0]}_${id}">
+          <label class="form-check-label" for="add_spec_${el[0]}_${id}">
+            ${el[1]} - ${el[2]}
           </label>
-          </div>`
+          </div>`;
       }
-      if (checkboxData == '') checkboxData = '<p>Данных не найдено</p>'
-      checkboxes.innerHTML = checkboxData
-    }
-  })
+      if (checkboxData == "") checkboxData = "<p>Данных не найдено</p>";
+      checkboxes.innerHTML = checkboxData;
+    },
+  });
 }

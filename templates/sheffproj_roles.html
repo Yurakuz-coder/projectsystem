@@ -54,8 +54,8 @@
       <div class="modal-body">
         <form action="addRole" method="post">
           <div class="form-group">
-            <label for="project" class="form-select-label">Выберите проект</label>
-            <select class="form-select" aria-label="Default select example" name="project" {% if projects==[] %}
+            <label for="passport" class="form-select-label">Выберите проект</label>
+            <select class="form-select" aria-label="Default select example" name="passport" {% if projects==[] %}
               disabled {% endif %}>
               {% for el in projects %}
               <option value="{{ el[2] }}"> {{ el[1] }}</option>
@@ -135,8 +135,8 @@
       <div class="modal-body">
         <form action="modifyRole" method="post">
           <div class="form-group">
-            <label for="roles" class="form-select-label">Выберите роль</label>
-            <select class="form-select" aria-label="Default select example" name="roles" {% if roles==[] %} disabled {%
+            <label for="idrole" class="form-select-label">Выберите роль</label>
+            <select class="form-select" aria-label="Default select example" name="idrole" {% if roles==[] %} disabled {%
               endif %}>
               {% for el in roles %}
               <option value="{{ el.RolesOfProjects.IDroles }}"> {{ el.RolesOfProjects.rolesRole }}</option>
@@ -147,8 +147,8 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="project" class="form-select-label">Выберите проект</label>
-            <select class="form-select" aria-label="Default select example" name="project" {% if projects==[] %}
+            <label for="passport" class="form-select-label">Выберите проект</label>
+            <select class="form-select" aria-label="Default select example" name="passport" {% if projects==[] %}
               disabled {% endif %}>
               {% for el in projects %}
               <option value="{{ el[2] }}"> {{ el[1] }}</option>
@@ -174,7 +174,7 @@
             <label for="function" class="form-control-label" {% if check_spec==[] %} disabled {% endif %}>Опоп</label>
             {% for cs in check_spec %}
             <div class="form-check">
-              <input class="form-check-input" name="spec[]" type="checkbox" value="{{ cs.Specializations.IDspec }}"
+              <input class="form-check-input" name="spec" type="checkbox" value="{{ cs.Specializations.IDspec }}"
                 id="check_spec_{{ cs.Specializations.IDspec }}">
               <label class="form-check-label" for="check_spec_{{ cs.Specializations.IDspec }}">
                 {{ cs.Specializations.FullSpec }}
@@ -208,7 +208,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            <button type="submit" class="btn btn-primary" {% if projects==[] %} disabled {% endif %}>Сохранить</button>
+            <button type="submit" class="btn btn-primary" {% if roles==[] %} disabled {% endif %}>Сохранить</button>
           </div>
         </form>
       </div>
@@ -221,14 +221,14 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalDelLabel">Редактировать договор</h5>
+        <h5 class="modal-title" id="modalDelLabel">Удаление роли</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form action="deleteRole" method="post">
           <div class="form-group">
-            <label for="roles" class="form-select-label">Выберите роль</label>
-            <select class="form-select" aria-label="Default select example" name="roles" {% if roles==[] %} disabled {%
+            <label for="idrole" class="form-select-label">Выберите роль</label>
+            <select class="form-select" aria-label="Default select example" name="idrole" {% if roles==[] %} disabled {%
               endif %}>
               {% for el in roles %}
               <option value="{{ el.RolesOfProjects.IDroles }}"> {{ el.RolesOfProjects.rolesRole }}</option>

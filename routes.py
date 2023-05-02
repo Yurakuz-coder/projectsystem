@@ -2227,11 +2227,13 @@ def sheffproj_projects():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
+        idsheffpr = session["user"][0]
         select_projects = (
             select(Projects, PassportOfProjects, StadiaOfProjects)
             .join(PassportOfProjects)
             .join(StadiaOfProjects)
             # .filter(StadiaOfProjects.IDstadiaofpr == 3)
+            .filter(PassportOfProjects.IDsheffpr == idsheffpr)
             .order_by(PassportOfProjects.passportName)
         )
         projects = db_sessions.execute(select_projects).all()
@@ -2405,7 +2407,6 @@ def sheffproj_members():
             projects=projects,
             spec=spec,
             comp=comp,
-            exists_members=exists_roles[0],
             roles=roles,
         )
     if request.method == "POST":
@@ -2516,14 +2517,14 @@ def get_competitions_spec():
     if request.method == "GET":
         db_sessions = get_session()
         select = get_select()
-        idcomp = request.args.get("id")
-        select_spec = (
-            select(Specializations.IDspec, Specializations.FullSpec)
-            .join(Competensions)
-            .filter(Competensions.IDcompetensions == idcomp)
-        )
+        idspec = request.args.get("id")
+        select_spec = select(
+            Competensions.IDcompetensions,
+            Competensions.competensionsShifr,
+            Competensions.competensionsFull,
+        ).filter(Competensions.IDspec == idspec)
         spec = db_sessions.execute(select_spec).all()
-        return jsonify(dict(spec)), 200
+        return jsonify([list(el) for el in spec]), 200
 
 
 @pages.route("/shefforg/projects", methods=["GET", "POST"])
@@ -2617,61 +2618,105 @@ def sheffproj_roles():
 @pages.route("/sheffproj/addRole", methods=["POST"])
 def sheffproj_add_role():
     db_sessions = get_session()
-    project = request.form["project"]
+    idpassport = request.form["passport"]
     role = str(request.form["role"])
     amount = request.form["amount"]
     function = str(request.form["function"])
-    spec = request.form.getlist("spec")
+    idspecs = request.form.getlist("spec")
     cost = str(request.form["cost"])
-    spec_comp = str(request.form["spec-comp"])
-    comp = request.form.getlist("comp")
-    resource = str(request.form["require"])
+    idcomps = request.form.getlist("comp")
+    require = str(request.form["require"])
+
+    add_role = RolesOfProjects(
+        IDpassport=idpassport,
+        rolesRole=role,
+        rolesAmount=amount,
+        rolesFunction=function,
+        rolesCost=cost,
+        rolesRequirements=require,
+    )
+    db_sessions.add(add_role)
+    db_sessions.flush()
+    for idspec in idspecs:
+        add_spec = SpecializationInProjects(IDroles=add_role.IDroles, IDspec=idspec)
+        db_sessions.add(add_spec)
+        db_sessions.flush()
+
+    for idcomp in idcomps:
+        add_comp = CompetensionsInProject(IDroles=add_role.IDroles, IDcompetensions=idcomp)
+        db_sessions.add(add_comp)
+        db_sessions.flush()
+
+    db_sessions.commit()
+    return redirect("/sheffproj/roles")
 
 
 @pages.route("/sheffproj/modifyRole", methods=["POST"])
 def sheffproj_modify_role():
     db_sessions = get_session()
-    idroles = request.form["roles"]
-    project = request.form["project"]
+    select = get_select()
+    idrole = request.form["idrole"]
+    idpassport = request.form["passport"]
     role = str(request.form["role"])
     amount = request.form["amount"]
     function = str(request.form["function"])
-    spec = request.form["spec"]
+    idspecs = request.form.getlist("spec")
     cost = str(request.form["cost"])
-    spec_comp = str(request.form["spec-comp"])
-    comp = request.form["comp"]
-    resource = str(request.form["require"])
+    idcomps = request.form.getlist("comp")
+    require = str(request.form["require"])
 
-    project = db_sessions.query(Projects).filter(Projects.IDprojects == idprojects).first()
-    npr = (
-        db_sessions.query(PassportOfProjects)
-        .filter(PassportOfProjects.IDpassport == project.IDpassport)
-        .first()
-    )
+    rop = db_sessions.execute(
+        select(RolesOfProjects).filter(RolesOfProjects.IDroles == idrole)
+    ).first()[0]
 
-    if str(project_name) != "":
-        npr.passportName = str(project_name)
-    if str(problem) != "":
-        npr.passportProblem = str(problem)
-    if str(purpose) != "":
-        npr.passportPurpose = str(purpose)
-    if str(tasks) != "":
-        npr.passportTasks = str(tasks)
-    if str(result) != "":
-        npr.passportResults = str(result)
-    if str(content) != "":
-        npr.passportContent = str(content)
-    if str(deadline) != "":
-        npr.passportDeadlines = str(deadline)
-    if str(stages) != "":
-        npr.passportStages = str(stages)
-    if str(resource) != "":
-        npr.passportResources = str(resource)
+    if len(idspecs) != 0:
+        db_sessions.query(SpecializationInProjects).filter(
+            SpecializationInProjects.IDroles == idrole
+        ).delete()
+
+    for idspec in idspecs:
+        add_spec = SpecializationInProjects(IDroles=idrole, IDspec=idspec)
+        db_sessions.add(add_spec)
+        db_sessions.flush()
+
+    if len(idcomps) != 0:
+        db_sessions.query(CompetensionsInProject).filter(
+            CompetensionsInProject.IDroles == idrole
+        ).delete()
+
+    for idcomp in idcomps:
+        add_comp = CompetensionsInProject(IDroles=idrole, IDcompetensions=idcomp)
+        db_sessions.add(add_comp)
+        db_sessions.flush()
+
+    if str(idpassport) != "":
+        rop.IDpassport = idpassport
+    if str(role) != "":
+        rop.rolesRole = str(role)
+    if str(amount) != "":
+        rop.rolesAmount = str(amount)
+    if str(function) != "":
+        rop.rolesFunction = str(function)
     if str(cost) != "":
-        npr.passportCost = str(cost)
-    if str(criteria) != "":
-        npr.passportCriteria = str(criteria)
-    if str(formResult) != "":
-        npr.passportFormresults = str(formResult)
+        rop.rolesCost = str(cost)
+    if str(require) != "":
+        rop.rolesRequirements = str(require)
+
     db_sessions.commit()
-    return redirect("/admin/projects")
+    return redirect("/sheffproj/roles")
+
+
+@pages.route("/sheffproj/deleteRole", methods=["POST"])
+def sheffproj_delete_role():
+    db_sessions = get_session()
+    idrole = request.form["idrole"]
+
+    db_sessions.query(CompetensionsInProject).filter(
+        CompetensionsInProject.IDroles == idrole
+    ).delete()
+    db_sessions.query(SpecializationInProjects).filter(
+        SpecializationInProjects.IDroles == idrole
+    ).delete()
+    db_sessions.query(RolesOfProjects).filter(RolesOfProjects.IDroles == idrole).delete()
+    db_sessions.commit()
+    return redirect("/sheffproj/roles")
