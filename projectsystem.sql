@@ -1,6 +1,6 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 02.05.2023 21:00:01
+-- Дата скрипта: 02.05.2023 21:59:16
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
@@ -47,7 +47,8 @@ CREATE TABLE levels (
   UNIQUE INDEX UK_levels_levelsName (levelsName(255))
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Уровни сформированности компетенций';
@@ -562,8 +563,10 @@ INSERT INTO form_studing VALUES
 -- 
 -- Вывод данных для таблицы levels
 --
-
--- Таблица projectsystem.levels не содержит данных
+INSERT INTO levels VALUES
+(1, 'Высокий уровень компетенций'),
+(2, 'Достаточный уровень компетенций'),
+(3, 'Недостаточный уровень компетенций');
 
 -- 
 -- Вывод данных для таблицы positions
