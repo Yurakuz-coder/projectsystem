@@ -1,27 +1,17 @@
-{% for el in contracts %}
+{% for el in applications %}
 <tr>
-    <td>{{ el.Contracts.organizations.orgName }}</td>
-    <td> {{ el.Contracts.organizations.orgYuraddress }}</td>
-    <td>{{ el.Contracts.contractsNumber }}</td>
-    <td>{{ el.Contracts.contractsStart }}</td>
-    <td>{{ el.Contracts.contractsFinish }}</td>
-    <td><a href="/getContract?idContract={{ el.Contracts.IDcontracts }}" role="button"
+    <td>{{ el.PassportOfProjects.passportName }}</td>
+    <td> {% if el.Applications.applicationApproved == 0 %} На рассмотрении {% elif el.Applications.applicationApproved
+        == 1 %}
+        Одобрено {% else %} Не одобрено {% endif %}</td>
+    <td>{{ el.Applications.applicationsCourse }}</td>
+    <td>{{ el.Applications.applicationsPurpose }}</td>
+    <td>{{ el.RolesOfProjects.rolesRole }} - {{ el.RolesOfProjects.rolesFunction }}</td>
+    <td><a href="/getApplication?idApplication={{ el.Applications.IDapplications }}" role="button"
             class="btn btn-primary">Скачать</button></td>
     <td class="col-md-4">
-        <div class="input-group mb-0">
-            <button class="btn btn-outline-secondary" value="{{ el.Contracts.IDcontracts }}" type="button"
-                onclick="uploadFile(this.value)" id="button-upload{{ el.Contracts.IDcontracts }}">Загрузить</button>
-            <input type="file" accept=".doc,.docx,.pdf" class="form-control"
-                id="input-upload{{ el.Contracts.IDcontracts }}"
-                aria-describedby="button-upload{{ el.Contracts.IDcontracts }}" aria-label="Upload">
-        </div>
-        <div class="btn-group-vertical">
-            <a href="/getContractSigned?idContract={{ el.Contracts.IDcontracts }}" role="button"
-                aria-disabled="{{ el.Contracts.contractsSigned is none }}"
-                class="btn btn-primary {{ 'disabled' if el.Contracts.contractsSigned is none else '' }}">Скачать</a>
-            <button {% if el.Contracts.contractsSigned is none %} disabled {% endif %} class="btn btn-danger"
-                value="{{ el.Contracts.IDcontracts }}" onclick="deleteFile(this.value)">Удалить</button>
-        </div>
+        <a href="/getApplicationSigned?idApplication={{ el.Applications.IDapplications }}" role="button"
+            class="btn btn-primary {{ 'disabled' if el.Applications.applicationsSigned == '' else '' }}">Скачать</a>
     </td>
 </tr>
 {% endfor %}

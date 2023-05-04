@@ -40,7 +40,7 @@
 
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">
-        Редактировать Заявку
+        Редактировать заявку
     </button>
 </div>
 <br>
@@ -48,63 +48,36 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalModifyLabel">Редактировать группу</h5>
+                <h5 class="modal-title" id="modalModifyLabel">Редактировать заявку</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="modifyGroup" method="post">
+                <form action="modifyApplication" method="post">
                     <div class="form-group">
-                        <label for="modifyGroups" class="form-select-label">Выберите группу</label>
-                        <select class="form-select" aria-label="Default select example" name="modifyGroups" {% if
-                            groups==[] %} disabled {% endif %}>
-                            {% for el in groups %}
-                            <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} </option>
-                            {% endfor %}
-                            {% if groups==[] %}
-                            <option value="">Группы не найдены</option>
-                            {% endif %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="redgroupsName" class="form-control-label">Название группы</label>
-                        <input class="form-control" id="redgroupsName" name="redgroupsName"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="redgroupsYear" class="form-control-label">Год набора</label>
-                        <input type="number" min="2016" max="2099" step="1" class="form-control" id="redgroupsYear"
-                            name="redgroupsYear"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="redform_st" class="form-select-label">Форма обучения</label>
-                        <select class="form-select" aria-label="Default select example" name="redform_st" {% if
-                            formst==[] %} disabled {% endif %}>
-                            {% for el in formst %}
-                            <option value="{{ el.Formstuding.IDform_st }}"> {{ el.Formstuding.form_stName }}</option>
-                            {% endfor %}
-                            {% if specializations==[] %}
-                            <option value="">Формы обучения не найдены</option>
-                            {% endif %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="redspec" class="form-select-label">Направление подготовки</label>
-                        <select class="form-select" aria-label="Default select example" name="redspec" {% if
-                            specializations==[] %} disabled {% endif %}>
-                            {% for el in specializations %}
-                            <option value="{{ el.Specializations.IDspec }}"> {{ el.Specializations.specShifr }} {{
-                                el.Specializations.specNapravlenie }} - {{
-                                el.Specializations.specNapravlennost }}
+                        <label for="application" class="form-select-label">Выберите заявку</label>
+                        <select class="form-select" aria-label="Default select example" name="application" {% if
+                            applications==[] %} disabled {% endif %}>
+                            {% for el in applications %}
+                            <option value="{{ el.Applications.IDapplications }}"> {{ el.PassportOfProjects.passportName
+                                }} - {{ el.RolesOfProjects.rolesRole }} ({{ el.RolesOfProjects.rolesFunction }})
                             </option>
                             {% endfor %}
-                            {% if specializations==[] %}
-                            <option value="">Специализации не найдены</option>
+                            {% if applications==[] %}
+                            <option value="">Заявки не найдены</option>
                             {% endif %}
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="courseYear" class="form-select-label">Введите курс обучения</label>
+                        <textarea class="form-control" rows="1" id="courseYear" name="courseYear"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="reason" class="form-select-label">Почему вы решили принять участие в проекте</label>
+                        <textarea class="form-control" rows="5" id="reason" name="reason"></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary" {% if groups==[] %} disabled {% endif %} {% if
-                            specializations==[] %} disabled {% endif %} {% if formst==[] %} disabled {% endif
+                        <button type="submit" class="btn btn-primary" {% if applications==[] %} disabled {% endif
                             %}>Сохранить</button>
                     </div>
                 </form>

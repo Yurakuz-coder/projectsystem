@@ -201,6 +201,7 @@ class Applications(Base):
     applicationsPattern = mapped_column(String(1000), nullable=False)
     applicationsFull = mapped_column(String(1000), nullable=False)
     applicationsSigned = mapped_column(String(1000))
+    applicationApproved = mapped_column(String(1))
 
 class Levels(Base):
     __tablename__ = 'levels'

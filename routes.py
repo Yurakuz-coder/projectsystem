@@ -2368,11 +2368,6 @@ def admin_change_stadia():
         idproject = request.form["project"]
 
         project = db_sessions.query(Projects).filter(Projects.IDprojects == idproject).first()
-        npr = (
-            db_sessions.query(PassportOfProjects)
-            .filter(PassportOfProjects.IDpassport == project.IDpassport)
-            .first()
-        )
         project.IDstadiaofpr = 2
         db_sessions.commit()
         return redirect("/admin/stadia")
@@ -2748,6 +2743,7 @@ def student_participation_ticket():
         select = get_select()
         db_sessions = get_session()
         idgroup = session["user"][0]
+        idstudent = session["user"][1]
         select_projects = (
             select(Projects, PassportOfProjects, StadiaOfProjects)
             .distinct()
@@ -2769,9 +2765,17 @@ def student_participation_ticket():
         first_project = projects[0] if projects else None
         roles = []
         if first_project:
-            select_roles = select(
-                RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction
-            ).filter(RolesOfProjects.IDpassport == first_project.PassportOfProjects.IDpassport)
+            select_roles = (
+                select(
+                    RolesOfProjects.IDroles,
+                    RolesOfProjects.rolesRole,
+                    RolesOfProjects.rolesFunction,
+                )
+                .join(Applications)
+                .filter(RolesOfProjects.IDpassport == first_project.PassportOfProjects.IDpassport)
+                .filter(Applications.IDroles != RolesOfProjects.IDroles)
+                .filter(Applications.IDstudents != idstudent)
+            )
             roles = db_sessions.execute(select_roles).all()
         return render_template("student_partic_tickets.html", projects=projects, roles=roles)
     if request.method == "POST":
@@ -2809,11 +2813,16 @@ def student_participation_ticket():
 def student_get_roles():
     args = request.args
     idpassport = args.get("id")
+    idstudent = session["user"][1]
     select = get_select()
     db_sessions = get_session()
-    select_roles = select(
-        RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction
-    ).filter(RolesOfProjects.IDpassport == idpassport)
+    select_roles = (
+        select(RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction)
+        .join(Applications)
+        .filter(RolesOfProjects.IDpassport == idpassport)
+        .filter(Applications.IDroles != RolesOfProjects.IDroles)
+        .filter(Applications.IDstudents != idstudent)
+    )
     roles = db_sessions.execute(select_roles).all()
     return jsonify([dict(row._mapping) for row in roles]), 200
 
@@ -2836,6 +2845,7 @@ def student_add_ticket():
         applicationsPattern="",
         applicationsFull="",
         applicationsSigned="",
+        applicationApproved=0,
     )
     db_sessions.add(add_application)
     db_sessions.commit()
@@ -2848,32 +2858,85 @@ def student_tickets():
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
-        idgroup = session["user"][0]
+        idstudent = session["user"][1]
         select_applications = (
-            select(
-                Applications,
-            )
-            .distinct()
+            select(Applications, PassportOfProjects, RolesOfProjects)
+            .join(Applications)
             .join(PassportOfProjects)
-            .join(StadiaOfProjects)
-            .join(RolesOfProjects)
-            .join(SpecializationInProjects)
-            .join_from(
-                SpecializationInProjects,
-                Groups,
-                SpecializationInProjects.IDspec == Groups.IDspec,
-                isouter=True,
-            )
-            .filter(Groups.IDgroups == idgroup)
-            .filter(Projects.IDstadiaofpr == 3)
+            .filter(Applications.IDstudents == idstudent)
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
-        first_project = projects[0] if projects else None
-        roles = []
-        if first_project:
-            select_roles = select(
-                RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction
-            ).filter(RolesOfProjects.IDpassport == first_project.PassportOfProjects.IDpassport)
-            roles = db_sessions.execute(select_roles).all()
-        return render_template("student_partic_tickets.html", projects=projects, roles=roles)
+        applications = db_sessions.execute(select_applications).all()
+        return render_template("student_tickets.html", applications=applications)
+
+
+@pages.route("/student/modifyApplication", methods=["POST"])
+def student_modify_application():
+    if request.method == "POST":
+        db_sessions = get_session()
+        idapplication = request.form["application"]
+        courseYear = request.form["courseYear"]
+        purpose = request.form["reason"]
+
+        project = (
+            db_sessions.query(Applications)
+            .filter(Applications.IDapplications == idapplication)
+            .first()
+        )
+
+        if int(courseYear):
+            project.applicationsCourse = courseYear
+        if str(purpose):
+            project.applicationsPurpose = purpose
+        db_sessions.commit()
+        return redirect("/student/tickets")
+
+
+@pages.route("/getApplication", methods=["GET"])
+def send_application():
+    args = request.args
+    idapplication = args.get("idApplication")
+
+    db_sessions = get_session()
+    select = get_select()
+
+    select = (
+        select(Specializations, PassportOfProjects, RolesOfProjects, Applications)
+        .join(Applications)
+        .join(PassportOfProjects)
+        .join(SpecializationInProjects)
+        .join(Specializations)
+        .filter(Applications.IDapplications == idapplication)
+    )
+    record = db_sessions.execute(select).first()
+    if not record:
+        return
+
+    context = {}
+    context["projectName"] = record.PassportOfProjects.passportName
+    context["fio"] = " ".join(session["fullName"])
+    context["opop"] = (
+        record.Specializations.specNapravlenie + ", " + record.Specializations.specNapravlennost
+    )
+    context["course"] = record.Applications.applicationsCourse
+    context["group"] = session["pos"]
+    context["role"] = record.RolesOfProjects.rolesRole
+    context["reason"] = record.Applications.applicationsPurpose
+
+    filename = (
+        "Заявка на участие в проекте "
+        + str(record.PassportOfProjects.passportName).replace('"', "")
+        + " от "
+        + context["fio"]
+        + "_"
+        + date.today().strftime("%d_%B_%Y")
+        + ".doc"
+    )
+    file_path = path.join("documents", filename)
+    doc = DocxTemplate("./documents/approve_template.docx")
+
+    doc.render(context)
+
+    doc.save(file_path)
+
+    return send_file(file_path, mimetype="multipart/form-data", as_attachment=True)
