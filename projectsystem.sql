@@ -1,6 +1,6 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 02.05.2023 23:06:09
+-- Дата скрипта: 04.05.2023 23:14:03
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
@@ -415,8 +415,8 @@ CREATE TABLE rolesofprojects (
     REFERENCES passportofprojects(IDpassport) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 3
-AVG_ROW_LENGTH = 8192
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Роли в проекте';
@@ -468,8 +468,8 @@ CREATE TABLE competensionsinproject (
     REFERENCES rolesofprojects(IDroles) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 5
-AVG_ROW_LENGTH = 4096
+AUTO_INCREMENT = 7
+AVG_ROW_LENGTH = 2730
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Компетенции в проекте';
@@ -489,8 +489,8 @@ CREATE TABLE specializationsinprojects (
     REFERENCES specializations(IDspec) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 7
-AVG_ROW_LENGTH = 2730
+AUTO_INCREMENT = 10
+AVG_ROW_LENGTH = 1820
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Специализации в проекте';
@@ -680,7 +680,8 @@ INSERT INTO projects VALUES
 --
 INSERT INTO rolesofprojects VALUES
 (1, 2, 'Программист', 2, 'Разрабатывать сайт с адаптивным дизайном', 6, ''),
-(2, 3, 'Программист', 2, 'Разработчики мобильных приложений', 6, 'Отсутствуют');
+(2, 3, 'Программист', 2, 'Разработчики мобильных приложений', 6, 'Отсутствуют'),
+(3, 3, 'Дизайнер', 1, 'Разработать макет дизайна', 3, 'отстутсвуют');
 
 -- 
 -- Вывод данных для таблицы applications
@@ -695,7 +696,9 @@ INSERT INTO competensionsinproject VALUES
 (1, 1, 1),
 (2, 1, 3),
 (3, 2, 1),
-(4, 2, 3);
+(4, 2, 3),
+(5, 3, 1),
+(6, 3, 3);
 
 -- 
 -- Вывод данных для таблицы specializationsinprojects
@@ -706,7 +709,10 @@ INSERT INTO specializationsinprojects VALUES
 (3, 1, 5),
 (4, 2, 4),
 (5, 2, 3),
-(6, 2, 5);
+(6, 2, 5),
+(7, 3, 4),
+(8, 3, 3),
+(9, 3, 5);
 
 -- 
 -- Вывод данных для таблицы confirmation
