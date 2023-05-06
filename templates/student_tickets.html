@@ -58,9 +58,11 @@
                         <select class="form-select" aria-label="Default select example" name="application" {% if
                             applications==[] %} disabled {% endif %}>
                             {% for el in applications %}
+                            {% if el.Applications.applicationApproved == 0 %}
                             <option value="{{ el.Applications.IDapplications }}"> {{ el.PassportOfProjects.passportName
                                 }} - {{ el.RolesOfProjects.rolesRole }} ({{ el.RolesOfProjects.rolesFunction }})
                             </option>
+                            {% endif %}
                             {% endfor %}
                             {% if applications==[] %}
                             <option value="">Заявки не найдены</option>

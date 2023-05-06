@@ -28,6 +28,8 @@ from models.models import (
     CompetensionsInProject,
     StudentsInProjects,
     Applications,
+    Confirmation,
+    Levels
 )
 from models.database import get_session, get_select
 
@@ -2119,8 +2121,8 @@ def get_passport():
     db_sessions = get_session()
     select = get_select()
 
-    select = (
-        select(PassportOfProjects, Initiatorsofprojects, Organizations)
+    select_passport = (
+        select(PassportOfProjects, Initiatorsofprojects, Organizations,Sheffofprojects, Positions)
         .join_from(
             PassportOfProjects,
             Initiatorsofprojects,
@@ -2132,16 +2134,25 @@ def get_passport():
             Organizations,
             Organizations.IDorg == Initiatorsofprojects.IDorg,
             isouter=True,
-        )
+        ).join(Sheffofprojects)
+        .join(Positions)
         .filter(PassportOfProjects.IDpassport == idpassport)
     )
-    record = db_sessions.execute(select).first()
+    record = db_sessions.execute(select_passport).first()
     if not record:
         return
-
+    splitted_fio = record.Initiatorsofprojects.FullName.split(' ')
+    if len(splitted_fio) == 3:
+        init_fio = splitted_fio[1][0] + '. ' + splitted_fio[2][0] + '. ' + splitted_fio[0]
+    splitted_shelf_fio = record.Sheffofprojects.FullName.split(' ')
+    if len(splitted_shelf_fio) == 3:
+        init_sheff_fio = splitted_shelf_fio[1][0] + '. ' + splitted_shelf_fio[2][0] + '. ' + splitted_shelf_fio[0]
     context = {}
     context["passport_name"] = record.PassportOfProjects.passportName
     context["fio"] = record.Initiatorsofprojects.FullName
+    context['initFio'] = init_fio
+    context['fio_sheff'] = init_sheff_fio
+    context['pos_sheff'] = record.Positions.positionsName
     context["pos"] = record.Initiatorsofprojects.initprPositions
     context["work"] = record.Organizations.orgName
     context["phone"] = record.Initiatorsofprojects.initprPhone
@@ -2158,6 +2169,36 @@ def get_passport():
     context["criteria"] = record.PassportOfProjects.passportCriteria or "Не заполнено"
     context["formresult"] = record.PassportOfProjects.passportFormresults or "Не заполнено"
 
+    select_roles = (select(RolesOfProjects, Specializations, Competensions)
+                    .join_from(RolesOfProjects, SpecializationInProjects, RolesOfProjects.IDroles == SpecializationInProjects.IDroles, isouter=True)
+                    .join(Specializations)
+                    .join(CompetensionsInProject)
+                    .join(Competensions)
+                    .filter(RolesOfProjects.IDpassport == idpassport)
+                    )
+    roles = db_sessions.execute(text(r'''SELECT
+	rolesofprojects.rolesRole,
+	rolesofprojects.rolesAmount,
+	rolesofprojects.rolesFunction,
+	GROUP_CONCAT( distinct CONCAT_WS(' ', specializations.specShifr, specializations.specNapravlenie, specializations.specNapravlennost) order by 1 asc SEPARATOR '\n'),
+    rolesofprojects.rolesCost,
+    GROUP_CONCAT(distinct CONCAT_WS(' - ', competensions.competensionsShifr, competensions.competensionsFull) order by 1 asc SEPARATOR '\n'),
+	rolesofprojects.rolesRequirements
+FROM
+	rolesofprojects
+LEFT OUTER JOIN specializationsinprojects ON
+	rolesofprojects.IDroles = specializationsinprojects.IDroles
+JOIN specializations ON
+	specializations.IDspec = specializationsinprojects.IDspec
+JOIN competensionsinproject ON
+	rolesofprojects.IDroles = competensionsinproject.IDroles
+JOIN competensions ON
+	competensions.IDcompetensions = competensionsinproject.IDcompetensions
+WHERE
+	rolesofprojects.IDpassport = :idpassport
+group by 1,2,3,5,7'''), {'idpassport': idpassport }).all()
+    if len(roles) > 0:
+        context["roles"] = roles
     filename = (
         "Паспорт "
         + str(record.PassportOfProjects.passportName).replace('"', "")
@@ -2860,9 +2901,15 @@ def student_tickets():
         db_sessions = get_session()
         idstudent = session["user"][1]
         select_applications = (
-            select(Applications, PassportOfProjects, RolesOfProjects)
-            .join(Applications)
+            select(Applications, PassportOfProjects, RolesOfProjects, Confirmation)
+            .join_from(
+                Applications,
+                RolesOfProjects,
+                RolesOfProjects.IDroles == Applications.IDroles,
+                isouter=True,
+            )
             .join(PassportOfProjects)
+            .join(Confirmation)
             .filter(Applications.IDstudents == idstudent)
             .order_by(PassportOfProjects.passportName)
         )
@@ -2915,9 +2962,7 @@ def send_application():
     context = {}
     context["projectName"] = record.PassportOfProjects.passportName
     context["fio"] = " ".join(session["fullName"])
-    context["opop"] = (
-        record.Specializations.specNapravlenie + ", " + record.Specializations.specNapravlennost
-    )
+    context["opop"] = record.Specializations.FullSpec
     context["course"] = record.Applications.applicationsCourse
     context["group"] = session["pos"]
     context["role"] = record.RolesOfProjects.rolesRole
@@ -2934,6 +2979,249 @@ def send_application():
     )
     file_path = path.join("documents", filename)
     doc = DocxTemplate("./documents/approve_template.docx")
+
+    doc.render(context)
+
+    doc.save(file_path)
+
+    return send_file(file_path, mimetype="multipart/form-data", as_attachment=True)
+
+@pages.route('/sheffproj/tickets', methods=["GET", "POST"])
+def sheff_proj_tickets():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        idsheff_proj = session["user"][0]
+        select_applications = (
+            select(Students, Groups, Specializations, RolesOfProjects, PassportOfProjects, Applications)
+            .distinct()
+            .join_from(
+                Applications,
+                Students,
+                Students.IDstudents == Applications.IDstudents,
+                isouter=True,
+            )
+            .join(RolesOfProjects)
+            .join(Groups)
+            .join(Projects)
+            .join(PassportOfProjects)
+            .join(Specializations)
+            .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
+            .filter(Applications.applicationApproved == 0)
+            .order_by(PassportOfProjects.passportName)
+        )
+        select_projects = (select(Projects, PassportOfProjects).join_from(Projects,
+                PassportOfProjects,
+                PassportOfProjects.IDpassport == Projects.IDpassport,
+                isouter=True).join(Applications).filter(PassportOfProjects.IDsheffpr == idsheff_proj)
+            .filter(Applications.applicationApproved == 0))
+        projects = db_sessions.execute(select_projects).all()
+        applications = db_sessions.execute(select_applications).all()
+        levels = db_sessions.execute((select(Levels))).all()
+        return render_template("sheff_proj_tickets.html", projects=projects, tickets=applications, levels=levels)
+    if request.method == "POST":
+        select = get_select()
+        db_sessions = get_session()
+        fio_filter = request.form['projectFioFilter']
+        project_filter = request.form['projectNameFilter']
+        where_fio_filter = (Students.FullName.ilike('%' + fio_filter + '%') if fio_filter else text('1=1'))
+        where_project_filter = (PassportOfProjects.passportName.ilike('%' + project_filter + '%') if project_filter else text('1=1'))
+        idsheff_proj = session["user"][0]
+        select_applications = (
+            select(Students, Groups, Specializations, RolesOfProjects, PassportOfProjects, Applications)
+            .distinct()
+            .join_from(
+                Applications,
+                Students,
+                Students.IDstudents == Applications.IDstudents,
+                isouter=True,
+            )
+            .join(RolesOfProjects)
+            .join(Groups)
+            .join(Projects)
+            .join(PassportOfProjects)
+            .join(Specializations)
+            .filter(where_fio_filter)
+            .filter(where_project_filter)
+            .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
+            .filter(Applications.applicationApproved == 0)
+            .order_by(PassportOfProjects.passportName)
+        )
+        select_projects = (select(Projects, PassportOfProjects).join_from(Projects,
+                PassportOfProjects,
+                PassportOfProjects.IDpassport == Projects.IDpassport,
+                isouter=True).join(Applications).filter(PassportOfProjects.IDsheffpr == idsheff_proj)
+            .filter(Applications.applicationApproved == 0))
+        projects = db_sessions.execute(select_projects).all()
+        applications = db_sessions.execute(select_applications).all()
+        return render_template("resultAccordionStudentTickets.html", projects=projects, tickets=applications)
+
+
+@pages.route('/sheffproj/modifyApplication', methods=['POST'])
+def sheff_proj_modify_applications():
+    db_session = get_session()
+    idapplication = request.form['application']
+    reason = request.form['reason']
+    record = db_session.query(Applications).filter(Applications.IDapplications == idapplication).first()
+    if str(reason) != '':
+        record.applicationsPurpose = reason
+    db_session.commit()
+    return redirect('/sheffproj/tickets')
+
+@pages.route('/sheffproj/approveTicket', methods=['POST'])
+def sheff_proj_approve_ticket():
+    db_session = get_session()
+    idapplication = request.form['application']
+    lvl_comp = request.form['lvl_comp']
+    period = request.form['period']
+    results = request.form['results']
+    record = db_session.query(Applications).filter(Applications.IDapplications == idapplication).first()
+    record.applicationApproved = 1
+    db_session.flush()
+    confirm = Confirmation(
+        IDapplications=idapplication,
+        confirmationResults=results,
+        confirmationPeriod=period,
+        IDlevels=lvl_comp,
+        confirmationPattern='',
+        confirmationFull=''                   
+        )
+    db_session.add(confirm)
+    db_session.commit()
+    return redirect('/sheffproj/tickets')
+
+@pages.route('/sheffproj/declineApplication', methods=['POST'])
+def sheff_proj_decline_applications():
+    db_session = get_session()
+    idapplication = request.form['application']
+    record = db_session.query(Applications).filter(Applications.IDapplications == idapplication).first()
+    record.applicationApproved = 2
+    db_session.commit()
+    return redirect('/sheffproj/tickets')
+
+@pages.route('/sheffproj/approved_tickets', methods=['GET', 'POST'])
+def sheff_proj_approved_tickets():
+    if request.method == "GET":
+        select = get_select()
+        db_sessions = get_session()
+        idsheff_proj = session["user"][0]
+        select_confirmation = (
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            .distinct()
+            .join_from(
+                Applications,
+                Students,
+                Students.IDstudents == Applications.IDstudents,
+                isouter=True,
+            )
+            .join(RolesOfProjects)
+            .join(Confirmation)
+            .join(Levels)
+            .join(Groups)
+            .join(Projects)
+            .join(PassportOfProjects)
+            .join(Specializations)
+            .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
+            .order_by(PassportOfProjects.passportName)
+        )
+        confirmations = db_sessions.execute(select_confirmation).all()
+        levels = db_sessions.execute((select(Levels))).all()
+        return render_template("sheff_proj_confirmed.html", confirmations=confirmations, levels=levels)
+    if request.method == "POST":
+        select = get_select()
+        db_sessions = get_session()
+        fio_filter = request.form['projectFioFilter']
+        project_filter = request.form['projectNameFilter']
+        where_fio_filter = (Students.FullName.ilike('%' + fio_filter + '%') if fio_filter else text('1=1'))
+        where_project_filter = (PassportOfProjects.passportName.ilike('%' + project_filter + '%') if project_filter else text('1=1'))
+        idsheff_proj = session["user"][0]
+        select_confirmation = (
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            .distinct()
+            .join_from(
+                Applications,
+                Students,
+                Students.IDstudents == Applications.IDstudents,
+                isouter=True,
+            )
+            .join(RolesOfProjects)
+            .join(Confirmation)
+            .join(Levels)
+            .join(Groups)
+            .join(Projects)
+            .join(PassportOfProjects)
+            .join(Specializations)
+            .filter(where_fio_filter)
+            .filter(where_project_filter)
+            .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
+            .order_by(PassportOfProjects.passportName)
+        )
+        confirmations = db_sessions.execute(select_confirmation).all()
+        return render_template("resultAccordionStudentApprovedTickets.html", confirmations=confirmations)
+
+@pages.route("/getConfirmation", methods=["GET"])
+def send_confirmation():
+    args = request.args
+    idconfirmation = args.get("idConfirmation")
+
+    db_sessions = get_session()
+    confirmed_ticket = db_sessions.execute(text(r'''SELECT
+	CONCAT_WS(' ', s.studentsFirstname, s.studentsName, s.studentsFathername) as fio, 
+	concat_ws(' ', s2.specShifr, s2.specNapravlenie, s2.specNapravlennost) as spec, 
+	year(CURDATE()) - g.groupsYear + 1,
+	g.groupsName,
+	p2.passportName,
+	r.rolesRole,
+	c.confirmationPeriod,
+	r.rolesAmount,
+	GROUP_CONCAT(distinct CONCAT_WS(' - ', c3.competensionsShifr, c3.competensionsFull) order by 1 asc SEPARATOR '\n'),
+	c.confirmationResults,
+	l.levelsName,
+	CONCAT(SUBSTRING(s3.sheffprName,1, 1), '. ', SUBSTRING(s3.sheffprFathername, 1, 1), '. ', s3.sheffprFirstname),
+	p3.positionsName 
+FROM
+	confirmation c 
+	inner join applications a on ( a.IDapplications = c.IDapplications  )
+	inner join rolesofprojects r on ( r.IDroles = a.IDroles  )
+	inner join students s on ( s.IDstudents = a.IDstudents  )
+	inner join `groups` g on ( g.IDgroups  = s.IDgroups  )
+	inner join specializations s2 on ( s2.IDspec = g.IDspec  )
+	inner join projects p on ( p.IDprojects = a.IDprojects )
+	inner join competensionsinproject c2 on ( c2.IDroles = r.IDroles )
+	inner join competensions c3 on ( c3.IDcompetensions = c2.IDcompetensions  )
+	inner join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
+	inner join levels l on ( l.IDlevels = c.IDlevels  )
+	inner join sheffofprojects s3 on ( s3.IDsheffpr = p2.IDsheffpr )
+	inner join positions p3 on ( p3.IDpositions = s3.IDpositions )
+WHERE
+	c.IDconfirmation = :idconf
+group by 1,2,3,4,5,6,7,8,10,11, 12, 13'''), {'idconf': idconfirmation }).first()
+
+    context = {}
+    context["fio"] = confirmed_ticket[0]
+    context["opop"] = confirmed_ticket[1]
+    context["course"] = confirmed_ticket[2]
+    context["group"] = confirmed_ticket[3]
+    context["passportName"] = confirmed_ticket[4]
+    context["role"] = confirmed_ticket[5]
+    context["period"] = confirmed_ticket[6]
+    context["amount"] = confirmed_ticket[7]
+    context["comp"] = confirmed_ticket[8]
+    context["result"] = confirmed_ticket[9]
+    context["level"] = confirmed_ticket[10]
+    context['fio_pr'] = confirmed_ticket[11]
+    context['pos'] = confirmed_ticket[12]
+    filename = (
+        "Подтверждение участия в проекте "
+        + str(context['passportName']).replace('"', "")
+        + " от "
+        + context["fio"]
+        + "_"
+        + date.today().strftime("%d_%B_%Y")
+        + ".doc"
+    )
+    file_path = path.join("documents", filename)
+    doc = DocxTemplate("./documents/confirmed_template.docx")
 
     doc.render(context)
 
