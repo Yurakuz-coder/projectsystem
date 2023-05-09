@@ -100,3 +100,26 @@ function checkStadia(id) {
     }
   });
 }
+
+function uploadResultFile(id) {
+  const formData = new FormData();
+  const button = document.getElementById("button-upload-result" + id);
+  const file = document.getElementById("input-upload-result" + id).files[0];
+  if (!file) return;
+  formData.append("file", file);
+  formData.append("passport_id", id);
+  $.ajax({
+    type: "POST",
+    processData: false,
+    contentType: false,
+    data: formData,
+    url: "/uploadProjectResult",
+    success: function (data) {
+      const table = document.getElementById("collapseTableBody");
+      table.innerHTML = data;
+    },
+    error: function () {
+      button.innerHTML = "Файл не загружен!";
+    },
+  });
+}

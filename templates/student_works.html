@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% set active_page = "works" %}
+{% block content %}
+<h1>Мои работы</h1>
+<br>
+<div class="btn-group" role="group">
+    <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+        aria-controls="collapseFilters">
+        Добавить фильтры
+    </a>
+</div>
+<br>
+<div class="collapse" id="collapseFilters">
+    <br>
+    <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
+        aria-label="projectFilter" aria-describedby="basic-addon1">
+    <br>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyProjectFilters()">
+            Применить фильтры
+        </button>
+        <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropProjectFilter()">
+            Сбросить фильтр
+        </button>
+    </div>
+</div>
+<br>
+<div class="accordion" id="projectsAccordion">
+    {% include "resultAccordionWorks.html" %}
+</div>
+<br>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalModify">
+        Изменить статус работы
+    </button>
+</div>
+
+<div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalModifyLabel">Подать заявку на участие в проекте</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="modifyWork" method="post">
+                    <div class="form-group">
+                        <label for="work" class="form-select-label">Выберите проект</label>
+                        <select class="form-select" name="work" {% if works==[] %} disabled {% endif %}>
+                            {% for el in works %}
+                            <option value="{{ el.StudentsInProjects.IDstudentspr }}"> {{
+                                el.PassportOfProjects.passportName }} ({{ el.RolesOfProjects.rolesRole }})
+                            </option>
+                            {% endfor %}
+                            {% if works == [] %}
+                            <option value="">Проекты не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="stage" class="form-select-label">Выберите роль</label>
+                        <select class="form-select" name="stage" id="stage" {% if stage==[] %} disabled {% endif %}>
+                            {% for el in stage %}
+                            <option value="{{ el.StadiaOfWorks.IDstadiaofworks }}"> {{
+                                el.StadiaOfWorks.stadiaofworksName }}
+                            </option>
+                            {% endfor %}
+                            {% if stage == [] %}
+                            <option value="">Стадии не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary" {% if works==[] %} disabled {% endif
+                            %}>Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

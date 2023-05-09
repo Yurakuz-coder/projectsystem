@@ -36,9 +36,25 @@
                     <h5 class="mb-1">Уровень компетенций</h5>{{ el.Levels.levelsName }}
                 </li>
                 <li class="list-group-item">
-                    <h5 class="mb-1">Подтвержденная заявка на участие в проекте</h5> <a
-                        href="/getConfirmation?idConfirmation={{ el.Confirmation.IDconfirmation }}" role="button"
-                        class="btn btn-primary">Скачать</a>
+                    <h5 class="mb-1">Подтвержденная заявка на участие в проекте</h5>
+                    <div class="btn-toolbar justify-content-between" role="toolbar">
+                        <a href="/getConfirmation?idConfirmation={{ el.Confirmation.IDconfirmation }}" role="button"
+                            class="btn btn-primary">Скачать электронную версию</a>
+                        <a href="/getConfirmationSigned?idConfirmation={{ el.Confirmation.IDconfirmation }}" role="button"
+                            class="btn btn-primary {{ 'disabled' if not el.Confirmation.confirmationSigned else '' }}">Скачать подписанную версию</a>
+                        <button {% if not el.Confirmation.confirmationSigned %} disabled {% endif %}
+                            class="btn btn-danger btn" value="{{ el.Confirmation.IDconfirmation }}"
+                            onclick="deleteConfirmation(this.value)">Удалить</button>
+                        <div class="input-group mb-0">
+                            <button class="btn btn-outline-secondary" value="{{ el.Confirmation.IDconfirmation }}"
+                                type="button" onclick="uploadConfirmation(this.value)"
+                                id="button-upload{{ el.Confirmation.IDconfirmation }}">Загрузить</button>
+                            <input type="file" accept=".doc,.docx,.pdf" class="form-control"
+                                id="input-upload{{ el.Confirmation.IDconfirmation }}"
+                                aria-describedby="button-upload{{ el.Confirmation.IDconfirmation }}"
+                                aria-label="Upload">
+                        </div>
+                    </div>
                 </li>
             </ul>
         </div>

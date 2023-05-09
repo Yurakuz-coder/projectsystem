@@ -29,7 +29,8 @@ from models.models import (
     StudentsInProjects,
     Applications,
     Confirmation,
-    Levels
+    Levels,
+    StadiaOfWorks
 )
 from models.database import get_session, get_select
 
@@ -2787,19 +2788,21 @@ def student_participation_ticket():
         idstudent = session["user"][1]
         select_projects = (
             select(Projects, PassportOfProjects, StadiaOfProjects)
-            .distinct()
+            .join_from(Projects, Applications, Projects.IDprojects == Applications.IDprojects)
+            .join_from(Applications, SpecializationInProjects, Applications.IDroles == SpecializationInProjects.IDroles)
+            .join_from(SpecializationInProjects, Groups, SpecializationInProjects.IDspec == Groups.IDspec)
             .join(PassportOfProjects)
             .join(StadiaOfProjects)
-            .join(RolesOfProjects)
-            .join(SpecializationInProjects)
-            .join_from(
-                SpecializationInProjects,
-                Groups,
-                SpecializationInProjects.IDspec == Groups.IDspec,
-                isouter=True,
-            )
+            .join(RolesOfProjects, onclause=RolesOfProjects.IDroles == Applications.IDroles)
+            # .join_from(
+            #     SpecializationInProjects,
+            #     Groups,
+            #     SpecializationInProjects.IDspec == Groups.IDspec,
+            #     isouter=True,
+            # )
             .filter(Groups.IDgroups == idgroup)
             .filter(Projects.IDstadiaofpr == 3)
+            .filter(Applications.IDstudents != idstudent)
             .order_by(PassportOfProjects.passportName)
         )
         projects = db_sessions.execute(select_projects).all()
@@ -2814,7 +2817,6 @@ def student_participation_ticket():
                 )
                 .join(Applications)
                 .filter(RolesOfProjects.IDpassport == first_project.PassportOfProjects.IDpassport)
-                .filter(Applications.IDroles != RolesOfProjects.IDroles)
                 .filter(Applications.IDstudents != idstudent)
             )
             roles = db_sessions.execute(select_roles).all()
@@ -2862,7 +2864,6 @@ def student_get_roles():
         .join(Applications)
         .filter(RolesOfProjects.IDpassport == idpassport)
         .filter(Applications.IDroles != RolesOfProjects.IDroles)
-        .filter(Applications.IDstudents != idstudent)
     )
     roles = db_sessions.execute(select_roles).all()
     return jsonify([dict(row._mapping) for row in roles]), 200
@@ -2905,11 +2906,11 @@ def student_tickets():
             .join_from(
                 Applications,
                 RolesOfProjects,
-                RolesOfProjects.IDroles == Applications.IDroles,
-                isouter=True,
+                RolesOfProjects.IDroles == Applications.IDroles
             )
+            .join(Projects)
             .join(PassportOfProjects)
-            .join(Confirmation)
+            .join(Confirmation, isouter=True)
             .filter(Applications.IDstudents == idstudent)
             .order_by(PassportOfProjects.passportName)
         )
@@ -3010,7 +3011,7 @@ def sheff_proj_tickets():
             .filter(Applications.applicationApproved == 0)
             .order_by(PassportOfProjects.passportName)
         )
-        select_projects = (select(Projects, PassportOfProjects).join_from(Projects,
+        select_projects = (select(Projects, PassportOfProjects).distinct().join_from(Projects,
                 PassportOfProjects,
                 PassportOfProjects.IDpassport == Projects.IDpassport,
                 isouter=True).join(Applications).filter(PassportOfProjects.IDsheffpr == idsheff_proj)
@@ -3084,9 +3085,19 @@ def sheff_proj_approve_ticket():
         confirmationPeriod=period,
         IDlevels=lvl_comp,
         confirmationPattern='',
-        confirmationFull=''                   
+        confirmationFull=''               
         )
     db_session.add(confirm)
+    db_session.flush()
+
+    add_student_proj = StudentsInProjects(
+        IDstudents=record.IDstudents,
+        IDprojects=record.IDprojects,
+        IDroles=record.IDroles,
+        IDconfirmation=confirm.IDconfirmation,
+        IDstadiaofworks=1
+    )
+    db_session.add(add_student_proj)
     db_session.commit()
     return redirect('/sheffproj/tickets')
 
@@ -3228,3 +3239,396 @@ group by 1,2,3,4,5,6,7,8,10,11, 12, 13'''), {'idconf': idconfirmation }).first()
     doc.save(file_path)
 
     return send_file(file_path, mimetype="multipart/form-data", as_attachment=True)
+
+@pages.route('/student/works', methods=['GET', 'POST'])
+def student_works():
+    if request.method == 'GET':
+        idstudent = session["user"][1]
+        db_session = get_session()
+        select = get_select()
+        select_projects = select(Projects, PassportOfProjects).join(StudentsInProjects).join(PassportOfProjects).filter(StudentsInProjects.IDstudents == idstudent)
+        projects = db_session.execute(select_projects).all()
+        select_works = (select(StudentsInProjects, Students, StadiaOfWorks, RolesOfProjects, Projects, PassportOfProjects)
+            .join_from(StudentsInProjects, Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
+            .join(PassportOfProjects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(Students)
+            .join(StadiaOfWorks)
+            .join(RolesOfProjects, RolesOfProjects.IDroles == StudentsInProjects.IDroles)
+            .filter(StudentsInProjects.IDstudents == idstudent)
+        )
+        works = db_session.execute(select_works).all()
+        stage = db_session.execute(select(StadiaOfWorks).filter(StadiaOfWorks.IDstadiaofworks > 1)).all()
+
+        return render_template('student_works.html', projects=projects, works=works, stage=stage)
+    if request.method == 'POST':
+        idstudent = session["user"][1]
+        db_session = get_session()
+        select = get_select()
+        select_projects = select(Projects, PassportOfProjects).join(StudentsInProjects).join(PassportOfProjects).filter(StudentsInProjects.IDstudents == idstudent)
+        projects = db_session.execute(select_projects).all()
+        select_works = (select(StudentsInProjects, Students, StadiaOfWorks, RolesOfProjects, Projects, PassportOfProjects)
+            .join_from(StudentsInProjects, Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
+            .join(PassportOfProjects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(Students)
+            .join(StadiaOfWorks)
+            .join(RolesOfProjects, RolesOfProjects.IDroles == StudentsInProjects.IDroles)
+            .filter(StudentsInProjects.IDstudents == idstudent)
+        )
+        works = db_session.execute(select_works).all()
+        return render_template('resultAccordionWorks.html', projects=projects, works=works)
+
+@pages.route(
+    "/student/mailAnotherStudents", methods=["GET", "POST"]
+)
+def student_mail_students():
+    if request.method == "GET":
+        db_sessions = get_session()
+        idstudent = session['user'][1]
+        
+        students = db_sessions.execute(text("""SELECT distinct CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
+		s3.studentsEmail 
+FROM	studentsinprojects s
+		join projects p on ( p.IDprojects  = s.IDprojects )
+		join studentsinprojects s2 on (s2.IDprojects = p.IDprojects)
+		join students s3 on ( s3.IDstudents = s2.IDstudents  )
+WHERE 	s.IDstudents = :idstudents
+		and s.IDstudents != s2.IDstudents"""), {'idstudents': idstudent}).all()
+
+        return render_template("students_mail_student.html", people=students)
+    
+@pages.route(
+    "/student/mailIniciator", methods=["GET", "POST"]
+)
+def student_mail_iniciator():
+    if request.method == "GET":
+        db_sessions = get_session()
+        idstudent = session['user'][1]
+        
+        students = db_sessions.execute(text("""SELECT distinct
+	CONCAT_WS(' ', i.initprFirstname, i.initprName, i.initprFathername), 
+	i.initprEmail 
+FROM
+	studentsinprojects s
+join projects p on
+	( p.IDprojects = s.IDprojects )
+join passportofprojects p2 on
+	( p2.IDpassport = p.IDpassport )
+join initiatorsofprojects i on
+	(i.IDinitpr = p2.IDinitpr)
+WHERE	s.IDstudents = :idstudent"""), {'idstudent': idstudent}).all()
+
+        return render_template("students_mail_iniciator.html", people=students)
+    
+@pages.route(
+    "/student/mailSheffPr", methods=["GET", "POST"]
+)
+def student_mail_sheff_proj():
+    if request.method == "GET":
+        db_sessions = get_session()
+        idstudent = session['user'][1]
+        
+        students = db_sessions.execute(text("""SELECT distinct
+	CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername), 
+	s2.sheffprEmail
+FROM
+	studentsinprojects s
+join projects p on
+	( p.IDprojects = s.IDprojects )
+join passportofprojects p2 on
+	( p2.IDpassport = p.IDpassport )
+join sheffofprojects s2  on
+	( s2.IDsheffpr = p2.IDsheffpr )
+WHERE	s.IDstudents = :idstudent"""), {'idstudent': idstudent}).all()
+
+        return render_template("students_mail_sheffpr.html", people=students)
+    
+@pages.route(
+    "/sheffproj/mailAnotherStudents", methods=["GET", "POST"]
+)
+def sheffproj_mail_students():
+    if request.method == "GET":
+        db_sessions = get_session()
+        idsheff_proj = session['user'][0]
+        
+        students = db_sessions.execute(text("""SELECT distinct CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
+		s3.studentsEmail 
+FROM	studentsinprojects s
+		join projects p on ( p.IDprojects  = s.IDprojects )
+        join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
+		join students s3 on ( s3.IDstudents = s.IDstudents  )
+WHERE 	p2.IDsheffpr = :idsheffproj"""), {'idsheffproj': idsheff_proj}).all()
+
+        return render_template("students_mail_student.html", people=students)
+    
+@pages.route(
+    "/sheffproj/mailIniciator", methods=["GET", "POST"]
+)
+def sheffproj_mail_iniciator():
+    if request.method == "GET":
+        db_sessions = get_session()
+        idsheff_proj = session['user'][0]
+        
+        iniciators = db_sessions.execute(text("""SELECT distinct
+	CONCAT_WS(' ', i.initprFirstname, i.initprName, i.initprFathername), 
+	i.initprEmail 
+FROM
+	projects p
+join passportofprojects p2 on
+	( p2.IDpassport = p.IDpassport )
+join initiatorsofprojects i on
+	(i.IDinitpr = p2.IDinitpr)
+WHERE	p2.IDsheffpr = :idsheffproj"""), {'idsheffproj': idsheff_proj}).all()
+
+        return render_template("students_mail_iniciator.html", people=iniciators)
+    
+@pages.route(
+    "/iniciators/mailAnotherStudents", methods=["GET", "POST"]
+)
+def iniciator_mail_students():
+    if request.method == "GET":
+        db_sessions = get_session()
+        idiniciator = session['user'][1]
+        
+        students = db_sessions.execute(text("""SELECT distinct CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
+		s3.studentsEmail 
+FROM	studentsinprojects s
+		join projects p on ( p.IDprojects  = s.IDprojects )
+        join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
+		join students s3 on ( s3.IDstudents = s.IDstudents  )
+WHERE 	p2.IDinitpr = :idiniciator"""), {'idiniciator': idiniciator}).all()
+
+        return render_template("students_mail_student.html", people=students)
+    
+@pages.route(
+    "/iniciators/mailSheffPr", methods=["GET", "POST"]
+)
+def iniciator_mail_sheff_proj():
+    if request.method == "GET":
+        db_sessions = get_session()
+        idiniciator = session['user'][1]
+        
+        students = db_sessions.execute(text("""SELECT distinct
+	CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername), 
+	s2.sheffprEmail
+FROM
+	studentsinprojects s
+join projects p on
+	( p.IDprojects = s.IDprojects )
+join passportofprojects p2 on
+	( p2.IDpassport = p.IDpassport )
+join sheffofprojects s2  on
+	( s2.IDsheffpr = p2.IDsheffpr )
+WHERE	p2.IDinitpr = :idiniciator"""), {'idiniciator': idiniciator}).all()
+
+        return render_template("students_mail_sheffpr.html", people=students)
+
+@pages.route(
+    "/shefforg/mailAnotherStudents", methods=["GET", "POST"]
+)
+def shefforg_mail_students():
+    if request.method == "GET":
+        db_sessions = get_session()
+        idsheff_org = session['user'][1]
+        
+        students = db_sessions.execute(text("""SELECT distinct CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
+		s3.studentsEmail 
+FROM	studentsinprojects s
+		join projects p on ( p.IDprojects  = s.IDprojects )
+        join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
+        join initiatorsofprojects i on ( i.IDinitpr = p2.IDinitpr )
+        join organizations o on ( o.IDorg = i.IDorg )
+		join students s3 on ( s3.IDstudents = s.IDstudents  )
+WHERE 	o.IDshefforg = :idsheff_org"""), {'idsheff_org': idsheff_org}).all()
+
+        return render_template("students_mail_student.html", people=students)
+    
+@pages.route(
+    "/shefforg/mailSheffPr", methods=["GET", "POST"]
+)
+def shefforg_mail_sheff_proj():
+    if request.method == "GET":
+        db_sessions = get_session()
+        idsheff_org = session['user'][1]
+        
+        students = db_sessions.execute(text("""SELECT distinct
+	CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername), 
+	s2.sheffprEmail
+FROM
+	studentsinprojects s
+join projects p on
+	( p.IDprojects = s.IDprojects )
+join passportofprojects p2 on
+	( p2.IDpassport = p.IDpassport )
+join initiatorsofprojects i on ( i.IDinitpr = p2.IDinitpr )
+join organizations o on ( o.IDorg = i.IDorg )
+join sheffofprojects s2  on
+	( s2.IDsheffpr = p2.IDsheffpr )
+WHERE	o.IDshefforg = :idsheff_org"""), {'idsheff_org': idsheff_org}).all()
+
+        return render_template("students_mail_sheffpr.html", people=students)
+
+
+@pages.route("/uploadWorkStudent", methods=["POST"])
+def upload_work_student():
+    upload_file = request.files.get("file")
+    id_work = request.form.get("work_id")
+    if not upload_file or not id_work:
+        return
+
+    file_path = path.join("documents", upload_file.filename)
+
+    db_sessions = get_session()
+    contract = db_sessions.query(StudentsInProjects).filter(StudentsInProjects.IDstudentspr == id_work).first()
+    contract.studentsinprFull = file_path
+    db_sessions.commit()
+
+    upload_file.save(file_path)
+
+    return redirect("/student/works", code=307)
+
+@pages.route("/deleteWorkStudent", methods=["POST"])
+def delete_work_student():
+    id_work = request.form.get("idWork")
+    if not id_work:
+        return
+
+    db_sessions = get_session()
+    contract = db_sessions.query(StudentsInProjects).filter(StudentsInProjects.IDstudentspr == id_work).first()
+    contract.studentsinprFull = None
+    db_sessions.commit()
+    return redirect("/student/works", code=307)
+
+@pages.route("/workResult", methods=["GET"])
+def get_work_student():
+    args = request.args
+    idwork = args.get("idwork")
+
+    db_sessions = get_session()
+    work = db_sessions.query(StudentsInProjects).filter(StudentsInProjects.IDstudentspr == idwork).first()
+
+    if not work.studentsinprFull:
+        return "", 404
+
+    return send_file(work.studentsinprFull, mimetype="multipart/form-data", as_attachment=True)
+
+@pages.route('/student/modifyWork', methods=['POST'])
+def student_modify_work():
+    idwork = request.form['work']
+    idstadia = request.form['stage']
+    db_session = get_session()
+    work = db_session.query(StudentsInProjects).filter(StudentsInProjects.IDstudentspr == idwork).first()
+    work.IDstadiaofworks = idstadia
+    db_session.commit()
+
+    return redirect('/student/works')
+
+@pages.route('/getConfirmationSigned', methods=['GET'])
+def get_confirmation_signed():
+    args = request.args
+    idConfirmation = args.get("idConfirmation")
+    db_session = get_session()
+    record = db_session.query(Confirmation).filter(Confirmation.IDconfirmation == idConfirmation).first()
+    if not record.confirmationSigned:
+        return '', 404
+    return send_file(record.confirmationSigned, mimetype="multipart/form-data", as_attachment=True)
+
+@pages.route("/uploadConfirmation", methods=["POST"])
+def upload_confirmation_signed():
+    upload_file = request.files.get("file")
+    id_confirmation = request.form.get("confirmation_id")
+    if not upload_file or not id_confirmation:
+        return
+
+    file_path = path.join("documents", upload_file.filename)
+
+    db_sessions = get_session()
+    confirmation = db_sessions.query(Confirmation).filter(Confirmation.IDconfirmation == id_confirmation).first()
+    confirmation.confirmationSigned = file_path
+    db_sessions.commit()
+
+    upload_file.save(file_path)
+
+    return redirect("/sheffproj/approved_tickets", code=307)
+
+@pages.route("/deleteConfirmation", methods=["POST"])
+def delete_confirmation_signed():
+    idconfirmation = request.form.get("idConfirmation")
+    if not idconfirmation:
+        return
+
+    db_sessions = get_session()
+    confirmation = db_sessions.query(Confirmation).filter(Confirmation.IDconfirmation == idconfirmation).first()
+    confirmation.confirmationSigned = None
+    db_sessions.commit()
+    return redirect("/sheffproj/approved_tickets", code=307)
+
+@pages.route('/iniciators/works', methods=['GET', 'POST'])
+def iniciators_works():
+    if request.method == 'GET':
+        idiniciator = session["user"][1]
+        db_session = get_session()
+        select = get_select()
+        select_projects = select(Projects, PassportOfProjects).distinct().join(StudentsInProjects).join(PassportOfProjects).filter(PassportOfProjects.IDinitpr == idiniciator)
+        projects = db_session.execute(select_projects).all()
+        select_works = (select(StudentsInProjects, Students, StadiaOfWorks, RolesOfProjects, Projects, PassportOfProjects)
+            .distinct()
+            .join_from(StudentsInProjects, Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
+            .join(PassportOfProjects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(Students)
+            .join(StadiaOfWorks)
+            .join(RolesOfProjects, RolesOfProjects.IDroles == StudentsInProjects.IDroles)
+            .filter(PassportOfProjects.IDinitpr == idiniciator)
+        )
+        works = db_session.execute(select_works).all()
+
+        return render_template('iniciators_works.html', projects=projects, works=works)
+
+
+@pages.route('/shefforg/works', methods=['GET', 'POST'])
+def sheff_org_works():
+    if request.method == 'GET':
+        idorg = session["user"][0]
+        db_session = get_session()
+        select = get_select()
+        select_projects = select(Projects, PassportOfProjects).distinct().join(PassportOfProjects).join(Initiatorsofprojects).filter(Initiatorsofprojects.IDorg == idorg)
+        projects = db_session.execute(select_projects).all()
+        select_works = (select(StudentsInProjects, Students, StadiaOfWorks, RolesOfProjects, Projects, PassportOfProjects)
+            .distinct()
+            .join_from(StudentsInProjects, Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
+            .join(PassportOfProjects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(Students)
+            .join(StadiaOfWorks)
+            .join(RolesOfProjects, RolesOfProjects.IDroles == StudentsInProjects.IDroles)
+            .join(Initiatorsofprojects).filter(Initiatorsofprojects.IDorg == idorg)
+        )
+        works = db_session.execute(select_works).all()
+
+        return render_template('sheff_org_works.html', projects=projects, works=works)
+
+@pages.route('/getFullProject', methods=['GET'])
+def get_project_full():
+    args = request.args
+    idpassport = args.get("idProject")
+    db_session = get_session()
+    record = db_session.query(Projects).join(PassportOfProjects).filter(PassportOfProjects.IDpassport == idpassport).first()
+    if not record.projectsFull:
+        return '', 404
+    return send_file(record.projectsFull, mimetype="multipart/form-data", as_attachment=True)
+
+@pages.route("/uploadProjectResult", methods=["POST"])
+def upload_project_result():
+    upload_file = request.files.get("file")
+    idpassport = request.form.get("passport_id")
+    if not upload_file or not idpassport:
+        return
+
+    file_path = path.join("documents", upload_file.filename)
+
+    db_session = get_session()
+    record = db_session.query(Projects).join(PassportOfProjects).filter(PassportOfProjects.IDpassport == idpassport).first()
+    record.projectsFull = file_path
+    db_session.commit()
+
+    upload_file.save(file_path)
+
+    return redirect("/sheffproj/projects", code=307)

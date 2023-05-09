@@ -73,13 +73,30 @@
                                 {% if session['url']=='shefforg' %} hidden {% endif %}>Скачать
                                 электронную версию</a>
                         </div>
+
+                        <div class="d-grid gap-2 col-3">
+                            <a href="/getFullProject?idProject={{ el.Projects.IDprojects }}" role="button"
+                                class="btn btn-primary {{ 'h-100' if session['url']=='shefforg' or
+                                session['url']=='student' or session['url']=='sheffproj' else 'h-50' }} {{ 'disabled' if not el.Projects.projectsFull else '' }} d-inline-block"
+                                {% if session['url']!='shefforg' %} hidden {% endif %}>Скачать результат проекта</a>
+                            <input type="file" class="form-control"
+                                id="input-upload-result{{ el.PassportOfProjects.IDpassport }}"
+                                aria-describedby="button-upload-result{{ el.PassportOfProjects.IDpassport }}"
+                                aria-label="Upload" {% if session['url']!='sheffproj' %} hidden {% endif %} {% if
+                                el.StadiaOfProjects.IDstadiaofpr < 2 %} disabled {% endif %}>
+                            <button class="btn btn-outline-secondary" value="{{ el.Projects.IDprojects }}"
+                                type="button" onclick="uploadResultFile(this.value)"
+                                id="button-upload-result{{ el.PassportOfProjects.IDpassport }}" {% if
+                                session['url']!='sheffproj' %} hidden {% endif %} {% if el.StadiaOfProjects.IDstadiaofpr
+                                < 2 %} disabled {% endif %}>Загрузить результат проекта</button>
+                        </div>
                         <div class="d-grid gap-2 col-3" role="group">
                             <a href="/getPassportSigned?idPassport={{ el.PassportOfProjects.IDpassport }}" role="button"
-                                class="btn btn-primary btn {{ 'disabled' if el.PassportOfProjects.passportSigned == '' else '' }}">Скачать
+                                class="btn btn-primary btn {{ 'disabled' if not el.PassportOfProjects.passportSigned else '' }}">Скачать
                                 подписанную версию</a>
-                            <button {% if session['url']=='shefforg' %} hidden {% endif %} {% if
-                                el.PassportOfProjects.passportSigned=='' %} disabled {% endif %}
-                                class="btn btn-danger btn" value="{{ el.PassportOfProjects.IDpassport }}"
+                            <button {% if session['url']=='shefforg' %} hidden {% endif %} {% if not
+                                el.PassportOfProjects.passportSigned %} disabled {% endif %} class="btn btn-danger btn"
+                                value="{{ el.PassportOfProjects.IDpassport }}"
                                 onclick="deletePassportFile(this.value)">Удалить подписанную версию</button>
                         </div>
 
@@ -94,7 +111,6 @@
                                 id="button-upload{{ el.PassportOfProjects.IDpassport }}" {% if
                                 session['url']=='shefforg' %} hidden {% endif %} {% if el.StadiaOfProjects.IDstadiaofpr
                                 < 2 %} disabled {% endif %}>Загрузить</button>
-
                         </div>
                     </div>
                 </li>
