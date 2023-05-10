@@ -18,6 +18,6 @@ def init_db():
 
 def get_session():
     return db_session
-
+ 
 def get_select():
     return Select
