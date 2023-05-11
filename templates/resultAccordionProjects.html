@@ -15,8 +15,7 @@
                     <h5 class="mb-1">Название</h5>{{ el.PassportOfProjects.passportName }}
                 </li>
                 <li class="list-group-item">
-                    <h5 class="mb-1">Дата начала</h5>{{ el.PassportOfProjects.passportDate if
-                    el.PassportOfProjects.passportDate else "Не указана дата" }}
+                    <h5 class="mb-1">Инициатор проекта</h5>{{ el.Initiatorsofprojects.FullName }}
                 </li>
                 <li class="list-group-item">
                     <h5 class="mb-1">Описание проблемы</h5>{{ el.PassportOfProjects.passportProblem }}
@@ -65,6 +64,29 @@
                     el.PassportOfProjects.passportFormresults or 'Не заполнено' }}
                 </li>
                 <li class="list-group-item" {% if session['url']=='student' %} hidden {% endif %}>
+                    <h5 class="mb-1">Результаты проекта</h5>
+                    <div class="btn-toolbar justify-content-between" role="toolbar">
+                        <div class="d-grid gap-2 col-4">
+                            <a href="/getFullProject?idProject={{ el.Projects.IDprojects }}" role="button"
+                                class="btn btn-primary h-50 {{ 'disabled' if not el.Projects.projectsFull else '' }} d-inline-block"
+                                {% if session['url']!='shefforg' %} hidden {% endif %}>Скачать результат проекта</a>
+                        </div>
+                        <div class="d-grid gap-2 col-4">
+                            <input type="file" class="form-control"
+                                id="input-upload-result{{ el.PassportOfProjects.IDpassport }}"
+                                aria-describedby="button-upload-result{{ el.PassportOfProjects.IDpassport }}"
+                                aria-label="Upload" {% if session['url']!='sheffproj' %} hidden {% endif %} {% if
+                                el.StadiaOfProjects.IDstadiaofpr < 2 %} disabled {% endif %}>
+                            <button class="btn btn-outline-secondary" value="{{ el.Projects.IDprojects }}" type="button"
+                                onclick="uploadResultFile(this.value)"
+                                id="button-upload-result{{ el.PassportOfProjects.IDpassport }}" {% if
+                                session['url']!='sheffproj' %} hidden {% endif %} {% if el.StadiaOfProjects.IDstadiaofpr
+                                < 2 %} disabled {% endif %}>Загрузить результат проекта</button>
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item" {% if session['url']=='student' %} hidden {% endif %}>
+                    <h5 class="mb-1">Документы для проекта</h5>
                     <div class="btn-toolbar justify-content-between" role="toolbar">
                         <div class="d-grid gap-2 col-3">
                             <a href="/getPassport?idPassport={{ el.PassportOfProjects.IDpassport }}" role="button"
@@ -72,23 +94,6 @@
                                 session['url']=='student' else 'h-50' }} {{ 'disabled' if el.StadiaOfProjects.IDstadiaofpr < 2 else '' }} d-inline-block"
                                 {% if session['url']=='shefforg' %} hidden {% endif %}>Скачать
                                 электронную версию</a>
-                        </div>
-
-                        <div class="d-grid gap-2 col-3">
-                            <a href="/getFullProject?idProject={{ el.Projects.IDprojects }}" role="button"
-                                class="btn btn-primary {{ 'h-100' if session['url']=='shefforg' or
-                                session['url']=='student' or session['url']=='sheffproj' else 'h-50' }} {{ 'disabled' if not el.Projects.projectsFull else '' }} d-inline-block"
-                                {% if session['url']!='shefforg' %} hidden {% endif %}>Скачать результат проекта</a>
-                            <input type="file" class="form-control"
-                                id="input-upload-result{{ el.PassportOfProjects.IDpassport }}"
-                                aria-describedby="button-upload-result{{ el.PassportOfProjects.IDpassport }}"
-                                aria-label="Upload" {% if session['url']!='sheffproj' %} hidden {% endif %} {% if
-                                el.StadiaOfProjects.IDstadiaofpr < 2 %} disabled {% endif %}>
-                            <button class="btn btn-outline-secondary" value="{{ el.Projects.IDprojects }}"
-                                type="button" onclick="uploadResultFile(this.value)"
-                                id="button-upload-result{{ el.PassportOfProjects.IDpassport }}" {% if
-                                session['url']!='sheffproj' %} hidden {% endif %} {% if el.StadiaOfProjects.IDstadiaofpr
-                                < 2 %} disabled {% endif %}>Загрузить результат проекта</button>
                         </div>
                         <div class="d-grid gap-2 col-3" role="group">
                             <a href="/getPassportSigned?idPassport={{ el.PassportOfProjects.IDpassport }}" role="button"

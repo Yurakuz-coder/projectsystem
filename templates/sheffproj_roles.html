@@ -78,7 +78,7 @@
             <textarea class="form-control" id="function" name="function" rows="3" required></textarea>
           </div>
           <div class="form-group">
-            <label for="function" class="form-control-label">Опоп</label>
+            <label for="function" class="form-control-label">ОПОП</label>
             {% for cs in check_spec %}
             <div class="form-check">
               <input class="form-check-input" name="spec" type="checkbox" value="{{ cs.Specializations.IDspec }}"
@@ -171,7 +171,7 @@
             <textarea class="form-control" id="function" name="function" rows="3"></textarea>
           </div>
           <div class="form-group">
-            <label for="function" class="form-control-label" {% if check_spec==[] %} disabled {% endif %}>Опоп</label>
+            <label for="function" class="form-control-label" {% if check_spec==[] %} disabled {% endif %}>ОПОП</label>
             {% for cs in check_spec %}
             <div class="form-check">
               <input class="form-check-input" name="spec" type="checkbox" value="{{ cs.Specializations.IDspec }}"

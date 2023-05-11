@@ -10,8 +10,8 @@
     <td><a href="/getApplication?idApplication={{ el.Applications.IDapplications }}" role="button"
             class="btn btn-primary">Скачать</button></td>
     <td class="col-md-4">
-        <a href="/getConfirmation?idConfirmation={{ el.Confirmation.IDconfirmation }}" role="button"
-            class="btn btn-primary {{ 'disabled' if el.Applications.applicationApproved != 1 else '' }}">Скачать</a>
+        <a href="/getConfirmationSigned?idConfirmation={{ el.Confirmation.IDconfirmation }}" role="button"
+            class="btn btn-primary {{ 'disabled' if not el.Applications.applicationSigned else '' }}">Скачать</a>
     </td>
 </tr>
 {% endfor %}

@@ -7,12 +7,28 @@ function applySpec() {
   getDataComp(spec);
 }
 
-function getDataComp(spec) {
+function applyCompFilters() {
+  const shifrFilter = document.getElementById("shifr").value;
+  const fullFilter = document.getElementById("full").value;
+  const spec = document.getElementById("spec").value;
+
+  if (!shifrFilter && !fullFilter && !spec) {
+    return;
+  }
+  getDataComp(spec, shifrFilter, fullFilter);
+}
+
+function dropCompFilters() {
+  const spec = document.getElementById("spec").value;
+  getDataComp(spec);
+}
+
+function getDataComp(spec, shifrFilter, fullFilter) {
   $.ajax({
     type: "POST",
     url: "/admin/competitions",
     dataSrc: "data",
-    data: { spec },
+    data: { spec, shifrFilter, fullFilter },
     success: function (data) {
       const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;

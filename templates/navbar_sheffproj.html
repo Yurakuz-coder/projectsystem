@@ -8,7 +8,7 @@
       </h5>
       <h3 align="center"></h3>
       <ul class="nav flex-column">
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="{{ 'nav-link active' if active_page == 'assignment' else 'nav-link' }}" aria-current="page"
             href="/{{ session['url'] }}/assignment">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -20,7 +20,7 @@
             </svg>
             Назначение руководителя проекта
           </a>
-        </li>
+        </li> -->
         <li class="nav-item">
           <a class="{{ 'nav-link active' if active_page == 'projects' else 'nav-link' }}" aria-current="page"
             href="/{{ session['url'] }}/projects">
@@ -93,7 +93,8 @@
             <li><a class="dropdown-item" href="/{{ session['url'] }}/mailAnotherStudents">Другим студентам в
                 проекте</a></li>
             <li><a href="/{{ session['url'] }}/mailIniciator" class="dropdown-item">Инициатору</a></li>
-            <li><a href="/{{ session['url'] }}/mailadmin" class="dropdown-item">Связаться с администратором системы</a></li>
+            <li><a href="/{{ session['url'] }}/mailadmin" class="dropdown-item">Связаться с администратором системы</a>
+            </li>
           </ul>
         </li>
         <div class="d-flex justify-content-center">
