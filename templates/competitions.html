@@ -233,4 +233,11 @@
     </div>
   </div>
 </div>
+<div class="alert alert-warning align-items-center {{ 'collapse' if error==0 else '' }}" role="alert" id="alert-warn">
+  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:">
+  </svg>
+  <div>
+    Невозможно удалить компетенцию, так как она завязана на проектах студентов
+  </div>
+</div>
 {% endblock content %}

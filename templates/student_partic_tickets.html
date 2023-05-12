@@ -71,7 +71,8 @@
                     </div>
                     <div class="form-group">
                         <label for="courseYear" class="form-select-label">Введите курс обучения</label>
-                        <textarea class="form-control" rows="1" id="courseYear" name="courseYear" required></textarea>
+                        <textarea class="form-control" rows="1" id="courseYear" name="courseYear" disabled
+                            required>{{ session["user"][2] }}</textarea>
                     </div>
                     <div class="form-group">
                         <label for="reason" class="form-select-label">Почему вы решили принять участие в проекте</label>

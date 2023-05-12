@@ -1,11 +1,12 @@
 from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 from os import path, remove
 import hashlib
 import locale
 import csv
 import re
 from docxtpl import DocxTemplate
-from flask import Blueprint, render_template, request, redirect, session, send_file, jsonify
+from flask import Blueprint, render_template, request, redirect, session, send_file, jsonify, url_for
 from sqlalchemy import text
 from pymorphy2 import MorphAnalyzer
 from models.models import (
@@ -161,7 +162,8 @@ def index():
         session["pos"] = group.groupsName
         session["firstNav"] = "Панель студента"
         session["email"] = data_workers.studentsEmail
-        session["user"] = [group.IDgroups, data_workers.IDstudents]
+        cur_date = datetime.now() + relativedelta(months=7)
+        session["user"] = [group.IDgroups, data_workers.IDstudents, cur_date.year - group.groupsYear]
         return redirect("/student/participation_ticket")
 
 
@@ -1204,9 +1206,9 @@ def insert_csv_stud():
     finally:
         remove(file_path)
 
-
-@pages.route("/admin/competitions", methods=["GET", "POST"])  # Компетенции учебных планов
-def get_competitions():
+@pages.route("/admin/competitions/", defaults={'error': 0}, methods=["GET", "POST"], )  # Компетенции учебных планов
+@pages.route("/admin/competitions/<error>", methods=["GET", "POST"], )  # Компетенции учебных планов
+def get_competitions(error):
     if request.method == "GET":
         select = get_select()
         db_sessions = get_session()
@@ -1226,7 +1228,7 @@ def get_competitions():
             .order_by(Competensions.competensionsShifr)
         )
         competitions = db_sessions.execute(select_competitions).all()
-        return render_template("competitions.html", spec=spec, competitions=competitions)
+        return render_template("competitions.html", spec=spec, competitions=competitions, error=error)
     if request.method == "POST":
         spec = int(request.form["spec"])
         shifr = request.form.get('shifrFilter')
@@ -1251,7 +1253,7 @@ def get_competitions():
         return render_template("resultTableCompetitions.html", competitions=competitions)
 
 
-@pages.route("/admin/addCompetition", methods=["POST"])  # Добавить компетенцию учебного плана
+@pages.route("/admin/competitions/addCompetition", methods=["POST"])  # Добавить компетенцию учебного плана
 def addcompetitions():
     db_sessions = get_session()
     id_spec = int(request.form["specialization"])
@@ -1267,7 +1269,7 @@ def addcompetitions():
     return redirect("/admin/competitions")
 
 
-@pages.route("/admin/modifyCompetition", methods=["POST"])
+@pages.route("/admin/competitions/modifyCompetition", methods=["POST"])
 def modify_competition():
     cod = str(request.form["competensionsShifr"])
     full = str(request.form["competensionsFull"])
@@ -1282,13 +1284,16 @@ def modify_competition():
     return redirect("/admin/competitions")
 
 
-@pages.route("/admin/deleteCompetition", methods=["POST"])
+@pages.route("/admin/competitions/deleteCompetition", methods=["POST"])
 def delete_competition():
-    id_comp = int(request.form["competetion"])
-    db_sessions = get_session()
-    db_sessions.query(Competensions).filter(Competensions.IDcompetensions == id_comp).delete()
-    db_sessions.commit()
-    return redirect("/admin/competitions")
+    try:
+        id_comp = int(request.form["competetion"])
+        db_sessions = get_session()
+        db_sessions.query(Competensions).filter(Competensions.IDcompetensions == id_comp).delete()
+        db_sessions.commit()
+        return redirect("/admin/competitions")
+    except:
+        return redirect(url_for('pages.get_competitions', error = 1))
 
 
 @pages.route("/admin/csvComp", methods=["POST"])
@@ -3005,7 +3010,7 @@ def student_add_ticket():
     db_sessions = get_session()
     idproject = request.form["project"]
     idrole = request.form["role"]
-    courseYear = request.form["courseYear"]
+    courseYear = session["user"][2]
     reason = str(request.form["reason"])
     idstudent = session["user"][1]
 
@@ -3054,7 +3059,6 @@ def student_modify_application():
     if request.method == "POST":
         db_sessions = get_session()
         idapplication = request.form["application"]
-        courseYear = request.form["courseYear"]
         purpose = request.form["reason"]
 
         project = (
@@ -3063,8 +3067,6 @@ def student_modify_application():
             .first()
         )
 
-        if int(courseYear):
-            project.applicationsCourse = courseYear
         if str(purpose):
             project.applicationsPurpose = purpose
         db_sessions.commit()
