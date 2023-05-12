@@ -136,7 +136,7 @@ function applySheffprojProjectFilters() {
 }
 
 function dropSheffprojProjectFilter() {
-  getDataSheffprojProject(null, null);
+  getDataSheffprojProject(null, null, null);
 }
 
 function getDataSheffprojProject(projectFilter, orgFilter, fioInitFilter) {
@@ -144,6 +144,38 @@ function getDataSheffprojProject(projectFilter, orgFilter, fioInitFilter) {
   $.ajax({
     type: "POST",
     url: "/" + url + "/projects",
+    dataSrc: "data",
+    data: { projectFilter, orgFilter, fioInitFilter },
+    success: function (data) {
+      const accordion = document.getElementById("projectsAccordion");
+      accordion.innerHTML = data;
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+}
+
+function applyAssignProjectFilters() {
+  const projectFilter = document.getElementById("projectFilter").value;
+  const fioInitFilter = document.getElementById("fioInitFilter").value;
+  const orgFilter = document.getElementById("orgFilter").value;
+
+  if (!projectFilter && !fioInitFilter && !orgFilter) {
+    return;
+  }
+  getDataAssingProject(projectFilter, orgFilter, fioInitFilter);
+}
+
+function dropAssignProjectFilter() {
+  getDataAssignProject(null, null, null);
+}
+
+function getDataAssignProject(projectFilter, orgFilter, fioInitFilter) {
+  const url = window.location.pathname.split('/')[1]
+  $.ajax({
+    type: "POST",
+    url: "/" + url + "/assignment",
     dataSrc: "data",
     data: { projectFilter, orgFilter, fioInitFilter },
     success: function (data) {

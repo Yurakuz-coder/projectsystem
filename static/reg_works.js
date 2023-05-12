@@ -67,3 +67,34 @@ function deleteWork(id) {
     },
   });
 }
+
+function applyInicWorkFilters() {
+  const fioFilter = document.getElementById("fioFilter").value;
+  const projectFilter = document.getElementById("projectFilter").value;
+
+  if (!projectFilter && !fioFilter) {
+    return;
+  }
+  getDataInicWorkProject(projectFilter, fioFilter);
+}
+
+function dropInicWorkFilter() {
+  getDataInicWorkProject(null, null);
+}
+
+function getDataInicWorkProject(projectFilter, fioFilter) {
+  const url = window.location.pathname.split('/')[1]
+  $.ajax({
+    type: "POST",
+    url: "/" + url + "/works",
+    dataSrc: "data",
+    data: { projectFilter, fioFilter },
+    success: function (data) {
+      const accordion = document.getElementById("projectsAccordion");
+      accordion.innerHTML = data;
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+}

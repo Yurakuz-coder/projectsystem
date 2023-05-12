@@ -59,7 +59,8 @@
                         <select class="form-select" aria-label="Default select example" name="application" {% if
                             applications==[] %} disabled {% endif %}>
                             {% for el in tickets %}
-                            <option value="{{ el.Applications.IDapplications }}"> {{ el.PassportOfProjects.passportName
+                            <option value="{{ el.Applications.IDapplications }}"> {{ el.Students.FullName }} {{
+                                el.PassportOfProjects.passportName
                                 }} - {{ el.RolesOfProjects.rolesRole }} ({{ el.RolesOfProjects.rolesFunction }})
                             </option>
                             {% endfor %}
@@ -86,7 +87,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalApproveLabel">Редактировать заявку</h5>
+                <h5 class="modal-title" id="modalApproveLabel">Сформировать подтверждение</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -96,7 +97,8 @@
                         <select class="form-select" aria-label="Default select example" name="application" {% if
                             tickets==[] %} disabled {% endif %}>
                             {% for el in tickets %}
-                            <option value="{{ el.Applications.IDapplications }}"> {{ el.Students.Fullname }} {{ el.PassportOfProjects.passportName
+                            <option value="{{ el.Applications.IDapplications }}"> {{ el.Students.FullName }} {{
+                                el.PassportOfProjects.passportName
                                 }} - {{ el.RolesOfProjects.rolesRole }} ({{ el.RolesOfProjects.rolesFunction }})
                             </option>
                             {% endfor %}
@@ -115,8 +117,8 @@
                     </div>
                     <div class="form-group">
                         <label for="lvl_comp" class="form-select-label">Уровень сформированности компетенции</label>
-                        <select class="form-select" aria-label="Default select example" name="lvl_comp" {% if
-                            levels==[] %} disabled {% endif %} required>
+                        <select class="form-select" aria-label="Default select example" name="lvl_comp" {% if levels==[]
+                            %} disabled {% endif %} required>
                             {% for el in levels %}
                             <option value="{{ el.Levels.IDlevels }}"> {{ el.Levels.levelsName }}
                             </option>
@@ -128,8 +130,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary" {% if tickets==[] or levels==[] %} disabled {% endif
-                            %}>Сохранить</button>
+                        <button type="submit" class="btn btn-primary" {% if tickets==[] or levels==[] %} disabled {%
+                            endif %}>Сохранить</button>
                     </div>
                 </form>
             </div>
@@ -140,7 +142,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalDeclineLabel">Редактировать заявку</h5>
+                <h5 class="modal-title" id="modalDeclineLabel">Отклонить заявку</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -150,7 +152,8 @@
                         <select class="form-select" aria-label="Default select example" name="application" {% if
                             tickets==[] %} disabled {% endif %}>
                             {% for el in tickets %}
-                            <option value="{{ el.Applications.IDapplications }}"> {{ el.Students.Fullname }} {{ el.PassportOfProjects.passportName
+                            <option value="{{ el.Applications.IDapplications }}"> {{ el.Students.FullName }} {{
+                                el.PassportOfProjects.passportName
                                 }} - {{ el.RolesOfProjects.rolesRole }} ({{ el.RolesOfProjects.rolesFunction }})
                             </option>
                             {% endfor %}

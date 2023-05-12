@@ -15,7 +15,13 @@
                     <h5 class="mb-1">Название</h5>{{ el.PassportOfProjects.passportName }}
                 </li>
                 <li class="list-group-item">
-                    <h5 class="mb-1">Инициатор проекта</h5>{{ el.Initiatorsofprojects.FullName }}
+                    <h5 class="mb-1">Инициатор проекта</h5>{{ el.Initiatorsofprojects.FullName }} ({{
+                    el.Initiatorsofprojects.initprPositions }}) - {{ el.Organizations.orgName }}
+                </li>
+                <li class="list-group-item">
+                    <h5 class="mb-1">Руководитель проекта</h5>{% if el.Sheffofprojects.FullName %}{{
+                    el.Sheffofprojects.FullName }} ({{
+                    el.Positions.positionsName }}) {% else %} Руководитель не назначен {% endif %}
                 </li>
                 <li class="list-group-item">
                     <h5 class="mb-1">Описание проблемы</h5>{{ el.PassportOfProjects.passportProblem }}
@@ -63,13 +69,15 @@
                     <h5 class="mb-1">Форма представления результата проекта</h5>{{
                     el.PassportOfProjects.passportFormresults or 'Не заполнено' }}
                 </li>
-                <li class="list-group-item" {% if session['url']=='student' %} hidden {% endif %}>
+                <li class="list-group-item" {% if session['url']=='student' or not el.Sheffofprojects.FullName %} hidden
+                    {% endif %}>
                     <h5 class="mb-1">Результаты проекта</h5>
                     <div class="btn-toolbar justify-content-between" role="toolbar">
                         <div class="d-grid gap-2 col-4">
                             <a href="/getFullProject?idProject={{ el.Projects.IDprojects }}" role="button"
-                                class="btn btn-primary h-50 {{ 'disabled' if not el.Projects.projectsFull else '' }} d-inline-block"
-                                {% if session['url']!='shefforg' %} hidden {% endif %}>Скачать результат проекта</a>
+                                class="btn btn-primary {{ 'h-100' if session['url']=='shefforg' or
+                                session['url']=='admin' or session['url']=='iniciators' else 'h-50' }} {{ 'disabled' if not el.Projects.projectsFull else '' }} d-inline-block" {% if
+                                session['url']!='shefforg' %} hidden {% endif %}>Скачать результат проекта</a>
                         </div>
                         <div class="d-grid gap-2 col-4">
                             <input type="file" class="form-control"
@@ -85,7 +93,8 @@
                         </div>
                     </div>
                 </li>
-                <li class="list-group-item" {% if session['url']=='student' %} hidden {% endif %}>
+                <li class="list-group-item" {% if session['url']=='student' or not el.Sheffofprojects.FullName %} hidden
+                    {% endif %}>
                     <h5 class="mb-1">Документы для проекта</h5>
                     <div class="btn-toolbar justify-content-between" role="toolbar">
                         <div class="d-grid gap-2 col-3">
