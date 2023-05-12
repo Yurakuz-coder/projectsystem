@@ -106,3 +106,37 @@ function getCompetitionsSpec(id, operation) {
     },
   });
 }
+
+function applyRolesFilters() {
+  const projectFilter = document.getElementById("projectFilter").value;
+  const opopFilter = document.getElementById("opopFilter").value;
+  const projectRoleFilter = document.getElementById("projectRoleFilter").value;
+
+  if (!projectFilter && !projectRoleFilter && !opopFilter) {
+    return;
+  }
+  getDataRoles(projectFilter, projectRoleFilter, opopFilter);
+}
+
+function dropRolesFilter() {
+  getDataRoles(null, null, null);
+}
+
+function getDataRoles(
+  projectFilter, projectRoleFilter, opopFilter
+) {
+  const url = window.location.pathname.split("/")[1];
+  $.ajax({
+    type: "POST",
+    url: "/" + url + "/roles",
+    dataSrc: "data",
+    data: { projectFilter, projectRoleFilter, opopFilter },
+    success: function (data) {
+      const accordion = document.getElementById("membersAccordion");
+      accordion.innerHTML = data;
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+}

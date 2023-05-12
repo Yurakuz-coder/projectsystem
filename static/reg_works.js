@@ -98,3 +98,40 @@ function getDataInicWorkProject(projectFilter, fioFilter) {
     },
   });
 }
+
+
+function getRolesProjects(id) {
+  $.ajax({
+    type: "GET",
+    dataSrc: "data",
+    data: { idProject: id },
+    url: "/getRolesProjects",
+    success: function (data) {
+      const select = document.getElementById("idrole");
+      select.innerHTML = "";
+      if (data.length == 0) {
+        select.disabled = true;
+        select.add(
+          new Option(
+            `${data.stadiaofprName}`,
+            ''
+          )
+        )
+      }
+      else {
+        select.disabled = false;
+        data.map(item => {
+          select.add(
+            new Option(
+              `${item.rolesRole} - ${item.rolesFunction}`,
+              item.IDroles
+            )
+          )
+        })
+      }
+    },
+    error: function (data) {
+      console.log(data)
+    }
+  });
+}

@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Роли проектов</h1>
 <br>
-<!-- <div class="btn-group" role="group">
+<div class="btn-group" role="group">
   <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
     aria-controls="collapseFilters">
     Добавить фильтры
@@ -15,18 +15,21 @@
   <input type="text" id="projectRoleFilter" class="form-control" placeholder="Фильтр по ролям"
     aria-label="projectRoleFilter" aria-describedby="basic-addon1">
   <br>
-  <input type="text" id="projectNaprFilter" class="form-control" placeholder="Фильтр по направлениям"
-    aria-label="projectNaprFilter" aria-describedby="basic-addon1">
+  <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
+    aria-label="projectFilter" aria-describedby="basic-addon1">
+  <br>
+  <input type="text" id="opopFilter" class="form-control" placeholder="Фильтр по ОПОП" aria-label="opopFilter"
+    aria-describedby="basic-addon1">
   <br>
   <div class="btn-group" role="group">
-    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyMembersFilters()">
+    <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyRolesFilters()">
       Применить фильтры
     </button>
-    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropMembersFilter()">
+    <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropRolesFilter()">
       Сбросить фильтр
     </button>
   </div>
-</div> -->
+</div>
 <br>
 <div class="accordion" id="membersAccordion">
   {% include "resultAccordionRoles.html" %}
@@ -135,26 +138,27 @@
       <div class="modal-body">
         <form action="modifyRole" method="post">
           <div class="form-group">
+            <div class="form-group">
+              <label for="project" class="form-select-label">Выберите проект</label>
+              <select onchange="getRolesProjects(this.value)" class="form-select" name="project" {% if projects==[] %}
+                disabled {% endif %}>
+                {% for el in projects %}
+                <option value="{{ el[2] }}"> {{ el[1] }}
+                </option>
+                {% endfor %}
+                {% if projects == [] %}
+                <option value="">Проекты не найдены</option>
+                {% endif %}
+              </select>
+            </div>
             <label for="idrole" class="form-select-label">Выберите роль</label>
-            <select class="form-select" aria-label="Default select example" name="idrole" {% if roles==[] %} disabled {%
-              endif %}>
-              {% for el in roles %}
-              <option value="{{ el.RolesOfProjects.IDroles }}"> {{ el.RolesOfProjects.rolesRole }}</option>
+            <select class="form-select" aria-label="Default select example" name="idrole" id="idrole" {% if
+              roles_selected==[] %} disabled {% endif %}>
+              {% for el in roles_selected %}
+              <option value="{{ el[0] }}"> {{ el[1] }} - {{ el[2] }}</option>
               {% endfor %}
-              {% if roles == [] %}
+              {% if roles_selected == [] %}
               <option value="">Роли не найдены</option>
-              {% endif %}
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="passport" class="form-select-label">Выберите проект</label>
-            <select class="form-select" aria-label="Default select example" name="passport" {% if projects==[] %}
-              disabled {% endif %}>
-              {% for el in projects %}
-              <option value="{{ el[2] }}"> {{ el[1] }}</option>
-              {% endfor %}
-              {% if projects == [] %}
-              <option value="">Проекты не найдены</option>
               {% endif %}
             </select>
           </div>
@@ -231,7 +235,7 @@
             <select class="form-select" aria-label="Default select example" name="idrole" {% if roles==[] %} disabled {%
               endif %}>
               {% for el in roles %}
-              <option value="{{ el.RolesOfProjects.IDroles }}"> {{ el.RolesOfProjects.rolesRole }}</option>
+              <option value="{{ el[3] }}"> {{ el[4] }}</option>
               {% endfor %}
               {% if roles == [] %}
               <option value="">Роли не найдены</option>

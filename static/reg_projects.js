@@ -1,6 +1,6 @@
 function applyProjectFilters() {
-  const projectFilter = document.getElementById("projectFilter").value;
-  const stadiaFilter = document.getElementById("stadiaFilter").value;
+  const projectFilter = document.getElementById("projectFilter")?.value;
+  const stadiaFilter = document.getElementById("stadiaFilter")?.value;
 
   if (!projectFilter && !stadiaFilter) {
     return;
@@ -178,6 +178,35 @@ function getDataAssignProject(projectFilter, orgFilter, fioInitFilter) {
     url: "/" + url + "/assignment",
     dataSrc: "data",
     data: { projectFilter, orgFilter, fioInitFilter },
+    success: function (data) {
+      const accordion = document.getElementById("projectsAccordion");
+      accordion.innerHTML = data;
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+}
+
+function applyParticTicketsFilters() {
+  const projectFilter = document.getElementById("projectFilter")?.value;
+
+  if (!projectFilter) {
+    return;
+  }
+  getDataParticTickets(projectFilter);
+}
+
+function dropParticTicketsFilter() {
+  getDataParticTickets(null, null);
+}
+
+function getDataParticTickets(projectFilter) {
+  $.ajax({
+    type: "POST",
+    url: "/student/participation_ticket",
+    dataSrc: "data",
+    data: { projectFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;

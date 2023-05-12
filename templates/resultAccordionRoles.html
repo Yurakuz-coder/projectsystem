@@ -9,50 +9,42 @@
   <div id="collapse{{ el[0] }}" class="accordion-collapse collapse" data-bs-parent="#accordionProjectWrapper">
     <div id='accordionRolesWrapper' class="accordion-body">
       {% for role in roles %}
-      {% if role.RolesOfProjects.IDpassport == el[0] %}
+      {% if role[0] == el[0] %}
       <div class="accordion-item">
-        <h2 class="accordion-header" id="accordion{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}">
+        <h2 class="accordion-header" id="accordion{{ el[0] }}_{{ role[3] }}">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-            data-bs-target="#collapse{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}" aria-expanded="false"
-            aria-controls="collapse{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}">
-            {{ role.RolesOfProjects.rolesRole }} ({{ role.RolesOfProjects.rolesFunction }})
+            data-bs-target="#collapse{{ el[0] }}_{{ role[3] }}" aria-expanded="false"
+            aria-controls="collapse{{ el[0] }}_{{ role[3] }}">
+            {{ role[4] }} ({{ role[5] }})
           </button>
         </h2>
-        <div id="collapse{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}" class="accordion-collapse collapse"
-          aria-labelledby="heading{{ el[0] }}_{{ role.RolesOfProjects.IDroles }}"
-          data-bs-parent="#accordionRolesWrapper">
+        <div id="collapse{{ el[0] }}_{{ role[3] }}" class="accordion-collapse collapse"
+          aria-labelledby="heading{{ el[0] }}_{{ role[3] }}" data-bs-parent="#accordionRolesWrapper">
           <div class="accordion-body">
             <ul class="list-group list-group-flush">
               <li class="list-group-item">
-                <h5 class="mb-1">Роль в проекте</h5>{{ role.RolesOfProjects.rolesRole }}
+                <h5 class="mb-1">Роль в проекте</h5>{{ role[4] }}
               </li>
               <li class="list-group-item">
-                <h5 class="mb-1">Количество вакантных мест</h5>{{ role.RolesOfProjects.rolesAmount }}
+                <h5 class="mb-1">Количество вакантных мест</h5>{{ role[6] }}
               </li>
               <li class="list-group-item">
-                <h5 class="mb-1">Функции участника проекта</h5>{{ role.RolesOfProjects.rolesFunction }}
+                <h5 class="mb-1">Функции участника проекта</h5>{{ role[5] }}
               </li>
               <li class="list-group-item">
-                <h5 class="mb-1">ОПОП</h5> {% for sp in spec %}
-                {% if role.RolesOfProjects.IDroles == sp[0] %}
-                {{ sp[1] }}
-                <br>
-                {% endif %}
-                {% endfor %}
+                {% autoescape false %}
+                <h5 class="mb-1">ОПОП</h5>{{ role[9] }}
               </li>
               <li class="list-group-item">
-                <h5 class="mb-1">Трудоемкость (з.е.)</h5>{{ role.RolesOfProjects.rolesCost }}
+                <h5 class="mb-1">Трудоемкость (з.е.)</h5>{{ role[7] }}
               </li>
               <li class="list-group-item">
-                <h5 class="mb-1">Перечень компетенций</h5>{% for cm in comp %}
-                {% if role.RolesOfProjects.IDroles == cm[0] %}
-                {{ cm[1] }} - {{ cm[2] }}
-                <br>
-                {% endif %}
-                {% endfor %}
+                <h5 class="mb-1">Перечень компетенций</h5>
+                {{ role[10] }}
+                {% endautoescape %}
               </li>
               <li class="list-group-item">
-                <h5 class="mb-1">Требования к участникам</h5> {{ role.RolesOfProjects.rolesRequirements }}
+                <h5 class="mb-1">Требования к участникам</h5> {{ role[8] }}
               </li>
             </ul>
           </div>
