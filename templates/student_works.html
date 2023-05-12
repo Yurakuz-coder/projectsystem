@@ -15,11 +15,20 @@
     <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
         aria-label="projectFilter" aria-describedby="basic-addon1">
     <br>
+    <label for="stageFilter" class="form-select-label">Фильтр по стадию работы</label>
+    <select class="form-select" name="stageFilter" id="stageFilter" {% if stage==[] %} disabled {% endif %}>
+        {% for el in stage %}
+        <option value="{{ el.StadiaOfWorks.IDstadiaofworks }}"> {{
+            el.StadiaOfWorks.stadiaofworksName }}
+        </option>
+        {% endfor %}
+    </select>
+    <br>
     <div class="btn-group" role="group">
-        <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyProjectFilters()">
+        <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyStudentWorksFilter()">
             Применить фильтры
         </button>
-        <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropProjectFilter()">
+        <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropStudentsWorksFilters()">
             Сбросить фильтр
         </button>
     </div>
@@ -58,7 +67,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="stage" class="form-select-label">Выберите роль</label>
+                        <label for="stage" class="form-select-label">Выберите стадию работы</label>
                         <select class="form-select" name="stage" id="stage" {% if stage==[] %} disabled {% endif %}>
                             {% for el in stage %}
                             <option value="{{ el.StadiaOfWorks.IDstadiaofworks }}"> {{

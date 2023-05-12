@@ -25,11 +25,17 @@
         {% endfor %}
     </select>
     <br>
+    <input type="text" id="sheffProjFilter" class="form-control" placeholder="Фильтр по руководителю проекта"
+        aria-label="sheffProjFilter" aria-describedby="basic-addon1">
+    <br>
+    <input type="text" id="inicFilter" class="form-control" placeholder="Фильтр по инициатору" aria-label="inicFilter"
+        aria-describedby="basic-addon1">
+    <br>
     <div class="btn-group" role="group">
-        <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyProjectFilters()">
+        <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyInicProjectFilter()">
             Применить фильтры
         </button>
-        <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropProjectFilter()">
+        <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropInicProjectFilter()">
             Сбросить фильтр
         </button>
     </div>

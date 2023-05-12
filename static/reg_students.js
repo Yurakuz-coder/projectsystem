@@ -1,3 +1,32 @@
+function applyStudentWorksFilter() {
+  const projectFilter = document.getElementById("projectFilter").value;
+  const stageFilter = document.getElementById("stageFilter").value;
+  if (!projectFilter && !stageFilter) {
+    return;
+  }
+  getDataStudentsWorks(stageFilter, projectFilter);
+}
+
+function dropStudentsWorksFilters() {
+  getDataStudentsWorks(null, null);
+}
+
+function getDataStudentsWorks(stageFilter, projectFilter) {
+  $.ajax({
+    type: "POST",
+    url: "/student/works",
+    dataSrc: "data",
+    data: { stageFilter, projectFilter },
+    success: function (data) {
+      const table = document.getElementById("projectsAccordion");
+      table.innerHTML = data;
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+}
+
 function applyStudentsFilters() {
   const fio = document.getElementById("fio").value;
   const grname = document.getElementById("grname").value;

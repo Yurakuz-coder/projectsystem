@@ -32,7 +32,7 @@ function getDataWorks(dateContractFilter, orgFilters, numberContractFilter) {
   });
 }
 
-function uploadWork(id) {
+function uploadWork(id, idproject) {
   const formData = new FormData();
   const button = document.getElementById("button-upload" + id);
   const file = document.getElementById("input-upload" + id).files[0];
@@ -45,9 +45,8 @@ function uploadWork(id) {
     contentType: false,
     data: formData,
     url: "/uploadWorkStudent",
-    success: function (data) {
-      const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
+    success: function () {
+      button.innerHTML = "Файл загружен!";
     },
     error: function () {
       button.innerHTML = "Файл не загружен!";
@@ -56,14 +55,14 @@ function uploadWork(id) {
 }
 
 function deleteWork(id) {
+  const button = document.getElementById("input-delete" + id);
   $.ajax({
     type: "POST",
     dataSrc: "data",
     data: { idWork: id },
     url: "/deleteWorkStudent",
-    success: function (data) {
-      const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
+    success: function () {
+      button.innerHTML = "Файл удален!";
     },
   });
 }
@@ -71,24 +70,25 @@ function deleteWork(id) {
 function applyInicWorkFilters() {
   const fioFilter = document.getElementById("fioFilter").value;
   const projectFilter = document.getElementById("projectFilter").value;
+  const roleFilter = document.getElementById("roleFilter").value;
 
-  if (!projectFilter && !fioFilter) {
+  if (!projectFilter && !fioFilter && !roleFilter) {
     return;
   }
-  getDataInicWorkProject(projectFilter, fioFilter);
+  getDataInicWorkProject(projectFilter, fioFilter, roleFilter);
 }
 
 function dropInicWorkFilter() {
-  getDataInicWorkProject(null, null);
+  getDataInicWorkProject(null, null, null);
 }
 
-function getDataInicWorkProject(projectFilter, fioFilter) {
+function getDataInicWorkProject(projectFilter, fioFilter, roleFilter) {
   const url = window.location.pathname.split('/')[1]
   $.ajax({
     type: "POST",
     url: "/" + url + "/works",
     dataSrc: "data",
-    data: { projectFilter, fioFilter },
+    data: { projectFilter, fioFilter, roleFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;

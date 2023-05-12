@@ -47,12 +47,17 @@
                                         class="btn btn-primary {{ 'disabled' if not work.StudentsInProjects.studentsinprFull else '' }} d-inline-block">Скачать
                                         результат работы</a>
                                     <button {% if not work.StudentsInProjects.studentsinprFull %} disabled {% endif %}
+                                        {% if session['url']=='iniciators' %} hidden {% endif %}
                                         class="btn btn-danger btn" value="{{ work.StudentsInProjects.IDstudentspr }}"
-                                        onclick="deleteWork(this.value)">Удалить</button>
-                                    <div class="input-group mb-0">
+                                        id="input-delete{{ work.StudentsInProjects.IDstudentspr }}"
+                                        name="{{ el.Projects.IDprojects }}"
+                                        onclick="deleteWork(this.value, this.name)">Удалить</button>
+                                    <div class="input-group mb-0" {% if session['url']=='iniciators' %} hidden {% endif
+                                        %}>
                                         <button class="btn btn-outline-secondary"
-                                            value="{{ work.StudentsInProjects.IDstudentspr }}" type="button"
-                                            onclick="uploadWork(this.value)"
+                                            value="{{ work.StudentsInProjects.IDstudentspr }}"
+                                            name="{{ el.Projects.IDprojects }}" type="button"
+                                            onclick="uploadWork(this.value, this.name)"
                                             id="button-upload{{ work.StudentsInProjects.IDstudentspr }}">Загрузить</button>
                                         <input type="file" accept=".doc,.docx,.pdf" class="form-control"
                                             id="input-upload{{ work.StudentsInProjects.IDstudentspr }}"

@@ -29,6 +29,39 @@ function getDataProject(projectFilter, stadiaFilter) {
   });
 }
 
+function applyInicProjectFilter() {
+  const projectFilter = document.getElementById("projectFilter")?.value;
+  const stadiaFilter = document.getElementById("stadiaFilter")?.value;
+  const inicFilter = document.getElementById("inicFilter")?.value;
+  const sheffProjFilter = document.getElementById("sheffProjFilter")?.value;
+
+  if (!projectFilter && !stadiaFilter && !sheffProjFilter && !inicFilter) {
+    return;
+  }
+  getDataInicProject(projectFilter, stadiaFilter, inicFilter, sheffProjFilter);
+}
+
+function dropInicProjectFilter() {
+  getDataInicProject(null, null, null, null);
+}
+
+function getDataInicProject(projectFilter, stadiaFilter, inicFilter, sheffProjFilter) {
+  const url = window.location.pathname.split('/')[1]
+  $.ajax({
+    type: "POST",
+    url: "/" + url + "/projects",
+    dataSrc: "data",
+    data: { projectFilter, stadiaFilter, inicFilter, sheffProjFilter },
+    success: function (data) {
+      const accordion = document.getElementById("projectsAccordion");
+      accordion.innerHTML = data;
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+}
+
 function uploadPassportFile(id) {
   const formData = new FormData();
   const button = document.getElementById("button-upload" + id);
@@ -115,8 +148,7 @@ function uploadResultFile(id) {
     data: formData,
     url: "/uploadProjectResult",
     success: function (data) {
-      const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
+      button.innerHTML = "Файл загружен!";
     },
     error: function () {
       button.innerHTML = "Файл не загружен!";

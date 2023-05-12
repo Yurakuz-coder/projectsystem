@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% set active_page = "members" %}
+{% block content %}
+<h1>Участники проектов</h1>
+<br>
+<div class="btn-group" role="group">
+    <a class="btn btn-light" data-bs-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+        aria-controls="collapseFilters">
+        Добавить фильтры
+    </a>
+</div>
+<br>
+<div class="collapse" id="collapseFilters">
+    <br>
+    <input type="text" id="projectFioFilter" class="form-control" placeholder="Фильтр по ФИО студента"
+        aria-label="projectFioFilter" aria-describedby="basic-addon1">
+    <br>
+    <input type="text" id="projectNameFilter" class="form-control" placeholder="Фильтр по названию проекта"
+        aria-label="projectNameFilter" aria-describedby="basic-addon1">
+    <br>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyStudApprovedTicketsFilters()">
+            Применить фильтры
+        </button>
+        <button type="button" class="btn btn-light" id="buttonDropFilter" onClick="dropStudApprovedTicketsFilter()">
+            Сбросить фильтр
+        </button>
+    </div>
+</div>
+<br>
+<div class="accordion" id="projectsAccordion">
+    {% include "resultAccordionStudentApprovedTickets.html" %}
+</div>
+<br>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">
+        Редактировать заявку
+    </button>
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDecline">
+        Отклонить заявку
+    </button>
+</div>
+<br>
+
+<div class="modal fade" id="modalModify" tabindex="-1" aria-labelledby="modalModifyLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalModifyLabel">Редактировать заявку</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="modifyConfirmation" method="post">
+                    <div class="form-group">
+                        <label for="application" class="form-select-label">Выберите заявку</label>
+                        <select class="form-select" aria-label="Default select example" name="application" {% if
+                            confirmations==[] %} disabled {% endif %}>
+                            {% for el in confirmations %}
+                            <option value="{{ el.Confirmation.IDconfirmation }}"> {{ el.Students.FullName }} - {{
+                                el.PassportOfProjects.passportName
+                                }} - {{ el.RolesOfProjects.rolesRole }}
+                            </option>
+                            {% endfor %}
+                            {% if confirmations==[] %}
+                            <option value="">Заявки не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="results" class="form-select-label">Полученные результаты</label>
+                        <textarea class="form-control" rows="3" id="results" name="results" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="period" class="form-select-label">Период участия в проекте</label>
+                        <textarea class="form-control" rows="3" id="period" name="period" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="lvl_comp" class="form-select-label">Уровень сформированности компетенции</label>
+                        <select class="form-select" aria-label="Default select example" name="lvl_comp" {% if levels==[]
+                            %} disabled {% endif %} required>
+                            {% for el in levels %}
+                            <option value="{{ el.Levels.IDlevels }}"> {{ el.Levels.levelsName }}
+                            </option>
+                            {% endfor %}
+                            {% if levels==[] %}
+                            <option value="">Уровни не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary" {% if confirmations==[] %} disabled {% endif
+                            %}>Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalDecline" tabindex="-1" aria-labelledby="modalDeclineLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDeclineLabel">Отклонить заявку</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="declineConfirmation" method="post">
+                    <div class="form-group">
+                        <label for="confirmation" class="form-select-label">Выберите заявку</label>
+                        <select class="form-select" aria-label="Default select example" name="confirmation" {% if
+                            confirmations==[] %} disabled {% endif %}>
+                            {% for el in confirmations %}
+                            <option value="{{ el.Confirmation.IDconfirmation }}"> {{ el.Students.FullName }} - {{
+                                el.PassportOfProjects.passportName
+                                }} - {{ el.RolesOfProjects.rolesRole }}
+                            </option>
+                            {% endfor %}
+                            {% if confirmations==[] %}
+                            <option value="">Заявки не найдены</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary" {% if confirmations==[] %} disabled {% endif
+                            %}>Отклонить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
