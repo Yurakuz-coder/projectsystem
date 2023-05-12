@@ -2132,11 +2132,7 @@ def admin_modify_project():
 def admin_delete_project():
     idproject = int(request.form["deleteProject"])
     db_sessions = get_session()
-    project = db_sessions.query(Projects).filter(Projects.IDprojects == idproject).first()
     db_sessions.query(Projects).filter(Projects.IDprojects == idproject).delete()
-    db_sessions.query(PassportOfProjects).filter(
-        PassportOfProjects.IDpassport == project.IDpassport
-    ).delete()
     db_sessions.commit()
     return redirect("/admin/projects")
 
