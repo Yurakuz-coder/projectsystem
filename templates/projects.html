@@ -174,21 +174,6 @@
                         <label for="projectName" class="form-select-label">Введите название проекта</label>
                         <textarea class="form-control" rows="3" id="projectName" name="projectName"></textarea>
                     </div>
-                    <!-- <div class="form-group">
-                        <label for="stadia" class="form-select-label">Выберите стадию проекта</label>
-                        <select class="form-select" name="stadia" id="stadia" {% if stadia_modify==[] or
-                            stadia_modify|length==1 %} disabled {% endif %}>
-                            {% for el in stadia_modify %}
-                            <option value="{{ el.StadiaOfProjects.IDstadiaofpr if stadia_modify|length != 1 else '' }}">
-                                {{
-                                el.StadiaOfProjects.stadiaofprName }}
-                            </option>
-                            {% endfor %}
-                            {% if stadia_modify == [] %}
-                            <option value="">Стадии проекта отсутствуют</option>
-                            {% endif %}
-                        </select>
-                    </div> -->
                     <div class="form-group">
                         <label for="problem" class="form-select-label">Введите описание проблемы, <br>на решение которой
                             направлен проект</label>
@@ -258,7 +243,7 @@
                         <label for="deleteProject" class="form-select-label">Выберите проект</label>
                         <select class="form-select" name="deleteProject" {% if projects==[] %} disabled {% endif %}>
                             {% for el in projects %}
-                            <option value="{{ el.Projects.IDprojects }}"> {{ el.PassportOfProjects.passportName }}
+                            <option value="{{ el.Projects.IDpassport }}"> {{ el.PassportOfProjects.passportName }}
                             </option>
                             {% endfor %}
                             {% if projects == [] %}
