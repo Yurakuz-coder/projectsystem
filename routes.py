@@ -3349,7 +3349,7 @@ def sheff_proj_approved_tickets():
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
         )
         select_confirmation = (
-            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects, StudentsInProjects)
             .distinct()
             .join_from(
                 Applications,
@@ -3358,11 +3358,12 @@ def sheff_proj_approved_tickets():
                 isouter=True,
             )
             .join(RolesOfProjects)
-            .join(Confirmation)
-            .join(Levels)
-            .join(Groups)
             .join(Projects)
             .join(PassportOfProjects)
+            .join(Confirmation)
+            .join(StudentsInProjects, isouter=True, onclause=Confirmation.IDconfirmation==StudentsInProjects.IDconfirmation)
+            .join(Levels)
+            .join(Groups)
             .join(Specializations)
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
             .order_by(PassportOfProjects.passportName)
@@ -3390,7 +3391,7 @@ def sheff_proj_approved_tickets():
             .filter(where_project_filter)
         )
         select_confirmation = (
-            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects, StudentsInProjects)
             .distinct()
             .join_from(
                 Applications,
@@ -3404,6 +3405,7 @@ def sheff_proj_approved_tickets():
             .join(Groups)
             .join(Projects)
             .join(PassportOfProjects)
+            .join(StudentsInProjects, isouter=True, onclause=Confirmation.IDconfirmation==StudentsInProjects.IDconfirmation)
             .join(Specializations)
             .filter(where_fio_filter)
             .filter(where_project_filter)
@@ -3505,10 +3507,12 @@ def student_works():
         select = get_select()
         select_projects = select(Projects, PassportOfProjects).join(StudentsInProjects).join(PassportOfProjects).filter(StudentsInProjects.IDstudents == idstudent)
         projects = db_session.execute(select_projects).all()
-        select_works = (select(StudentsInProjects, Students, StadiaOfWorks, RolesOfProjects, Projects, PassportOfProjects)
+        select_works = (select(StudentsInProjects, Students, StadiaOfWorks, RolesOfProjects, Projects, PassportOfProjects, Applications)
             .join_from(StudentsInProjects, Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
+            .join(Confirmation)
+            .join(Applications, onclause=Applications.IDapplications == Confirmation.IDapplications)
             .join(PassportOfProjects, PassportOfProjects.IDpassport == Projects.IDpassport)
-            .join(Students)
+            .join(Students, onclause=Students.IDstudents==StudentsInProjects.IDstudents)
             .join(StadiaOfWorks)
             .join(RolesOfProjects, RolesOfProjects.IDroles == StudentsInProjects.IDroles)
             .filter(StudentsInProjects.IDstudents == idstudent)
@@ -3815,7 +3819,7 @@ def upload_confirmation_signed():
 
     upload_file.save(file_path)
 
-    return redirect("/sheffproj/approved_tickets", code=307)
+    return 200, 'success'
 
 @pages.route("/deleteConfirmation", methods=["POST"])
 def delete_confirmation_signed():
@@ -3827,7 +3831,7 @@ def delete_confirmation_signed():
     confirmation = db_sessions.query(Confirmation).filter(Confirmation.IDconfirmation == idconfirmation).first()
     confirmation.confirmationSigned = None
     db_sessions.commit()
-    return redirect("/sheffproj/approved_tickets", code=307)
+    return 200, 'success'
 
 @pages.route('/iniciators/works', methods=['GET', 'POST'])
 def iniciators_works():
@@ -3931,7 +3935,7 @@ def upload_project_result():
 
     upload_file.save(file_path)
 
-    return redirect("/sheffproj/projects", code=307)
+    return 200, 'success'
 
 @pages.route('/shefforg/members', methods=['GET', 'POST'])
 def sheff_org_members():
@@ -3943,13 +3947,18 @@ def sheff_org_members():
             select(
                 PassportOfProjects.IDpassport, PassportOfProjects.passportName, Projects.IDprojects
             ).distinct()
-            .join(Projects)
+            .join_from(
+                Projects,
+                PassportOfProjects,
+                Projects.IDpassport == PassportOfProjects.IDpassport,
+                isouter=True,
+            )
             .join(StudentsInProjects)
             .join(Initiatorsofprojects)
             .filter(Initiatorsofprojects.IDorg == idorg)
         )
         select_confirmation = (
-            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects, StudentsInProjects)
             .distinct()
             .join_from(
                 Applications,
@@ -3964,6 +3973,7 @@ def sheff_org_members():
             .join(Projects)
             .join(PassportOfProjects)
             .join(Specializations)
+            .join(StudentsInProjects, isouter=True, onclause=Confirmation.IDconfirmation==StudentsInProjects.IDconfirmation)
             .join(Initiatorsofprojects)
             .filter(Initiatorsofprojects.IDorg == idorg)
             .order_by(PassportOfProjects.passportName)
@@ -3984,15 +3994,21 @@ def sheff_org_members():
             select(
                 PassportOfProjects.IDpassport, PassportOfProjects.passportName, Projects.IDprojects
             ).distinct()
-            .join(Projects)
+            .join_from(
+                Projects,
+                PassportOfProjects,
+                Projects.IDpassport == PassportOfProjects.IDpassport,
+                isouter=True,
+            )
             .join(StudentsInProjects)
+            .join(Students)
             .join(Initiatorsofprojects)
             .filter(Initiatorsofprojects.IDorg == idorg)
             .filter(where_fio_filter)
             .filter(where_project_filter)
         )
         select_confirmation = (
-            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects, StudentsInProjects)
             .distinct()
             .join_from(
                 Applications,
@@ -4007,6 +4023,7 @@ def sheff_org_members():
             .join(Projects)
             .join(PassportOfProjects)
             .join(Specializations)
+            .join(StudentsInProjects, isouter=True, onclause=Confirmation.IDconfirmation==StudentsInProjects.IDconfirmation)
             .join(Initiatorsofprojects)
             .filter(Initiatorsofprojects.IDorg == idorg)
             .filter(where_fio_filter)
@@ -4032,7 +4049,7 @@ def iniciators_members():
             .filter(PassportOfProjects.IDinitpr == idiniciator)
         )
         select_confirmation = (
-            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects, StudentsInProjects)
             .distinct()
             .join_from(
                 Applications,
@@ -4046,6 +4063,7 @@ def iniciators_members():
             .join(Groups)
             .join(Projects)
             .join(PassportOfProjects)
+            .join(StudentsInProjects, isouter=True, onclause=Confirmation.IDconfirmation==StudentsInProjects.IDconfirmation)
             .join(Specializations)
             .filter(PassportOfProjects.IDinitpr == idiniciator)
             .order_by(PassportOfProjects.passportName)
@@ -4068,12 +4086,13 @@ def iniciators_members():
             ).distinct()
             .join(Projects)
             .join(StudentsInProjects)
+            .join(Students)
             .filter(PassportOfProjects.IDinitpr == idiniciator)
             .filter(where_fio_filter)
             .filter(where_project_filter)
         )
         select_confirmation = (
-            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects, StudentsInProjects)
             .distinct()
             .join_from(
                 Applications,
@@ -4087,6 +4106,7 @@ def iniciators_members():
             .join(Groups)
             .join(Projects)
             .join(PassportOfProjects)
+            .join(StudentsInProjects, isouter=True, onclause=Confirmation.IDconfirmation==StudentsInProjects.IDconfirmation)
             .join(Specializations)
             .filter(where_fio_filter)
             .filter(where_project_filter)
@@ -4112,7 +4132,7 @@ def student_members():
             .filter(StudentsInProjects.IDstudents == idstudent)
         )
         select_confirmation = (
-            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects, StudentsInProjects)
             .distinct()
             .join_from(
                 Applications,
@@ -4126,6 +4146,7 @@ def student_members():
             .join(Groups)
             .join(Projects)
             .join(PassportOfProjects)
+            .join(StudentsInProjects, isouter=True, onclause=Confirmation.IDconfirmation==StudentsInProjects.IDconfirmation)
             .join(Specializations)
             .filter(Students.IDstudents != idstudent)
             .order_by(PassportOfProjects.passportName)
@@ -4148,12 +4169,12 @@ def student_members():
             ).distinct()
             .join(Projects)
             .join(StudentsInProjects)
-            .filter(Students.IDstudents != idstudent)
-            .filter(where_fio_filter)
+            .join(Students)
+            .filter(StudentsInProjects.IDstudents == idstudent)
             .filter(where_project_filter)
         )
         select_confirmation = (
-            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects)
+            select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects, StudentsInProjects)
             .distinct()
             .join_from(
                 Applications,
@@ -4168,7 +4189,7 @@ def student_members():
             .join(Projects)
             .join(PassportOfProjects)
             .join(Specializations)
-            .join(StudentsInProjects)
+            .join(StudentsInProjects, isouter=True, onclause=Confirmation.IDconfirmation==StudentsInProjects.IDconfirmation)
             .filter(Students.IDstudents != idstudent)
             .filter(where_fio_filter)
             .filter(where_project_filter)

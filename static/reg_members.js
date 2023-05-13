@@ -140,3 +140,36 @@ function getDataRoles(
     },
   });
 }
+
+function applyMemFilters() {
+  const projectFioFilter = document.getElementById("projectFioFilter").value;
+  const projectNameFilter = document.getElementById("projectNameFilter").value;
+
+  if (!projectFioFilter && !projectNameFilter) {
+    return;
+  }
+  getDataMem(projectFioFilter, projectNameFilter);
+}
+
+function dropMemFilter() {
+  getDataMem(null, null);
+}
+
+function getDataMem(
+  projectFioFilter, projectNameFilter
+) {
+  const url = window.location.pathname.split("/")[1];
+  $.ajax({
+    type: "POST",
+    url: "/" + url + "/members",
+    dataSrc: "data",
+    data: { projectFioFilter, projectNameFilter },
+    success: function (data) {
+      const accordion = document.getElementById("projectsAccordion");
+      accordion.innerHTML = data;
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+}
