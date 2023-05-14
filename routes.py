@@ -3450,15 +3450,14 @@ def sheff_proj_modify_applications():
     db_session.commit()
     return redirect('/sheffproj/tickets')
 
-@pages.route('/sheffproj/approveTicket', methods=['POST'])
-def sheff_proj_approve_ticket():
+@pages.route('/sheffproj/approveWork', methods=["POST"])
+def sheff_proj_approve_work():
     db_session = get_session()
     idapplication = request.form['application']
     lvl_comp = request.form['lvl_comp']
     period = request.form['period']
     results = request.form['results']
     record = db_session.query(Applications).filter(Applications.IDapplications == idapplication).first()
-    record.applicationApproved = 1
     db_session.flush()
     confirm = Confirmation(
         IDapplications=idapplication,
@@ -3476,6 +3475,24 @@ def sheff_proj_approve_ticket():
         IDprojects=record.IDprojects,
         IDroles=record.IDroles,
         IDconfirmation=confirm.IDconfirmation,
+        IDstadiaofworks=1
+    )
+    db_session.add(add_student_proj)
+    db_session.commit()
+    return redirect('/sheffproj/tickets')
+
+@pages.route('/sheffproj/approveTicket', methods=['POST'])
+def sheff_proj_approve_ticket():
+    db_session = get_session()
+    idapplication = request.form['application']
+    record = db_session.query(Applications).filter(Applications.IDapplications == idapplication).first()
+    record.applicationApproved = 1
+    db_session.flush()
+
+    add_student_proj = StudentsInProjects(
+        IDstudents=record.IDstudents,
+        IDprojects=record.IDprojects,
+        IDroles=record.IDroles,
         IDstadiaofworks=1
     )
     db_session.add(add_student_proj)
@@ -3517,7 +3534,7 @@ def sheff_proj_approved_tickets():
             .join(RolesOfProjects)
             .join(Projects)
             .join(PassportOfProjects)
-            .join(Confirmation)
+            .join(Confirmation, isouter=True)
             .join(StudentsInProjects, isouter=True, onclause=Confirmation.IDconfirmation==StudentsInProjects.IDconfirmation)
             .join(Levels)
             .join(Groups)
@@ -4070,7 +4087,7 @@ def upload_confirmation_signed():
 
     upload_file.save(file_path)
 
-    return 200, 'success'
+    return 'success', 200
 
 @pages.route("/deleteConfirmation", methods=["POST"])
 def delete_confirmation_signed():
@@ -4082,7 +4099,7 @@ def delete_confirmation_signed():
     confirmation = db_sessions.query(Confirmation).filter(Confirmation.IDconfirmation == idconfirmation).first()
     confirmation.confirmationSigned = None
     db_sessions.commit()
-    return 200, 'success'
+    return 'success', 200
 
 @pages.route('/iniciators/works', methods=['GET', 'POST'])
 def iniciators_works():
@@ -4236,7 +4253,7 @@ def upload_project_result():
 
     upload_file.save(file_path)
 
-    return 200, 'success'
+    return 'success', 200
 
 @pages.route('/shefforg/members', methods=['GET', 'POST'])
 def sheff_org_members():
