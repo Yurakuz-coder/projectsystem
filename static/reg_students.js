@@ -1,22 +1,26 @@
 function applyStudentWorksFilter() {
   const projectFilter = document.getElementById("projectFilter").value;
   const stageFilter = document.getElementById("stageFilter").value;
-  if (!projectFilter && !stageFilter) {
+  const inicFilter = document.getElementById("inicFilter")?.value;
+  const sheffProjFilter = document.getElementById("sheffProjFilter")?.value;
+  const roleFilter = document.getElementById("roleFilter")?.value;
+
+  if (!projectFilter && !stageFilter && !inicFilter && !sheffProjFilter && !roleFilter) {
     return;
   }
-  getDataStudentsWorks(stageFilter, projectFilter);
+  getDataStudentsWorks(sheffProjFilter, roleFilter, inicFilter, stageFilter, projectFilter);
 }
 
 function dropStudentsWorksFilters() {
-  getDataStudentsWorks(null, null);
+  getDataStudentsWorks(null, null, null, null, null);
 }
 
-function getDataStudentsWorks(stageFilter, projectFilter) {
+function getDataStudentsWorks(sheffProjFilter, roleFilter, inicFilter, stageFilter, projectFilter) {
   $.ajax({
     type: "POST",
     url: "/student/works",
     dataSrc: "data",
-    data: { stageFilter, projectFilter },
+    data: { sheffProjFilter, roleFilter, inicFilter, stageFilter, projectFilter },
     success: function (data) {
       const table = document.getElementById("projectsAccordion");
       table.innerHTML = data;
@@ -102,6 +106,37 @@ function getStudentsGroup(idGroup, op) {
           )
         );
       }
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+}
+
+function applyTicketFilters() {
+  const roleFilter = document.getElementById("roleFilter").value;
+  const projectNameFilter = document.getElementById("projectNameFilter").value;
+  const statusFilter = document.getElementById("statusFilter")?.value;
+
+  if (!statusFilter && !projectNameFilter && !roleFilter) {
+    return;
+  }
+  getDataStudentsTicket(statusFilter, roleFilter, projectNameFilter);
+}
+
+function dropTicketFilters() {
+  getDataStudentsTicket(null, null, null);
+}
+
+function getDataStudentsTicket(statusFilter, roleFilter, projectNameFilter) {
+  $.ajax({
+    type: "POST",
+    url: "/student/tickets",
+    dataSrc: "data",
+    data: { statusFilter, roleFilter, projectNameFilter },
+    success: function (data) {
+      const table = document.getElementById("collapseTableBody");
+      table.innerHTML = data;
     },
     error: function (err) {
       console.log(err);

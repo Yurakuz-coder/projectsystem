@@ -67,6 +67,8 @@ def index():
             data_workers.positionsName.positionsName,
         ]
         session["url"] = "admin"
+        session["pos"] = 'Администратор системы'
+        session["email"] = data_workers.sheffprEmail
         session["firstNav"] = "Панель администратора"
         return redirect("/admin/reg_shefforg")
     if role == "sheffofprojects":
@@ -85,8 +87,10 @@ def index():
             data_workers.positionsName.positionsName,
         ]
         session["url"] = "sheffproj"
+        session['pos'] = data_workers.positionsName.positionsName
         session["firstNav"] = "Панель руководителя"
         session["secondNav"] = "проекта"
+        session["email"] = data_workers.sheffprEmail
         session["user"] = [data_workers.IDsheffpr]
         return redirect("/sheffproj/assignment")
     if role == "shefforganizations":
@@ -1135,7 +1139,7 @@ def modifyStudent():
     em = request.form["redstudentsEmail"]
     login = request.form["redLogin"]
     password = request.form["redPass"]
-    idgroup = int(request.form["newGroup"])
+    idgroup = request.form["newGroup"]
     npr = db_sessions.query(Students).filter(Students.IDstudents == id_stud).first()
     if str(fname) != "":
         npr.studentsFirstname = str(fname)
@@ -1863,6 +1867,7 @@ def iniciators_project():
         idinitpr = session["user"][1]
         project_filter = request.form["projectFilter"]
         stadia_filter = request.form["stadiaFilter"]
+        sheff_proj_filter = request.form["sheffProjFilter"]
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
@@ -1870,6 +1875,9 @@ def iniciators_project():
         )
         where_stadia_filter = (
             StadiaOfProjects.IDstadiaofpr == stadia_filter if stadia_filter else text("1=1")
+        )
+        where_sheff_proj_filter = (
+            Sheffofprojects.FullName.ilike('%' + sheff_proj_filter + '%') if sheff_proj_filter else text("1=1")
         )
         select_projects = (
             select(Projects, PassportOfProjects, StadiaOfProjects, Initiatorsofprojects, Organizations, Sheffofprojects, Positions)
@@ -1881,6 +1889,7 @@ def iniciators_project():
             .join(Organizations)
             .where(where_project_filter)
             .where(where_stadia_filter)
+            .where(where_sheff_proj_filter)
             .filter(PassportOfProjects.IDinitpr == idinitpr)
             .order_by(PassportOfProjects.passportName)
         )
@@ -1981,6 +1990,10 @@ def admin_project():
         db_sessions = get_session()
         project_filter = request.form["projectFilter"]
         stadia_filter = request.form["stadiaFilter"]
+        org_filter = request.form["orgFilter"]
+        inic_filter = request.form["inicFilter"]
+        sheffproj_filter = request.form["sheffProjFilter"]
+
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
@@ -1988,6 +2001,15 @@ def admin_project():
         )
         where_stadia_filter = (
             StadiaOfProjects.IDstadiaofpr == stadia_filter if stadia_filter else text("1=1")
+        )
+        where_org_filter = (
+            Organizations.orgName.ilike("%" + org_filter + "%") if org_filter else text("1=1")
+        )
+        where_inic_filter = (
+            Initiatorsofprojects.FullName.ilike("%" + inic_filter + "%") if inic_filter else text("1=1")
+        )
+        where_sheffproj_filter = (
+            Sheffofprojects.FullName.ilike("%" + sheffproj_filter + "%") if sheffproj_filter else text("1=1")
         )
         select_projects = (
             select(Projects, PassportOfProjects, StadiaOfProjects, Initiatorsofprojects, Organizations, Sheffofprojects, Positions)
@@ -1997,6 +2019,9 @@ def admin_project():
             .join(Initiatorsofprojects)
             .join(StadiaOfProjects)
             .join(Organizations)
+            .where(where_org_filter)
+            .where(where_inic_filter)
+            .where(where_sheffproj_filter)
             .where(where_project_filter)
             .where(where_stadia_filter)
             .order_by(PassportOfProjects.passportName)
@@ -2302,8 +2327,14 @@ def delete_passport():
 
 @pages.route(
     "/iniciators/mailadmin", methods=["GET", "POST"]
-)  # Договоры об организации проектного обучения
+)
 def iniciators_org_mailadmin():
+    return sheff_org_mailadmin()
+
+@pages.route(
+    "/sheffproj/mailadmin", methods=["GET", "POST"]
+)
+def sheffproj_mailadmin():
     return sheff_org_mailadmin()
 
 
@@ -2327,7 +2358,8 @@ def sheffproj_projects():
         projects_assign = db_sessions.execute(select(Projects, PassportOfProjects).join_from(Projects, PassportOfProjects, Projects.IDpassport == PassportOfProjects.IDpassport).filter(PassportOfProjects.IDsheffpr == None).order_by(PassportOfProjects.passportName)).all()
         projects = db_sessions.execute(select_projects).all()
         stadia = db_sessions.query(StadiaOfProjects).filter(StadiaOfProjects.IDstadiaofpr > 2).all()
-        return render_template("sheffproj_projects.html", projects=projects, projects_assign=projects_assign, stadia=stadia)
+        stadia_filter = db_sessions.execute(select(StadiaOfProjects)).all()
+        return render_template("sheffproj_projects.html", projects=projects, projects_assign=projects_assign, stadia=stadia, stadia_filter=stadia_filter)
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
@@ -2335,6 +2367,10 @@ def sheffproj_projects():
         project_filter = request.form.get("projectFilter")
         org_filter = request.form.get("orgFilter")
         fio_init_filter = request.form.get("fioInitFilter")
+        stadia_filter = request.form.get("stadiaFilter")
+        where_stadia_filter = (
+            StadiaOfProjects.IDstadiaofpr == stadia_filter if stadia_filter else text("1=1")
+        )
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
@@ -2356,6 +2392,7 @@ def sheffproj_projects():
             .join(StadiaOfProjects)
             .join(Organizations)
             # .filter(StadiaOfProjects.IDstadiaofpr == 3)
+            .filter(where_stadia_filter)
             .filter((PassportOfProjects.IDsheffpr == idsheffpr) | (PassportOfProjects.IDsheffpr == None))
             .filter(where_project_filter)
             .filter(where_fio_init_filter)
@@ -2541,6 +2578,7 @@ def sheffproj_members():
         )
         roles = db_sessions.execute(select_roles).all()
         projects = db_sessions.execute(select_projects).all()
+        groups = db_sessions.execute(select(Groups))
         students = db_sessions.execute(text(r'''SELECT
         r.IDroles,
 	CONCAT_WS(' ', students.studentsFirstname, students.studentsName, students.studentsFathername) AS anon_1,
@@ -2578,6 +2616,7 @@ group BY
             students=students,
             projects=projects,
             roles=roles,
+            groups=groups
         )
     if request.method == "POST":
         db_sessions = get_session()
@@ -2585,6 +2624,7 @@ group BY
         fio_filter = request.form["projectFioFilter"]
         role_filter = request.form["projectRoleFilter"]
         napr_filter = request.form["projectNaprFilter"]
+        group_filter = request.form["groupFilter"]
         idsheffpr = session["user"][0]
         params = {'idsheffpr': idsheffpr}
         where_fio_filter = (
@@ -2596,15 +2636,22 @@ group BY
         where_napr_filter = (
             text("lower(concat_ws(' ', specializations.specShifr, specializations.specNapravlenie, specializations.specNapravlennost)) LIKE lower(:role_filter)") if napr_filter else text("1=1")
         )
+        where_group_filter = (
+            text('`groups`.idgroups = :idgroup') if group_filter else text("1=1")
+        )
+
         if fio_filter:
             params['fio_filter'] = fio_filter
         if napr_filter:
             params['napr_filter'] = napr_filter
+        if group_filter:
+            params['idgroup'] = group_filter
         select_projects = (
             select(
                 PassportOfProjects.IDpassport, PassportOfProjects.passportName, Projects.IDprojects
             ).distinct()
             .join(Projects)
+            .join(StudentsInProjects)
             .filter(PassportOfProjects.IDsheffpr == idsheffpr)
         )
         select_roles = (
@@ -2647,6 +2694,7 @@ WHERE
 	passportofprojects.IDsheffpr = :idsheffpr
     and {where_fio_filter}
     and {where_napr_filter}
+    and {where_group_filter}
 group BY 1, 2, 5, 6, 7'''), params).all()
         return render_template(
             "resultAccordionMembers.html",
@@ -2661,16 +2709,42 @@ def admin_mail_shefforg():
     if request.method == "GET":
         db_sessions = get_session()
         select = get_select()
+        select_projects = (select(Initiatorsofprojects.IDorg, PassportOfProjects.passportName).join_from(PassportOfProjects, Initiatorsofprojects, Initiatorsofprojects.IDinitpr == PassportOfProjects.IDinitpr))
+        projects = db_sessions.execute(select_projects).all()
+        filter_shefforg = Organizations.IDorg == projects[0][0] if projects else text('1=1')
         select_shefforg = (
             select(
                 Shefforganizations.shefforgEmail,
-                Shefforganizations.FullName + " - " + Organizations.orgName,
+                Shefforganizations.shefforgPositions,
+                Shefforganizations.FullName,
+                Organizations.orgName,
             )
             .join(Organizations)
+            .filter(filter_shefforg)
             .order_by(Shefforganizations.FullName)
         )
         shefforg = db_sessions.execute(select_shefforg).all()
-        return render_template("mail_shefforg.html", users=shefforg)
+        return render_template("mail_shefforg.html", users=shefforg, projects=projects)
+
+@pages.route("/getSheffOrgMail", methods=["GET"])
+def get_shefforg_mail():
+    idorg = request.args.get('idOrg')
+    db_sessions = get_session()
+    select = get_select()
+    select_shefforg = (
+            select(
+                Shefforganizations.shefforgEmail,
+                Shefforganizations.shefforgPositions,
+                Shefforganizations.FullName,
+                Organizations.orgName,
+            )
+            .join(Organizations)
+            .filter(Organizations.IDorg == idorg)
+            .order_by(Shefforganizations.FullName)
+        )
+    shefforg = db_sessions.execute(select_shefforg).all()
+
+    return jsonify([list(val) for val in shefforg]), 200
 
 
 @pages.route("/admin/mail_inic", methods=["GET"])
@@ -2678,16 +2752,42 @@ def admin_mail_inic():
     if request.method == "GET":
         db_sessions = get_session()
         select = get_select()
+        select_projects = (select(PassportOfProjects.IDinitpr, PassportOfProjects.passportName))
+        projects = db_sessions.execute(select_projects).all()
+        filter_inic = Initiatorsofprojects.IDinitpr == projects[0][0] if projects else text('1=1')
         select_iniciators = (
             select(
                 Initiatorsofprojects.initprEmail,
-                Initiatorsofprojects.FullName + " - " + Organizations.orgName,
+                Initiatorsofprojects.initprPositions,
+                Initiatorsofprojects.FullName,
+                Organizations.orgName,
             )
             .join(Organizations)
+            .filter(filter_inic)
             .order_by(Initiatorsofprojects.FullName)
         )
         iniciators = db_sessions.execute(select_iniciators).all()
-        return render_template("mail_inic.html", users=iniciators)
+        return render_template("mail_inic.html", users=iniciators, projects=projects)
+
+@pages.route("/getIniciatorMail", methods=["GET"])
+def get_iniciator_mail():
+    idinic = request.args.get('idInic')
+    db_sessions = get_session()
+    select = get_select()
+    select_iniciators = (
+        select(
+            Initiatorsofprojects.initprEmail,
+            Initiatorsofprojects.initprPositions,
+            Initiatorsofprojects.FullName,
+            Organizations.orgName,
+        )
+        .join(Organizations)
+        .filter(Initiatorsofprojects.IDinitpr == idinic)
+        .order_by(Initiatorsofprojects.FullName)
+    )
+    iniciators = db_sessions.execute(select_iniciators).all()
+
+    return jsonify([list(val) for val in iniciators]), 200
 
 
 @pages.route("/getCompetitionsSpec", methods=["GET"])
@@ -3039,11 +3139,25 @@ def student_participation_ticket():
         idstudent = session["user"][1]
         idgroup = session["user"][0]
         project_filter = request.form["projectFilter"]
+        org_filter = request.form["orgFilter"]
+        inic_filter = request.form["inicFilter"]
+        sheffproj_filter = request.form["sheffProjFilter"]
+
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
             else text("1=1")
         )
+        where_org_filter = (
+            Organizations.orgName.ilike("%" + org_filter + "%") if org_filter else text("1=1")
+        )
+        where_inic_filter = (
+            Initiatorsofprojects.FullName.ilike("%" + inic_filter + "%") if inic_filter else text("1=1")
+        )
+        where_sheffproj_filter = (
+            Sheffofprojects.FullName.ilike("%" + sheffproj_filter + "%") if sheffproj_filter else text("1=1")
+        )
+
         select_projects = (
             select(Projects, PassportOfProjects, StadiaOfProjects, Initiatorsofprojects, Organizations, Sheffofprojects, Positions).distinct()
             .join_from(Projects, RolesOfProjects, Projects.IDpassport == RolesOfProjects.IDpassport)
@@ -3061,6 +3175,9 @@ def student_participation_ticket():
             .filter((Applications.IDapplications == None) | (Applications.applicationApproved == 0))
             .filter((Applications.IDstudents != idstudent) | (Applications.IDstudents == None))
             .where(where_project_filter)
+            .where(where_org_filter)
+            .where(where_inic_filter)
+            .where(where_sheffproj_filter)
             .order_by(PassportOfProjects.passportName)
         )
         projects = db_sessions.execute(select_projects).all()
@@ -3120,7 +3237,7 @@ def student_add_ticket():
     return redirect("/student/participation_ticket")
 
 
-@pages.route("/student/tickets", methods=["GET"])
+@pages.route("/student/tickets", methods=["GET", "POST"])
 def student_tickets():
     if request.method == "GET":
         select = get_select()
@@ -3141,6 +3258,42 @@ def student_tickets():
         )
         applications = db_sessions.execute(select_applications).all()
         return render_template("student_tickets.html", applications=applications)
+    if request.method == "POST":
+        select = get_select()
+        db_sessions = get_session()
+        idstudent = session["user"][1]
+        role_filter = request.form.get('roleFilter')
+        project_name_filter = request.form.get('projectNameFilter')
+        status_filter = request.form.get('statusFilter')
+
+        where_project_filter = (
+            PassportOfProjects.passportName.ilike("%" + project_name_filter + "%") if project_name_filter else text("1=1")
+        )
+        where_stage_filter = (
+            Applications.applicationApproved == status_filter if status_filter else text("1=1")
+        )
+        where_role_filter = (
+            RolesOfProjects.rolesRole.ilike("%" + role_filter + "%") if role_filter else text("1=1")
+        )
+
+        select_applications = (
+            select(Applications, PassportOfProjects, RolesOfProjects, Confirmation)
+            .join_from(
+                Applications,
+                RolesOfProjects,
+                RolesOfProjects.IDroles == Applications.IDroles
+            )
+            .join(Projects)
+            .join(PassportOfProjects)
+            .join(Confirmation, isouter=True)
+            .filter(Applications.IDstudents == idstudent)
+            .filter(where_project_filter)
+            .filter(where_stage_filter)
+            .filter(where_role_filter)
+            .order_by(PassportOfProjects.passportName)
+        )
+        applications = db_sessions.execute(select_applications).all()
+        return render_template("resultTableStudentTickets.html", applications=applications)
 
 
 @pages.route("/student/modifyApplication", methods=["POST"])
@@ -3240,16 +3393,19 @@ def sheff_proj_tickets():
                 PassportOfProjects.IDpassport == Projects.IDpassport,
                 isouter=True).join(Applications).filter(PassportOfProjects.IDsheffpr == idsheff_proj)
             .filter(Applications.applicationApproved == 0))
+        groups = db_sessions.execute(select(Groups))
         projects = db_sessions.execute(select_projects).all()
         applications = db_sessions.execute(select_applications).all()
         levels = db_sessions.execute((select(Levels))).all()
-        return render_template("sheff_proj_tickets.html", projects=projects, tickets=applications, levels=levels)
+        return render_template("sheff_proj_tickets.html", projects=projects, tickets=applications, levels=levels, groups=groups)
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
         fio_filter = request.form['projectFioFilter']
         project_filter = request.form['projectNameFilter']
+        group_filter = request.form['groupFilter']
         where_fio_filter = (Students.FullName.ilike('%' + fio_filter + '%') if fio_filter else text('1=1'))
+        where_group_filter = (Groups.IDgroups == group_filter if group_filter else text('1=1'))
         where_project_filter = (PassportOfProjects.passportName.ilike('%' + project_filter + '%') if project_filter else text('1=1'))
         idsheff_proj = session["user"][0]
         select_applications = (
@@ -3268,6 +3424,7 @@ def sheff_proj_tickets():
             .join(Specializations)
             .filter(where_fio_filter)
             .filter(where_project_filter)
+            .filter(where_group_filter)
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
             .filter(Applications.applicationApproved == 0)
             .order_by(PassportOfProjects.passportName)
@@ -3369,16 +3526,19 @@ def sheff_proj_approved_tickets():
             .order_by(PassportOfProjects.passportName)
         )
         confirmations = db_sessions.execute(select_confirmation).all()
+        groups = db_sessions.execute(select(Groups))
         projects = db_sessions.execute(select_projects).all()
         levels = db_sessions.execute((select(Levels))).all()
-        return render_template("sheff_proj_confirmed.html", projects=projects, confirmations=confirmations, levels=levels)
+        return render_template("sheff_proj_confirmed.html", projects=projects, confirmations=confirmations, levels=levels, groups=groups)
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
         fio_filter = request.form.get('projectFioFilter')
         project_filter = request.form.get('projectNameFilter')
+        group_filter = request.form.get('groupFilter')
         where_fio_filter = (Students.FullName.ilike('%' + fio_filter + '%') if fio_filter else text('1=1'))
         where_project_filter = (PassportOfProjects.passportName.ilike('%' + project_filter + '%') if project_filter else text('1=1'))
+        where_group_filter = (Groups.IDgroups == group_filter if group_filter else text('1=1'))
         idsheff_proj = session["user"][0]
         select_projects = (
             select(
@@ -3409,6 +3569,7 @@ def sheff_proj_approved_tickets():
             .join(Specializations)
             .filter(where_fio_filter)
             .filter(where_project_filter)
+            .filter(where_group_filter)
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
             .order_by(PassportOfProjects.passportName)
         )
@@ -3518,13 +3679,16 @@ def student_works():
             .filter(StudentsInProjects.IDstudents == idstudent)
         )
         works = db_session.execute(select_works).all()
-        stage = db_session.execute(select(StadiaOfWorks).filter(StadiaOfWorks.IDstadiaofworks > 1)).all()
+        stage = db_session.execute(select(StadiaOfWorks)).all()
 
         return render_template('student_works.html', projects=projects, works=works, stage=stage)
     if request.method == 'POST':
         idstudent = session["user"][1]
         project_filter = request.form.get('projectFilter')
         stage_filter = request.form.get('stageFilter')
+        role_filter = request.form.get("roleFilter")
+        inic_filter = request.form.get("inicFilter")
+        sheffproj_filter = request.form.get("sheffProjFilter")
         db_session = get_session()
         select = get_select()
         where_project_filter = (
@@ -3533,17 +3697,32 @@ def student_works():
         where_stage_filter = (
             StudentsInProjects.IDstadiaofworks == stage_filter if stage_filter else text("1=1")
         )
+        where_role_filter = (
+            RolesOfProjects.rolesRole.ilike("%" + role_filter + "%") if role_filter else text("1=1")
+        )
+        where_inic_filter = (
+            Initiatorsofprojects.FullName.ilike("%" + inic_filter + "%") if inic_filter else text("1=1")
+        )
+        where_sheffproj_filter = (
+            Sheffofprojects.FullName.ilike("%" + sheffproj_filter + "%") if sheffproj_filter else text("1=1")
+        )
+
         select_projects = select(Projects, PassportOfProjects).join(StudentsInProjects).join(PassportOfProjects).filter(StudentsInProjects.IDstudents == idstudent).filter(where_project_filter).filter(where_stage_filter)
         projects = db_session.execute(select_projects).all()
         select_works = (select(StudentsInProjects, Students, StadiaOfWorks, RolesOfProjects, Projects, PassportOfProjects)
             .join_from(StudentsInProjects, Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
             .join(PassportOfProjects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(Sheffofprojects)
+            .join(Initiatorsofprojects)
             .join(Students)
             .join(StadiaOfWorks)
             .join(RolesOfProjects, RolesOfProjects.IDroles == StudentsInProjects.IDroles)
             .filter(StudentsInProjects.IDstudents == idstudent)
             .filter(where_project_filter)
             .filter(where_stage_filter)
+            .filter(where_role_filter)
+            .filter(where_inic_filter)
+            .filter(where_sheffproj_filter)
         )
         works = db_session.execute(select_works).all()
         return render_template('resultAccordionWorks.html', projects=projects, works=works)
@@ -3554,18 +3733,34 @@ def student_works():
 def student_mail_students():
     if request.method == "GET":
         db_sessions = get_session()
+        select = get_select()
         idstudent = session['user'][1]
 
-        students = db_sessions.execute(text("""SELECT distinct CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
-		s3.studentsEmail
-FROM	studentsinprojects s
-		join projects p on ( p.IDprojects  = s.IDprojects )
-		join studentsinprojects s2 on (s2.IDprojects = p.IDprojects)
-		join students s3 on ( s3.IDstudents = s2.IDstudents  )
-WHERE 	s.IDstudents = :idstudents
-		and s.IDstudents != s2.IDstudents"""), {'idstudents': idstudent}).all()
+        select_projects = (select(Projects.IDprojects, PassportOfProjects.passportName)
+            .distinct()
+            .join_from(PassportOfProjects, Projects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(StudentsInProjects)
+            .filter(StudentsInProjects.IDstudents == idstudent)
+        )
 
-        return render_template("students_mail_student.html", people=students)
+        projects = db_sessions.execute(select_projects).all()
+        idproj = projects[0][0] if projects else text('1=0')
+        students = db_sessions.execute(text("""SELECT distinct
+                CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
+                s3.studentsEmail,
+                concat_ws(' - ', g.groupsname, concat(p3.rolesrole, ' - ', p3.rolesfunction))
+        FROM	studentsinprojects s
+                join projects p on ( p.IDprojects  = s.IDprojects )
+                join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
+                join studentsinprojects s2 on (s2.IDprojects = p.IDprojects)
+                join rolesofprojects p3 on ( p3.idroles = s2.idroles )
+                join students s3 on ( s3.IDstudents = s.IDstudents  )
+                join `groups` g on ( g.idgroups = s3.idgroups )
+        WHERE 	p.idprojects = :idproj
+                and s.IDstudents = :idstudents
+		        and s.IDstudents != s2.IDstudents"""), {'idproj': idproj, 'idstudents': idstudent}).all()
+
+        return render_template("students_mail_student.html", users=students, projects=projects)
 
 @pages.route(
     "/student/mailIniciator", methods=["GET", "POST"]
@@ -3573,22 +3768,24 @@ WHERE 	s.IDstudents = :idstudents
 def student_mail_iniciator():
     if request.method == "GET":
         db_sessions = get_session()
+        select = get_select()
         idstudent = session['user'][1]
-
-        students = db_sessions.execute(text("""SELECT distinct
-	CONCAT_WS(' ', i.initprFirstname, i.initprName, i.initprFathername),
-	i.initprEmail
-FROM
-	studentsinprojects s
-join projects p on
-	( p.IDprojects = s.IDprojects )
-join passportofprojects p2 on
-	( p2.IDpassport = p.IDpassport )
-join initiatorsofprojects i on
-	(i.IDinitpr = p2.IDinitpr)
-WHERE	s.IDstudents = :idstudent"""), {'idstudent': idstudent}).all()
-
-        return render_template("students_mail_iniciator.html", people=students)
+        select_projects = (select(PassportOfProjects.IDinitpr, PassportOfProjects.passportName).join(Projects).join(StudentsInProjects).filter(StudentsInProjects.IDstudents == idstudent))
+        projects = db_sessions.execute(select_projects).all()
+        filter_inic = Initiatorsofprojects.IDinitpr == projects[0][0] if projects else text('1=0')
+        select_iniciators = (
+            select(
+                Initiatorsofprojects.initprEmail,
+                Initiatorsofprojects.initprPositions,
+                Initiatorsofprojects.FullName,
+                Organizations.orgName,
+            )
+            .join(Organizations)
+            .filter(filter_inic)
+            .order_by(Initiatorsofprojects.FullName)
+        )
+        iniciators = db_sessions.execute(select_iniciators).all()
+        return render_template("students_mail_iniciator.html", users=iniciators, projects=projects)
 
 @pages.route(
     "/student/mailSheffPr", methods=["GET", "POST"]
@@ -3597,21 +3794,30 @@ def student_mail_sheff_proj():
     if request.method == "GET":
         db_sessions = get_session()
         idstudent = session['user'][1]
+        select = get_select()
+        select_projects = (
+            select(Projects.IDprojects, PassportOfProjects.passportName)
+            .distinct()
+            .join_from(PassportOfProjects, Projects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(StudentsInProjects)
+            .filter(StudentsInProjects.IDstudents == idstudent)
+        )
+
+        projects = db_sessions.execute(select_projects).all()
+        idproj = projects[0][0] if projects else text('1=0')
 
         students = db_sessions.execute(text("""SELECT distinct
-	CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
-	s2.sheffprEmail
-FROM
-	studentsinprojects s
-join projects p on
-	( p.IDprojects = s.IDprojects )
-join passportofprojects p2 on
-	( p2.IDpassport = p.IDpassport )
-join sheffofprojects s2  on
-	( s2.IDsheffpr = p2.IDsheffpr )
-WHERE	s.IDstudents = :idstudent"""), {'idstudent': idstudent}).all()
+        CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
+        s2.sheffprEmail
+    FROM
+        projects p
+    join passportofprojects p2 on
+        ( p2.IDpassport = p.IDpassport )
+    join sheffofprojects s2  on
+        ( s2.IDsheffpr = p2.IDsheffpr )
+    WHERE	p.idprojects = :idproj"""), {'idproj': idproj}).all()
 
-        return render_template("students_mail_sheffpr.html", people=students)
+        return render_template("students_mail_sheffpr.html", users=students, projects=projects)
 
 @pages.route(
     "/sheffproj/mailAnotherStudents", methods=["GET", "POST"]
@@ -3619,17 +3825,28 @@ WHERE	s.IDstudents = :idstudent"""), {'idstudent': idstudent}).all()
 def sheffproj_mail_students():
     if request.method == "GET":
         db_sessions = get_session()
+        select = get_select()
         idsheff_proj = session['user'][0]
 
-        students = db_sessions.execute(text("""SELECT distinct CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
-		s3.studentsEmail
-FROM	studentsinprojects s
-		join projects p on ( p.IDprojects  = s.IDprojects )
-        join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
-		join students s3 on ( s3.IDstudents = s.IDstudents  )
-WHERE 	p2.IDsheffpr = :idsheffproj"""), {'idsheffproj': idsheff_proj}).all()
+        select_projects = select(Projects.IDprojects, PassportOfProjects.passportName).distinct().join_from(PassportOfProjects, Projects, PassportOfProjects.IDpassport == Projects.IDpassport).filter(PassportOfProjects.IDsheffpr == idsheff_proj)
 
-        return render_template("students_mail_student.html", people=students)
+        projects = db_sessions.execute(select_projects).all()
+        idproj = projects[0][0] if projects else text('1=0')
+
+        students = db_sessions.execute(text("""SELECT distinct
+        CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
+		s3.studentsEmail,
+        concat_ws(' - ', g.groupsname, concat(p3.rolesrole, ' - ', p3.rolesfunction))
+        FROM	studentsinprojects s
+                join projects p on ( p.IDprojects  = s.IDprojects )
+                join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
+                join students s3 on ( s3.IDstudents = s.IDstudents )
+                join rolesofprojects p3 on (r.idroles = s.idroles)
+                join `groups` g on (s3.idgroups = g.idgroups)
+        WHERE 	p2.IDsheffpr = :idsheffproj
+                and p.idprojects = :idproj"""), {'idsheffproj': idsheff_proj, 'idproj': idproj}).all()
+
+        return render_template("students_mail_student.html", users=students, projects=projects)
 
 @pages.route(
     "/sheffproj/mailIniciator", methods=["GET", "POST"]
@@ -3637,20 +3854,29 @@ WHERE 	p2.IDsheffpr = :idsheffproj"""), {'idsheffproj': idsheff_proj}).all()
 def sheffproj_mail_iniciator():
     if request.method == "GET":
         db_sessions = get_session()
+        select = get_select()
         idsheff_proj = session['user'][0]
 
-        iniciators = db_sessions.execute(text("""SELECT distinct
-	CONCAT_WS(' ', i.initprFirstname, i.initprName, i.initprFathername),
-	i.initprEmail
-FROM
-	projects p
-join passportofprojects p2 on
-	( p2.IDpassport = p.IDpassport )
-join initiatorsofprojects i on
-	(i.IDinitpr = p2.IDinitpr)
-WHERE	p2.IDsheffpr = :idsheffproj"""), {'idsheffproj': idsheff_proj}).all()
+        select_projects = select(PassportOfProjects.IDinitpr, PassportOfProjects.passportName).distinct().join_from(PassportOfProjects, Projects, PassportOfProjects.IDpassport == Projects.IDpassport).filter(PassportOfProjects.IDsheffpr == idsheff_proj)
 
-        return render_template("students_mail_iniciator.html", people=iniciators)
+        projects = db_sessions.execute(select_projects).all()
+        idproj = projects[0][0] if projects else text('1=0')
+
+        iniciators = db_sessions.execute(text("""SELECT distinct
+            i.initprEmail,
+            i.initprPositions,
+            CONCAT_WS(' ', i.initprFirstname, i.initprName, i.initprFathername),
+            o.orgname
+        FROM
+            projects p
+        join passportofprojects p2 on
+            ( p2.IDpassport = p.IDpassport )
+        join initiatorsofprojects i on
+            (i.IDinitpr = p2.IDinitpr)
+        join organizations o on ( o.idorg = i.idorg )
+        WHERE	p2.IDsheffpr = :idsheffproj
+                and p.idprojects = :idproj"""), {'idsheffproj': idsheff_proj, 'idproj': idproj}).all()
+        return render_template("students_mail_iniciator.html", users=iniciators, projects=projects)
 
 @pages.route(
     "/iniciators/mailAnotherStudents", methods=["GET", "POST"]
@@ -3661,14 +3887,18 @@ def iniciator_mail_students():
         idiniciator = session['user'][1]
 
         students = db_sessions.execute(text("""SELECT distinct CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
-		s3.studentsEmail
+		s3.studentsEmail,
+        concat_ws(' - ', g.groupsname, concat(p3.rolesrole, ' - ', p3.rolesfunction))
 FROM	studentsinprojects s
 		join projects p on ( p.IDprojects  = s.IDprojects )
         join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
 		join students s3 on ( s3.IDstudents = s.IDstudents  )
+        join rolesofprojects p3 on (r.idroles = s.idroles)
+        join `groups` g on (s3.idgroups = g.idgroups)
+
 WHERE 	p2.IDinitpr = :idiniciator"""), {'idiniciator': idiniciator}).all()
 
-        return render_template("students_mail_student.html", people=students)
+        return render_template("students_mail_student.html", users=students)
 
 @pages.route(
     "/iniciators/mailSheffPr", methods=["GET", "POST"]
@@ -3691,7 +3921,7 @@ join sheffofprojects s2  on
 	( s2.IDsheffpr = p2.IDsheffpr )
 WHERE	p2.IDinitpr = :idiniciator"""), {'idiniciator': idiniciator}).all()
 
-        return render_template("students_mail_sheffpr.html", people=students)
+        return render_template("students_mail_sheffpr.html", users=students)
 
 @pages.route(
     "/shefforg/mailAnotherStudents", methods=["GET", "POST"]
@@ -3699,19 +3929,32 @@ WHERE	p2.IDinitpr = :idiniciator"""), {'idiniciator': idiniciator}).all()
 def shefforg_mail_students():
     if request.method == "GET":
         db_sessions = get_session()
-        idsheff_org = session['user'][1]
+        idorg = session['user'][0]
+        select = get_select()
+        select_projects = (
+            select(Projects.IDprojects, PassportOfProjects.passportName)
+            .distinct()
+            .join_from(PassportOfProjects, Projects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(Initiatorsofprojects)
+            .filter(Initiatorsofprojects.IDorg == idorg)
+        )
 
-        students = db_sessions.execute(text("""SELECT distinct CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
-		s3.studentsEmail
-FROM	studentsinprojects s
-		join projects p on ( p.IDprojects  = s.IDprojects )
-        join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
-        join initiatorsofprojects i on ( i.IDinitpr = p2.IDinitpr )
-        join organizations o on ( o.IDorg = i.IDorg )
-		join students s3 on ( s3.IDstudents = s.IDstudents  )
-WHERE 	o.IDshefforg = :idsheff_org"""), {'idsheff_org': idsheff_org}).all()
+        projects = db_sessions.execute(select_projects).all()
+        idproj = projects[0][0] if projects else text('1=0')
 
-        return render_template("students_mail_student.html", people=students)
+        students = db_sessions.execute(text("""SELECT distinct
+                CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
+                s3.studentsEmail,
+                concat_ws(' - ', g.groupsname, concat(p3.rolesrole, ' - ', p3.rolesfunction))
+        FROM	studentsinprojects s
+                join projects p on ( p.IDprojects  = s.IDprojects )
+                join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
+                join students s3 on ( s3.IDstudents = s.IDstudents  )
+                join `groups` g on ( g.idgroups = s3.idgroups )
+                join rolesofprojects p3 on (p3.idroles = s.idroles)
+        WHERE 	p.idprojects = :idproj"""), {'idproj': idproj}).all()
+
+        return render_template("students_mail_student.html", users=students, projects=projects)
 
 @pages.route(
     "/shefforg/mailSheffPr", methods=["GET", "POST"]
@@ -3719,24 +3962,32 @@ WHERE 	o.IDshefforg = :idsheff_org"""), {'idsheff_org': idsheff_org}).all()
 def shefforg_mail_sheff_proj():
     if request.method == "GET":
         db_sessions = get_session()
-        idsheff_org = session['user'][1]
+        select = get_select()
+        idorg = session['user'][0]
+
+        select_projects = (
+            select(Projects.IDprojects, PassportOfProjects.passportName)
+            .distinct()
+            .join_from(PassportOfProjects, Projects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(Initiatorsofprojects)
+            .filter(Initiatorsofprojects.IDorg == idorg)
+        )
+
+        projects = db_sessions.execute(select_projects).all()
+        idproj = projects[0][0] if projects else text('1=0')
 
         students = db_sessions.execute(text("""SELECT distinct
-	CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
-	s2.sheffprEmail
-FROM
-	studentsinprojects s
-join projects p on
-	( p.IDprojects = s.IDprojects )
-join passportofprojects p2 on
-	( p2.IDpassport = p.IDpassport )
-join initiatorsofprojects i on ( i.IDinitpr = p2.IDinitpr )
-join organizations o on ( o.IDorg = i.IDorg )
-join sheffofprojects s2  on
-	( s2.IDsheffpr = p2.IDsheffpr )
-WHERE	o.IDshefforg = :idsheff_org"""), {'idsheff_org': idsheff_org}).all()
+            CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
+            s2.sheffprEmail
+        FROM
+            projects p
+        join passportofprojects p2 on
+            ( p2.IDpassport = p.IDpassport )
+        join sheffofprojects s2  on
+            ( s2.IDsheffpr = p2.IDsheffpr )
+        WHERE	p.idprojects = :idproj"""), {'idproj': idproj}).all()
 
-        return render_template("students_mail_sheffpr.html", people=students)
+        return render_template("students_mail_sheffpr.html", users=students, projects=projects)
 
 
 @pages.route("/uploadWorkStudent", methods=["POST"])
@@ -3906,8 +4157,58 @@ def sheff_org_works():
             .join(Initiatorsofprojects).filter(Initiatorsofprojects.IDorg == idorg)
         )
         works = db_session.execute(select_works).all()
-
-        return render_template('sheff_org_works.html', projects=projects, works=works)
+        stadia = db_session.execute(select(StadiaOfWorks))
+        return render_template('sheff_org_works.html', projects=projects, works=works, stadia=stadia)
+    if request.method == 'POST':
+        idorg = session["user"][0]
+        db_session = get_session()
+        select = get_select()
+        fio_filter = request.form.get("fioFilter")
+        project_filter = request.form.get("projectFilter")
+        role_filter = request.form.get('roleFilter')
+        status_filter = request.form.get('statusFilter')
+        where_fio_filter = (
+            Students.FullName.ilike("%" + fio_filter + "%") if fio_filter else text("1=1")
+        )
+        where_project_filter = (
+            PassportOfProjects.passportName.ilike("%" + project_filter + "%") if project_filter else text("1=1")
+        )
+        where_role_filter = (
+            RolesOfProjects.rolesRole.ilike("%" + role_filter + "%") if role_filter else text("1=1")
+        )
+        where_status_filter = (
+            StudentsInProjects.IDstadiaofworks == status_filter if status_filter else text("1=1")
+        )
+        select_projects = (
+            select(Projects, PassportOfProjects)
+            .distinct()
+            .join_from(StudentsInProjects, Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
+            .join(PassportOfProjects)
+            .join(RolesOfProjects)
+            .join(Students)
+            .join(Initiatorsofprojects)
+            .filter(Initiatorsofprojects.IDorg == idorg)
+            .filter(where_status_filter)
+            .filter(where_role_filter)
+            .filter(where_project_filter)
+            .filter(where_fio_filter)
+        )
+        projects = db_session.execute(select_projects).all()
+        select_works = (select(StudentsInProjects, Students, StadiaOfWorks, RolesOfProjects, Projects, PassportOfProjects)
+            .distinct()
+            .join_from(StudentsInProjects, Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
+            .join(PassportOfProjects, PassportOfProjects.IDpassport == Projects.IDpassport)
+            .join(Students)
+            .join(StadiaOfWorks)
+            .join(RolesOfProjects, RolesOfProjects.IDroles == StudentsInProjects.IDroles)
+            .join(Initiatorsofprojects).filter(Initiatorsofprojects.IDorg == idorg)
+            .filter(where_status_filter)
+            .filter(where_role_filter)
+            .filter(where_project_filter)
+            .filter(where_fio_filter)
+        )
+        works = db_session.execute(select_works).all()
+        return render_template('resultAccordionWorks.html', projects=projects, works=works)
 
 @pages.route('/getFullProject', methods=['GET'])
 def get_project_full():
@@ -3978,17 +4279,22 @@ def sheff_org_members():
             .filter(Initiatorsofprojects.IDorg == idorg)
             .order_by(PassportOfProjects.passportName)
         )
+        groups = db_sessions.execute(select(Groups))
         confirmations = db_sessions.execute(select_confirmation).all()
         projects = db_sessions.execute(select_projects).all()
         levels = db_sessions.execute((select(Levels))).all()
-        return render_template("sheff_org_members.html", projects=projects, confirmations=confirmations, levels=levels)
+        return render_template("sheff_org_members.html", projects=projects, confirmations=confirmations, levels=levels, groups=groups)
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
         fio_filter = request.form.get('projectFioFilter')
         project_filter = request.form.get('projectNameFilter')
+        group_filter = request.form.get('groupFilter')
+        role_filter = request.form.get('roleFilter')
         where_fio_filter = (Students.FullName.ilike('%' + fio_filter + '%') if fio_filter else text('1=1'))
         where_project_filter = (PassportOfProjects.passportName.ilike('%' + project_filter + '%') if project_filter else text('1=1'))
+        where_group_filter = (Students.IDgroups == group_filter if group_filter else text('1=1'))
+        where_role_filter = (RolesOfProjects.rolesRole.ilike('%' + role_filter + '%') if role_filter else text('1=1'))
         idorg = session["user"][0]
         select_projects = (
             select(
@@ -4001,11 +4307,14 @@ def sheff_org_members():
                 isouter=True,
             )
             .join(StudentsInProjects)
+            .join(RolesOfProjects)
             .join(Students)
             .join(Initiatorsofprojects)
             .filter(Initiatorsofprojects.IDorg == idorg)
             .filter(where_fio_filter)
             .filter(where_project_filter)
+            .filter(where_group_filter)
+            .filter(where_role_filter)
         )
         select_confirmation = (
             select(Students, Groups, Levels, Confirmation, Specializations, RolesOfProjects, PassportOfProjects, StudentsInProjects)
@@ -4028,6 +4337,8 @@ def sheff_org_members():
             .filter(Initiatorsofprojects.IDorg == idorg)
             .filter(where_fio_filter)
             .filter(where_project_filter)
+            .filter(where_group_filter)
+            .filter(where_role_filter)
             .order_by(PassportOfProjects.passportName)
         )
         confirmations = db_sessions.execute(select_confirmation).all()
@@ -4198,3 +4509,87 @@ def student_members():
         projects = db_sessions.execute(select_projects).all()
         confirmations = db_sessions.execute(select_confirmation).all()
         return render_template("resultAccordionStudentApprovedTickets.html", projects=projects, confirmations=confirmations)
+
+@pages.route(
+    "/admin/mailAnotherStudents", methods=["GET"]
+)
+def admin_mail_students():
+    if request.method == "GET":
+        db_sessions = get_session()
+        select = get_select()
+        select_projects = select(Projects.IDprojects, PassportOfProjects.passportName).distinct().join_from(PassportOfProjects, Projects, PassportOfProjects.IDpassport == Projects.IDpassport)
+
+        projects = db_sessions.execute(select_projects).all()
+        idproj = projects[0][0] if projects else text('1=0')
+        students = db_sessions.execute(text("""SELECT distinct
+                CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
+                s3.studentsEmail,
+                concat_ws(' - ', g.groupsname, concat(p3.rolesrole, ' - ', p3.rolesfunction))
+        FROM	studentsinprojects s
+                join projects p on ( p.IDprojects  = s.IDprojects )
+                join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
+                join students s3 on ( s3.IDstudents = s.IDstudents  )
+                join `groups` g on ( g.idgroups = s3.idgroups )
+                join rolesofprojects p3 on ( p3.idroles = s.idroles )
+        WHERE 	p.idprojects = :idproj"""), {'idproj': idproj}).all()
+
+        return render_template("students_mail_student.html", users=students, projects=projects)
+
+@pages.route(
+    "/admin/mailSheffPr", methods=["GET"]
+)
+def admin_mail_sheff_proj():
+    if request.method == "GET":
+        db_sessions = get_session()
+        select = get_select()
+        select_projects = select(Projects.IDprojects, PassportOfProjects.passportName).distinct().join_from(PassportOfProjects, Projects, PassportOfProjects.IDpassport == Projects.IDpassport)
+
+        projects = db_sessions.execute(select_projects).all()
+        idproj = projects[0][0] if projects else text('1=0')
+        students = db_sessions.execute(text("""SELECT distinct
+        CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
+        s2.sheffprEmail
+    FROM
+        projects p
+    join passportofprojects p2 on
+        ( p2.IDpassport = p.IDpassport )
+    join sheffofprojects s2  on
+        ( s2.IDsheffpr = p2.IDsheffpr )
+    WHERE	p.idprojects = :idproj"""), {'idproj': idproj}).all()
+
+        return render_template("students_mail_sheffpr.html", users=students, projects=projects)
+
+@pages.route("/getStudentsMail", methods=["GET"])
+def get_student_mail():
+    idproj = request.args.get('idProject')
+    db_sessions = get_session()
+    students = db_sessions.execute(text("""SELECT distinct
+                CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
+                s3.studentsEmail,
+                concat_ws(' - ', g.groupsname, concat(p3.rolesrole, ' - ', p3.rolesfunction))
+        FROM	studentsinprojects s
+                join projects p on ( p.IDprojects  = s.IDprojects )
+                join passportofprojects p2 on ( p2.IDpassport = p.IDpassport )
+                join students s3 on ( s3.IDstudents = s.IDstudents  )
+                join `groups` g on ( g.idgroups = s3.idgroups )
+                join rolesofprojects p3 on (p3.idroles = s.idroles)
+        WHERE 	p.idprojects = :idproj"""), {'idproj': idproj}).all()
+
+    return jsonify([list(val) for val in students]), 200
+
+@pages.route("/getSheffProjMail", methods=["GET"])
+def get_sheff_proj_mail():
+    idproj = request.args.get('idProject')
+    db_sessions = get_session()
+    students = db_sessions.execute(text("""SELECT distinct
+        CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
+        s2.sheffprEmail
+    FROM
+        projects p
+    join passportofprojects p2 on
+        ( p2.IDpassport = p.IDpassport )
+    join sheffofprojects s2  on
+        ( s2.IDsheffpr = p2.IDsheffpr )
+    WHERE	p.idprojects = :idproj"""), {'idproj': idproj}).all()
+
+    return jsonify([list(val) for val in students]), 200

@@ -260,6 +260,7 @@
             <label for="spec" class="form-select-label">Введите новую группу</label>
             <select class="form-select" aria-label="Default select example" id="newGroup" name="newGroup" {% if
               groups==[] %} disabled {% endif %}>
+              <option value=""></option>
               {% for el in groups %}
               <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{ el.Groups.groupsYear }}</option>
               {% endfor %}

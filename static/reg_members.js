@@ -2,28 +2,30 @@ function applyMembersFilters() {
   const projectFioFilter = document.getElementById("projectFioFilter").value;
   const projectRoleFilter = document.getElementById("projectRoleFilter").value;
   const projectNaprFilter = document.getElementById("projectNaprFilter").value;
+  const groupFilter = document.getElementById("grname").value;
 
-  if (!projectFioFilter && !projectRoleFilter && !projectNaprFilter) {
+  if (!projectFioFilter && !projectRoleFilter && !projectNaprFilter && !groupFilter) {
     return;
   }
-  getDataMembers(projectFioFilter, projectRoleFilter, projectNaprFilter);
+  getDataMembers(projectFioFilter, projectRoleFilter, projectNaprFilter, groupFilter);
 }
 
 function dropMembersFilter() {
-  getDataMembers(null, null, null);
+  getDataMembers(null, null, null, null);
 }
 
 function getDataMembers(
   projectFioFilter,
   projectRoleFilter,
-  projectNaprFilter
+  projectNaprFilter,
+  groupFilter
 ) {
   const url = window.location.pathname.split("/")[1];
   $.ajax({
     type: "POST",
     url: "/" + url + "/members",
     dataSrc: "data",
-    data: { projectFioFilter, projectRoleFilter, projectNaprFilter },
+    data: { projectFioFilter, projectRoleFilter, projectNaprFilter, groupFilter },
     success: function (data) {
       const accordion = document.getElementById("membersAccordion");
       accordion.innerHTML = data;
@@ -142,28 +144,30 @@ function getDataRoles(
 }
 
 function applyMemFilters() {
-  const projectFioFilter = document.getElementById("projectFioFilter").value;
-  const projectNameFilter = document.getElementById("projectNameFilter").value;
+  const projectFioFilter = document.getElementById("projectFioFilter")?.value;
+  const projectNameFilter = document.getElementById("projectNameFilter")?.value;
+  const groupFilter = document.getElementById("grname")?.value;
+  const roleFilter = document.getElementById("roleFilter")?.value;
 
-  if (!projectFioFilter && !projectNameFilter) {
+  if (!groupFilter && !roleFilter && !projectFioFilter && !projectNameFilter) {
     return;
   }
-  getDataMem(projectFioFilter, projectNameFilter);
+  getDataMem(roleFilter, groupFilter, projectFioFilter, projectNameFilter);
 }
 
 function dropMemFilter() {
-  getDataMem(null, null);
+  getDataMem(null, null, null, null);
 }
 
 function getDataMem(
-  projectFioFilter, projectNameFilter
+  roleFilter, groupFilter, projectFioFilter, projectNameFilter
 ) {
   const url = window.location.pathname.split("/")[1];
   $.ajax({
     type: "POST",
     url: "/" + url + "/members",
     dataSrc: "data",
-    data: { projectFioFilter, projectNameFilter },
+    data: { roleFilter, groupFilter, projectFioFilter, projectNameFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;

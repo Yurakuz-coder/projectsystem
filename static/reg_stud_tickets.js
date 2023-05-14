@@ -1,22 +1,23 @@
 function applyStudTicketsFilters() {
   const projectFioFilter = document.getElementById("projectFioFilter").value;
   const projectNameFilter = document.getElementById("projectNameFilter").value;
-  if (!projectFioFilter && !projectNameFilter) {
+  const groupFilter = document.getElementById("grname").value;
+  if (!projectFioFilter && !projectNameFilter && !groupFilter) {
     return;
   }
-  getStudTicketsData(projectFioFilter, projectNameFilter);
+  getStudTicketsData(projectFioFilter, projectNameFilter, groupFilter);
 }
 
 function dropStudTicketsFilter() {
-  getStudTicketsData(null, null);
+  getStudTicketsData(null, null, null);
 }
 
-function getStudTicketsData(projectFioFilter, projectNameFilter) {
+function getStudTicketsData(projectFioFilter, projectNameFilter, groupFilter) {
   $.ajax({
     type: "POST",
     url: "/sheffproj/tickets",
     dataSrc: "data",
-    data: { projectFioFilter, projectNameFilter },
+    data: { projectFioFilter, projectNameFilter, groupFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
@@ -30,22 +31,23 @@ function getStudTicketsData(projectFioFilter, projectNameFilter) {
 function applyStudApprovedTicketsFilters() {
   const projectFioFilter = document.getElementById("projectFioFilter").value;
   const projectNameFilter = document.getElementById("projectNameFilter").value;
-  if (!projectFioFilter && !projectNameFilter) {
+  const groupFilter = document.getElementById("grname").value;
+  if (!projectFioFilter && !projectNameFilter && !groupFilter) {
     return;
   }
-  getStudApprovedTicketsData(projectFioFilter, projectNameFilter);
+  getStudApprovedTicketsData(projectFioFilter, projectNameFilter, groupFilter);
 }
 
 function dropStudApprovedTicketsFilter() {
-  getStudApprovedTicketsData(null, null);
+  getStudApprovedTicketsData(null, null, null);
 }
 
-function getStudApprovedTicketsData(projectFioFilter, projectNameFilter) {
+function getStudApprovedTicketsData(projectFioFilter, projectNameFilter, groupFilter) {
   $.ajax({
     type: "POST",
     url: "/sheffproj/approved_tickets",
     dataSrc: "data",
-    data: { projectFioFilter, projectNameFilter },
+    data: { projectFioFilter, projectNameFilter, groupFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;

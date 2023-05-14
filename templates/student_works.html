@@ -15,8 +15,19 @@
     <input type="text" id="projectFilter" class="form-control" placeholder="Фильтр по названию проекта"
         aria-label="projectFilter" aria-describedby="basic-addon1">
     <br>
+    <input type="text" id="inicFilter" class="form-control" placeholder="Фильтр по иницатору проекта"
+        aria-label="projectFilter" aria-describedby="basic-addon1">
+    <br>
+    <input type="text" id="sheffProjFilter" class="form-control" placeholder="Фильтр по руководителю проекта"
+        aria-label="projectFilter" aria-describedby="basic-addon1">
+    <br>
+    <input type="text" id="roleFilter" class="form-control" placeholder="Фильтр по роли" aria-label="projectFilter"
+        aria-describedby="basic-addon1">
+    <br>
     <label for="stageFilter" class="form-select-label">Фильтр по стадию работы</label>
     <select class="form-select" name="stageFilter" id="stageFilter" {% if stage==[] %} disabled {% endif %}>
+        <option value=""> Не использовать фильтр по стадии
+        </option>
         {% for el in stage %}
         <option value="{{ el.StadiaOfWorks.IDstadiaofworks }}"> {{
             el.StadiaOfWorks.stadiaofworksName }}

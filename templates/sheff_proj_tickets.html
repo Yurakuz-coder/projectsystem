@@ -18,6 +18,17 @@
     <input type="text" id="projectNameFilter" class="form-control" placeholder="Фильтр по названию проекта"
         aria-label="projectNameFilter" aria-describedby="basic-addon1">
     <br>
+    <select class="form-select" aria-label="Default select example" name="grname" id="grname">
+        <option value="">Не использовать фильтр по группе</option>
+        {% for el in groups %}
+        <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{
+            el.Groups.groupsYear }}</option>
+        {% endfor %}
+        {% if groups==[] %}
+        <option value="">Группы не найдены</option>
+        {% endif %}
+    </select>
+    <br>
     <div class="btn-group" role="group">
         <button type="button" class="btn btn-secondary" id="buttonFilter" onClick="applyStudTicketsFilters()">
             Применить фильтры

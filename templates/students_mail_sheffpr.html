@@ -5,14 +5,23 @@
 
 
 <div class="form-group">
-  <label for="admin" class="form-select-label">Выберите руководителя</label>
-  <select class="form-select" aria-label="Default select example" name="admin" id="admin" {% if people==[] %} disabled
-    {% endif %} required>
-    {% for el in people %}
-    <option value="{{ el[1] }}"> {{ el[0] }} </option>
+  <label for="admin" class="form-select-label">Выберите проект</label>
+  <select class="form-select" aria-label="Default select example" name="project" id="project" {% if projects==[] %}
+    disabled {% endif %} onchange="changeSheffProj(this.value)">
+    {% for el in projects %}
+    <option value="{{ el[0] }}"> {{ el[1] }} </option>
     {% endfor %}
-    {% if people == [] %}
-    <option value="">Пользователи не найдены</option>
+    {% if projects == [] %}
+    <option value="">Проекты не найдены</option>
+    {% endif %}
+  </select>
+  <label for="admin" class="form-select-label">Выберите руководителя проектов</label>
+  <select class="form-select" aria-label="Default select example" name="admin" id="admin" disabled required>
+    {% for el in users %}
+    <option value="{{ el[1] }}">{{ el[0] }}</option>
+    {% endfor %}
+    {% if users == [] %}
+    <option value="">Руководители не найдены</option>
     {% endif %}
   </select>
 </div>
@@ -29,7 +38,7 @@
 <input type="file" class="form-control" name="attached_files" id="attachedFiles" multiple>
 
 <div class="modal-footer">
-  <button type="submit" class="btn btn-primary" id='sendMailButton' onclick="sendMail()" {% if people==[] %} disabled {%
+  <button type="submit" class="btn btn-primary" id='sendMailButton' onclick="sendMail()" {% if users==[] %} disabled {%
     endif %}>Отправить письмо</button>
 </div>
 {% endblock content %}

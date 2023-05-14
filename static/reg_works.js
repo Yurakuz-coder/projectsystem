@@ -68,27 +68,29 @@ function deleteWork(id) {
 }
 
 function applyInicWorkFilters() {
-  const fioFilter = document.getElementById("fioFilter").value;
-  const projectFilter = document.getElementById("projectFilter").value;
-  const roleFilter = document.getElementById("roleFilter").value;
+  const fioFilter = document.getElementById("fioFilter")?.value;
+  const projectFilter = document.getElementById("projectFilter")?.value;
+  const roleFilter = document.getElementById("roleFilter")?.value;
+  const statusFilter = document.getElementById("status")?.value;
 
-  if (!projectFilter && !fioFilter && !roleFilter) {
+
+  if (!projectFilter && !fioFilter && !roleFilter && !statusFilter) {
     return;
   }
-  getDataInicWorkProject(projectFilter, fioFilter, roleFilter);
+  getDataInicWorkProject(projectFilter, fioFilter, roleFilter, statusFilter);
 }
 
 function dropInicWorkFilter() {
-  getDataInicWorkProject(null, null, null);
+  getDataInicWorkProject(null, null, null, null);
 }
 
-function getDataInicWorkProject(projectFilter, fioFilter, roleFilter) {
+function getDataInicWorkProject(projectFilter, fioFilter, roleFilter, statusFilter) {
   const url = window.location.pathname.split('/')[1]
   $.ajax({
     type: "POST",
     url: "/" + url + "/works",
     dataSrc: "data",
-    data: { projectFilter, fioFilter, roleFilter },
+    data: { projectFilter, fioFilter, roleFilter, statusFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
