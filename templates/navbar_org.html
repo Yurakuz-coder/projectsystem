@@ -101,18 +101,17 @@
             Написать письмо
           </a>
           <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-            <li><a class="dropdown-item" href="/{{ session['url'] }}/mailAnotherStudents">Другим студентам в
-                проекте</a></li>
+            <li><a class="dropdown-item" href="/{{ session['url'] }}/mailAnotherStudents">Студенту</a></li>
             <li><a href="/{{ session['url'] }}/mailSheffPr" class="dropdown-item">Руководителю</a></li>
-            <li><a href="/{{ session['url'] }}/mailadmin" class="dropdown-item">Связаться с администратором системы</a>
-            </li>
-          </ul>
+            <li><a href="/{{ session['url'] }}/mailadmin" class="dropdown-item">Администратору системы</a></li>
         </li>
-        <div class="d-flex justify-content-center">
-          <form action="/exit" method="post">
-            <button type="submit" class="btn btn-danger">Выйти из системы</button>
-          </form>
-        </div>
+      </ul>
+      </li>
+      <div class="d-flex justify-content-center">
+        <form action="/exit" method="post">
+          <button type="submit" class="btn btn-danger">Выйти из системы</button>
+        </form>
+      </div>
   </div>
 </nav>
 {% endblock content %}

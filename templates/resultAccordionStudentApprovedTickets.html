@@ -9,19 +9,20 @@
     <div id="collapse{{ proj[0] }}" class="accordion-collapse collapse" aria-labelledby="heading{{ proj[0] }}"
         data-bs-parent="#accordionProjectWrapper">
         <div id='accordionRolesWrapper' class="accordion-body">
-            {% for el in confirmations %}
+            {% for el in approved %}
             {% if proj[0] == el.PassportOfProjects.IDpassport %}
             <div class="accordion-item">
-                <h2 class="accordion-header" id="accordion{{ proj[0] }}_{{ el.Confirmation.IDconfirmation }}">
+                <h2 class="accordion-header" id="accordion{{ proj[0] }}_{{ el.StudentsInProjects.IDstudentspr }}">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapse{{ proj[0] }}_{{ el.Confirmation.IDconfirmation }}"
+                        data-bs-target="#collapse{{ proj[0] }}_{{ el.StudentsInProjects.IDstudentspr }}"
                         aria-expanded="false"
-                        aria-controls="collapse{{ proj[0] }}_{{ el.Confirmation.IDconfirmation }}">
+                        aria-controls="collapse{{ proj[0] }}_{{ el.StudentsInProjects.IDstudentspr }}">
                         {{ el.Students.FullName }}
                     </button>
                 </h2>
-                <div id="collapse{{ proj[0] }}_{{ el.Confirmation.IDconfirmation }}" class="accordion-collapse collapse"
-                    aria-labelledby="heading{{ proj[0] }}_{{ el.Confirmation.IDconfirmation }}"
+                <div id="collapse{{ proj[0] }}_{{ el.StudentsInProjects.IDstudentspr }}"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="heading{{ proj[0] }}_{{ el.StudentsInProjects.IDstudentspr }}"
                     data-bs-parent="#projectsAccordion">
                     <div class="accordion-body">
                         <ul class="list-group list-group-flush">
@@ -40,24 +41,24 @@
                             <li class="list-group-item">
                                 <h5 class="mb-1">Функционал</h5>{{ el.RolesOfProjects.rolesFunction }}
                             </li>
-                            <li class="list-group-item">
+                            <li class="list-group-item" {% if not el.Confirmation.IDconfirmation %} hidden {% endif %}>
                                 <h5 class="mb-1">Период участия в проекте</h5>{{ el.Confirmation.confirmationPeriod }}
                             </li>
-                            <li class="list-group-item">
+                            <li class="list-group-item" {% if not el.Confirmation.IDconfirmation %} hidden {% endif %}>
                                 <h5 class="mb-1">Полученные результаты</h5>{{ el.Confirmation.confirmationResults }}
                             </li>
-                            <li class="list-group-item">
+                            <li class="list-group-item" {% if not el.Confirmation.IDconfirmation %} hidden {% endif %}>
                                 <h5 class="mb-1">Уровень компетенций</h5>{{ el.Levels.levelsName }}
                             </li>
-                            <li class="list-group-item">
+                            <li class="list-group-item" {% if not el.Confirmation.IDconfirmation %} hidden {% endif %}>
                                 <h5 class="mb-1">Подтвержденная заявка на участие в проекте</h5>
                                 <div class="btn-toolbar justify-content-between" role="toolbar">
                                     <a href="/getConfirmation?idConfirmation={{ el.Confirmation.IDconfirmation }}"
                                         role="button" class="btn btn-primary" {% if session['url']!='sheffproj' %}
                                         hidden {% endif %}>Скачать электронную версию</a>
                                     <a href="/getConfirmationSigned?idConfirmation={{ el.Confirmation.IDconfirmation }}"
-                                        role="button" class="btn btn-primary {{ 'disabled' if not el.Confirmation.confirmationSigned or
-                                        el.StudentsInProjects.IDstadiaofworks!=3 else '' }}">Скачать
+                                        role="button"
+                                        class="btn btn-primary {{ 'disabled' if not el.Confirmation.confirmationSigned else '' }}">Скачать
                                         подписанную версию</a>
                                     <button {% if not el.Confirmation.confirmationSigned %} disabled {% endif %} {% if
                                         session['url']!='sheffproj' %} hidden {% endif %} class="btn btn-danger btn"

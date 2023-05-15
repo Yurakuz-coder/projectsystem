@@ -222,6 +222,7 @@ class Confirmation(Base):
 class StudentsInProjects(Base):
     __tablename__ = 'studentsinprojects'
     IDstudentspr = mapped_column(Integer, primary_key=True)
+    IDapplications = mapped_column(ForeignKey("applications.IDapplications"))
     IDstudents = mapped_column(ForeignKey("students.IDstudents"))
     IDprojects = mapped_column(ForeignKey("projects.IDprojects"))
     IDroles = mapped_column(ForeignKey("rolesofprojects.IDroles"))
