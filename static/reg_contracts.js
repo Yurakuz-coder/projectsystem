@@ -43,19 +43,22 @@ function getDocument(id) {
 function uploadFile(id) {
   const formData = new FormData();
   const button = document.getElementById("button-upload" + id);
+  const buttonName = button.id;
   const file = document.getElementById("input-upload" + id).files[0];
   if (!file) return;
   formData.append("file", file);
   formData.append("contract_id", id);
+  const url = window.location.pathname.split("/")[1];
   $.ajax({
     type: "POST",
     processData: false,
     contentType: false,
     data: formData,
-    url: "/uploadContractSigned",
+    url: "/" + url + "/uploadContractSigned",
     success: function (data) {
       const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;
+      document.getElementById(buttonName).innerHTML = 'Файл загружен!';
     },
     error: function () {
       button.innerHTML = "Файл не загружен!";
@@ -64,14 +67,21 @@ function uploadFile(id) {
 }
 
 function deleteFile(id) {
+  const button = document.getElementById("button-delete" + id);
+  const buttonName = button.id;
+  const url = window.location.pathname.split("/")[1];
   $.ajax({
     type: "POST",
     dataSrc: "data",
     data: { idContract: id },
-    url: "/deleteContractSigned",
+    url: "/" + url + "/deleteContractSigned",
     success: function (data) {
       const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;
+      document.getElementById(buttonName).innerHTML = 'Файл удален!';
+    },
+    error: function () {
+      document.getElementById(buttonName).innerHTML.innerHTML = "Файл не удален!";
     },
   });
 }

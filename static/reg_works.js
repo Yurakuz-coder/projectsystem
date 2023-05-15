@@ -80,7 +80,7 @@ function applyInicWorkFilters() {
   getDataInicWorkProject(projectFilter, fioFilter, roleFilter, statusFilter);
 }
 
-function dropInicWorkFilter() {
+function dropInicWorkFilters() {
   getDataInicWorkProject(null, null, null, null);
 }
 

@@ -13,15 +13,19 @@
             {% for stud in tickets %}
             {% if stud.PassportOfProjects.IDpassport == el.PassportOfProjects.IDpassport %}
             <div class="accordion-item">
-                <h2 class="accordion-header" id="accordion{{ el.Projects.IDprojects }}_{{ stud.Students.IDStudents }}_{{ stud.RolesOfProjects.IDroles }}">
+                <h2 class="accordion-header"
+                    id="accordion{{ el.Projects.IDprojects }}_{{ stud.Students.IDStudents }}_{{ stud.RolesOfProjects.IDroles }}">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapse{{ el.Projects.IDprojects }}_{{ stud.Students.IDStudents }}_{{ stud.RolesOfProjects.IDroles }}" aria-expanded="false"
+                        data-bs-target="#collapse{{ el.Projects.IDprojects }}_{{ stud.Students.IDStudents }}_{{ stud.RolesOfProjects.IDroles }}"
+                        aria-expanded="false"
                         aria-controls="collapse{{ el.Projects.IDprojects }}_{{ stud.Students.IDStudents }}_{{ stud.RolesOfProjects.IDroles }}">
                         {{ stud.Students.FullName }} - {{ stud.RolesOfProjects.rolesRole }}
                     </button>
                 </h2>
-                <div id="collapse{{ el.Projects.IDprojects }}_{{ stud.Students.IDStudents }}_{{ stud.RolesOfProjects.IDroles }}" class="accordion-collapse collapse"
-                    aria-labelledby="heading{{ el.Projects.IDprojects }}_{{ stud.Students.IDStudents }}_{{ stud.RolesOfProjects.IDroles }}" data-bs-parent="#accordionRolesWrapper">
+                <div id="collapse{{ el.Projects.IDprojects }}_{{ stud.Students.IDStudents }}_{{ stud.RolesOfProjects.IDroles }}"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="heading{{ el.Projects.IDprojects }}_{{ stud.Students.IDStudents }}_{{ stud.RolesOfProjects.IDroles }}"
+                    data-bs-parent="#accordionRolesWrapper">
                     <div class="accordion-body">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">
@@ -31,7 +35,7 @@
                                 <h5 class="mb-1">Группа</h5>{{ stud.Groups.groupsName }}
                             </li>
                             <li class="list-group-item">
-                                <h5 class="mb-1">Направление подготовки</h5>{{ stud.Specializations.specNapravlenie }}
+                                <h5 class="mb-1">Направление подготовки</h5>{{ stud.Specializations.FullSpec }}
                             </li>
                             <li class="list-group-item">
                                 <h5 class="mb-1">Название проекта</h5> {{ stud.PassportOfProjects.passportName }}
