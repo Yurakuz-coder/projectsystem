@@ -5240,22 +5240,17 @@ def student_members():
             )
             .distinct()
             .join_from(
-                Applications,
+                StudentsInProjects,
                 Students,
-                Students.IDstudents == Applications.IDstudents,
+                Students.IDstudents == StudentsInProjects.IDstudents,
                 isouter=True,
             )
             .join(RolesOfProjects)
-            .join(Confirmation)
-            .join(Levels)
+            .join(Confirmation, isouter=True)
+            .join(Levels, isouter=True)
             .join(Groups)
-            .join(Projects)
-            .join(PassportOfProjects)
-            .join(
-                StudentsInProjects,
-                isouter=True,
-                onclause=Confirmation.IDconfirmation == StudentsInProjects.IDconfirmation,
-            )
+            .join(Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
+            .join(PassportOfProjects, Projects.IDpassport == PassportOfProjects.IDpassport)
             .join(Specializations)
             .filter(Students.IDstudents != idstudent)
             .order_by(PassportOfProjects.passportName)
