@@ -19,7 +19,8 @@
         aria-disabled="{{ el.Contracts.contractsSigned is none }}"
         class="btn btn-primary {{ 'disabled' if el.Contracts.contractsSigned is none else '' }}">Скачать</a>
       <button {% if el.Contracts.contractsSigned is none %} disabled {% endif %} class="btn btn-danger"
-        value="{{ el.Contracts.IDcontracts }}" onclick="deleteFile(this.value)">Удалить</button>
+        value="{{ el.Contracts.IDcontracts }}" id="button-delete{{ el.Contracts.IDcontracts }}"
+        onclick="deleteFile(this.value)">Удалить</button>
     </div>
   </td>
 </tr>

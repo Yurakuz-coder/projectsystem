@@ -1,11 +1,10 @@
 <div class="d-grid gap-2 col-4">
   <a href="/getFullProject?idProject={{ idproj }}" role="button"
-    class="btn btn-primary {{ 'h-100' if session['url']=='sheffproj' else 'h-50' }} {{ 'disabled' if not signed else '' }} d-inline-block"
+    class="btn btn-primary {{ 'h-100' if session['url']=='sheffproj' or session['url']=='admin' else 'h-50' }} {{ 'disabled' if not signed else '' }} d-inline-block"
     {% if session['url']!='shefforg' %} hidden {% endif %}>Скачать результат проекта</a>
   <button {% if session['url']=='shefforg' %} hidden {% endif %} {% if not signed %} disabled {% endif %}
     class="btn btn-danger btn" id="button-delete-result{{ idproj }}" value="{{ idproj }}"
-    onclick="deleteResultFile(this.value)">Удалить подписанную
-    версию</button>
+    onclick="deleteResultFile(this.value)">Удалить результат проекта</button>
 </div>
 <div class="d-grid gap-2 col-4">
   <input type="file" class="form-control" id="input-upload-result{{ idproj }}"

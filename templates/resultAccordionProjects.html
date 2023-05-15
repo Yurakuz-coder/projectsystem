@@ -82,7 +82,7 @@
                 </li>
                 <li class="list-group-item" {% if session['url']=='student' or not el.Sheffofprojects.FullName %} hidden
                     {% endif %}>
-                    <h5 class="mb-1">Документы для проекта</h5>
+                    <h5 class="mb-1">Паспорт проекта</h5>
                     <div class="btn-toolbar justify-content-between" role="toolbar"
                         id="documents{{ el.Projects.IDprojects }}">
                         {% with idpass=el.PassportOfProjects.IDpassport,
