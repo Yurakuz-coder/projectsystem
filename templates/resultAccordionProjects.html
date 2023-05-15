@@ -72,60 +72,23 @@
                 <li class="list-group-item" {% if session['url']=='student' or not el.Sheffofprojects.FullName %} hidden
                     {% endif %}>
                     <h5 class="mb-1">Результаты проекта</h5>
-                    <div class="btn-toolbar justify-content-between" role="toolbar">
-                        <div class="d-grid gap-2 col-4">
-                            <a href="/getFullProject?idProject={{ el.Projects.IDprojects }}" role="button"
-                                class="btn btn-primary {{ 'h-100' if session['url']=='shefforg' or
-                                session['url']=='admin' or session['url']=='iniciators' else 'h-50' }} {{ 'disabled' if not el.Projects.projectsFull else '' }} d-inline-block" {% if
-                                session['url']!='shefforg' %} hidden {% endif %}>Скачать результат проекта</a>
-                        </div>
-                        <div class="d-grid gap-2 col-4">
-                            <input type="file" class="form-control"
-                                id="input-upload-result{{ el.PassportOfProjects.IDpassport }}"
-                                aria-describedby="button-upload-result{{ el.PassportOfProjects.IDpassport }}"
-                                aria-label="Upload" {% if session['url']!='sheffproj' %} hidden {% endif %} {% if
-                                el.StadiaOfProjects.IDstadiaofpr < 2 %} disabled {% endif %}>
-                            <button class="btn btn-outline-secondary" value="{{ el.Projects.IDprojects }}" type="button"
-                                onclick="uploadResultFile(this.value)"
-                                id="button-upload-result{{ el.PassportOfProjects.IDpassport }}" {% if
-                                session['url']!='sheffproj' %} hidden {% endif %} {% if el.StadiaOfProjects.IDstadiaofpr
-                                < 2 %} disabled {% endif %}>Загрузить результат проекта</button>
-                        </div>
+                    <div class="btn-toolbar justify-content-between" role="toolbar"
+                        id="result{{ el.Projects.IDprojects }}">
+                        {% with idproj=el.Projects.IDprojects,
+                        signed=el.Projects.projectsFull, stadia=el.StadiaOfProjects.IDstadiaofpr %}
+                        {% include "result_template.html" %}
+                        {% endwith %}
                     </div>
                 </li>
                 <li class="list-group-item" {% if session['url']=='student' or not el.Sheffofprojects.FullName %} hidden
                     {% endif %}>
                     <h5 class="mb-1">Документы для проекта</h5>
-                    <div class="btn-toolbar justify-content-between" role="toolbar">
-                        <div class="d-grid gap-2 col-3">
-                            <a href="/getPassport?idPassport={{ el.PassportOfProjects.IDpassport }}" role="button"
-                                class="btn btn-primary {{ 'h-100' if session['url']=='shefforg' or
-                                session['url']=='student' else 'h-50' }} {{ 'disabled' if el.StadiaOfProjects.IDstadiaofpr < 2 else '' }} d-inline-block"
-                                {% if session['url']=='shefforg' %} hidden {% endif %}>Скачать
-                                электронную версию</a>
-                        </div>
-                        <div class="d-grid gap-2 col-3" role="group">
-                            <a href="/getPassportSigned?idPassport={{ el.PassportOfProjects.IDpassport }}" role="button"
-                                class="btn btn-primary btn {{ 'disabled' if not el.PassportOfProjects.passportSigned else '' }}">Скачать
-                                подписанную версию</a>
-                            <button {% if session['url']=='shefforg' %} hidden {% endif %} {% if not
-                                el.PassportOfProjects.passportSigned %} disabled {% endif %} class="btn btn-danger btn"
-                                value="{{ el.PassportOfProjects.IDpassport }}"
-                                onclick="deletePassportFile(this.value)">Удалить подписанную версию</button>
-                        </div>
-
-                        <div class="d-grid gap-2 col-3">
-                            <input type="file" accept=".doc,.docx,.pdf" class="form-control"
-                                id="input-upload{{ el.PassportOfProjects.IDpassport }}"
-                                aria-describedby="button-upload{{ el.PassportOfProjects.IDpassport }}"
-                                aria-label="Upload" {% if session['url']=='shefforg' %} hidden {% endif %} {% if
-                                el.StadiaOfProjects.IDstadiaofpr < 2 %} disabled {% endif %}>
-                            <button class="btn btn-outline-secondary" value="{{ el.PassportOfProjects.IDpassport }}"
-                                type="button" onclick="uploadPassportFile(this.value)"
-                                id="button-upload{{ el.PassportOfProjects.IDpassport }}" {% if
-                                session['url']=='shefforg' %} hidden {% endif %} {% if el.StadiaOfProjects.IDstadiaofpr
-                                < 2 %} disabled {% endif %}>Загрузить</button>
-                        </div>
+                    <div class="btn-toolbar justify-content-between" role="toolbar"
+                        id="documents{{ el.Projects.IDprojects }}">
+                        {% with idpass=el.PassportOfProjects.IDpassport,
+                        signed=el.PassportOfProjects.passportSigned, stadia=el.StadiaOfProjects.IDstadiaofpr %}
+                        {% include "documents_template.html" %}
+                        {% endwith %}
                     </div>
                 </li>
             </ul>

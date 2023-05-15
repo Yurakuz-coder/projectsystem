@@ -1,0 +1,24 @@
+<div class="d-grid gap-2 col-3">
+  <a href="/getPassport?idPassport={{ idpass }}" role="button" class="btn btn-primary {{ 'h-100' if session['url']=='shefforg' or
+      session['url']=='student' else 'h-50' }} {{ 'disabled' if stadia < 2 else '' }} d-inline-block" {% if
+    session['url']=='shefforg' %} hidden {% endif %}>Скачать
+    электронную версию</a>
+</div>
+<div class="d-grid gap-2 col-3" role="group">
+  <a href="/getPassportSigned?idPassport={{ idpass }}" role="button"
+    class="btn btn-primary btn {{ 'disabled' if not signed else '' }}">Скачать
+    подписанную версию</a>
+  <button {% if session['url']=='shefforg' %} hidden {% endif %} {% if not signed %} disabled {% endif %}
+    class="btn btn-danger btn" value="{{ idpass }}" id="button-delete-documents{{ idpass }}"
+    onclick="deletePassportFile(this.value)">Удалить подписанную
+    версию</button>
+</div>
+
+<div class="d-grid gap-2 col-3">
+  <input type="file" accept=".doc,.docx,.pdf" class="form-control" id="input-upload-documents{{ idpass }}"
+    aria-describedby="button-upload{{ idpass }}" aria-label="Upload" {% if session['url']=='shefforg' %} hidden {% endif
+    %} {% if stadia < 2 %} disabled {% endif %}>
+  <button class="btn btn-outline-secondary" id="button-upload-documents{{ idpass }}" value="{{ idpass }}" type="button"
+    onclick="uploadPassportFile(this.value)" {% if session['url']=='shefforg' %} hidden {% endif %} {% if stadia < 2 %}
+    disabled {% endif %}>Загрузить</button>
+</div>

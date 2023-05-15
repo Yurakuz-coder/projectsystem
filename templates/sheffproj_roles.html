@@ -140,10 +140,10 @@
           <div class="form-group">
             <div class="form-group">
               <label for="project" class="form-select-label">Выберите проект</label>
-              <select onchange="getRolesProjects(this.value)" class="form-select" name="project" {% if projects==[] %}
+              <select onchange="getRolesProjects(this.value)" class="form-select" name="passport" {% if projects==[] %}
                 disabled {% endif %}>
                 {% for el in projects %}
-                <option value="{{ el[2] }}"> {{ el[1] }}
+                <option value="{{ el[0] }}"> {{ el[1] }}
                 </option>
                 {% endfor %}
                 {% if projects == [] %}

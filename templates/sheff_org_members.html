@@ -68,14 +68,14 @@
                     <div class="form-group">
                         <label for="application" class="form-select-label">Выберите заявку</label>
                         <select class="form-select" aria-label="Default select example" name="application" {% if
-                            confirmations==[] %} disabled {% endif %}>
-                            {% for el in confirmations %}
+                            approved==[] %} disabled {% endif %}>
+                            {% for el in approved %}
                             <option value="{{ el.Confirmation.IDconfirmation }}"> {{ el.Students.FullName }} - {{
                                 el.PassportOfProjects.passportName
                                 }} - {{ el.RolesOfProjects.rolesRole }}
                             </option>
                             {% endfor %}
-                            {% if confirmations==[] %}
+                            {% if approved==[] %}
                             <option value="">Заявки не найдены</option>
                             {% endif %}
                         </select>
@@ -104,7 +104,7 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary" {% if confirmations==[] %} disabled {% endif
+                        <button type="submit" class="btn btn-primary" {% if approved==[] %} disabled {% endif
                             %}>Сохранить</button>
                     </div>
                 </form>
@@ -124,21 +124,21 @@
                     <div class="form-group">
                         <label for="confirmation" class="form-select-label">Выберите заявку</label>
                         <select class="form-select" aria-label="Default select example" name="confirmation" {% if
-                            confirmations==[] %} disabled {% endif %}>
-                            {% for el in confirmations %}
+                            approved==[] %} disabled {% endif %}>
+                            {% for el in approved %}
                             <option value="{{ el.Confirmation.IDconfirmation }}"> {{ el.Students.FullName }} - {{
                                 el.PassportOfProjects.passportName
                                 }} - {{ el.RolesOfProjects.rolesRole }}
                             </option>
                             {% endfor %}
-                            {% if confirmations==[] %}
+                            {% if approved==[] %}
                             <option value="">Заявки не найдены</option>
                             {% endif %}
                         </select>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary" {% if confirmations==[] %} disabled {% endif
+                        <button type="submit" class="btn btn-primary" {% if approved==[] %} disabled {% endif
                             %}>Отклонить</button>
                     </div>
                 </form>

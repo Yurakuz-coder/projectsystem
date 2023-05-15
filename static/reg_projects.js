@@ -67,8 +67,10 @@ function getDataInicProject(projectFilter, stadiaFilter, inicFilter, sheffProjFi
 
 function uploadPassportFile(id) {
   const formData = new FormData();
-  const button = document.getElementById("button-upload" + id);
-  const file = document.getElementById("input-upload" + id).files[0];
+  const resultDiv = document.getElementById('documents' + id);
+  const button = document.getElementById("button-upload-documents" + id);
+  const buttonName = button.id;
+  const file = document.getElementById("input-upload-documents" + id).files[0];
   if (!file) return;
   formData.append("file", file);
   formData.append("passport_id", id);
@@ -79,8 +81,8 @@ function uploadPassportFile(id) {
     data: formData,
     url: "/uploadPassportSigned",
     success: function (data) {
-      const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
+      resultDiv.innerHTML = data
+      document.getElementById(buttonName).innerHTML = 'Файл загружен!'
     },
     error: function () {
       button.innerHTML = "Файл не загружен!";
@@ -89,14 +91,20 @@ function uploadPassportFile(id) {
 }
 
 function deletePassportFile(id) {
+  const button = document.getElementById("button-delete-documents" + id)
+  const buttonName = button.id;
+  const resultDiv = document.getElementById('documents' + id);
   $.ajax({
     type: "POST",
     dataSrc: "data",
     data: { idPassport: id },
     url: "/deletePassportSigned",
     success: function (data) {
-      const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
+      resultDiv.innerHTML = data
+      document.getElementById(buttonName).innerHTML = 'Файл удален!'
+    },
+    error: function () {
+      button.innerHTML = "Файл не удален!";
     },
   });
 }
@@ -139,7 +147,9 @@ function checkStadia(id) {
 
 function uploadResultFile(id) {
   const formData = new FormData();
+  const resultDiv = document.getElementById('result' + id);
   const button = document.getElementById("button-upload-result" + id);
+  const buttonName = button.id;
   const file = document.getElementById("input-upload-result" + id).files[0];
   if (!file) return;
   formData.append("file", file);
@@ -151,10 +161,30 @@ function uploadResultFile(id) {
     data: formData,
     url: "/uploadProjectResult",
     success: function (data) {
-      button.innerHTML = "Файл загружен!";
+      resultDiv.innerHTML = data
+      document.getElementById(buttonName).innerHTML = 'Файл загружен!'
     },
     error: function () {
       button.innerHTML = "Файл не загружен!";
+    },
+  });
+}
+
+function deleteResultFile(id) {
+  const button = document.getElementById("button-delete-result" + id)
+  const buttonName = button.id;
+  const resultDiv = document.getElementById('result' + id);
+  $.ajax({
+    type: "POST",
+    dataSrc: "data",
+    data: { idProject: id },
+    url: "/deleteProjectResult",
+    success: function (data) {
+      resultDiv.innerHTML = data
+      document.getElementById(buttonName).innerHTML = 'Файл удален!'
+    },
+    error: function () {
+      button.innerHTML = "Файл не удален!";
     },
   });
 }

@@ -60,8 +60,10 @@ function getStudApprovedTicketsData(projectFioFilter, projectNameFilter, groupFi
 
 function uploadConfirmation(id) {
   const formData = new FormData();
-  const button = document.getElementById("button-upload" + id);
+  const button = document.getElementById("button-upload" + id)
+  const buttonName = button.id;
   const file = document.getElementById("input-upload" + id).files[0];
+  const confirmedDiv = document.getElementById("confirmed" + id);
   if (!file) return;
   formData.append("file", file);
   formData.append("confirmation_id", id);
@@ -72,8 +74,8 @@ function uploadConfirmation(id) {
     data: formData,
     url: "/uploadConfirmation",
     success: function (data) {
-      const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
+      confirmedDiv.innerHTML = data
+      document.getElementById(buttonName).innerHTML = 'Файл загружен!'
     },
     error: function () {
       button.innerHTML = "Файл не загружен!";
@@ -82,14 +84,20 @@ function uploadConfirmation(id) {
 }
 
 function deleteConfirmation(id) {
+  const button = document.getElementById("button-delete" + id)
+  const buttonName = button.id;
+  const confirmedDiv = document.getElementById("confirmed" + id);
   $.ajax({
     type: "POST",
     dataSrc: "data",
     data: { idConfirmation: id },
     url: "/deleteConfirmation",
     success: function (data) {
-      const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
+      confirmedDiv.innerHTML = data
+      document.getElementById(buttonName).innerHTML = 'Файл удален!'
+    },
+    error: function () {
+      button.innerHTML = "Файл не удален!";
     },
   });
 }

@@ -1,0 +1,14 @@
+<a href="/getConfirmation?idConfirmation={{ idconfirm }}" role="button" class="btn btn-primary" {% if
+  session['url']!='sheffproj' %} hidden {% endif %}>Скачать электронную версию</a>
+<a href="/getConfirmationSigned?idConfirmation={{ idconfirm }}" role="button"
+  class="btn btn-primary {{ 'disabled' if not signed else '' }}">Скачать
+  подписанную версию</a>
+<button {% if not signed %} disabled {% endif %} {% if session['url']!='sheffproj' %} hidden {% endif %}
+  class="btn btn-danger btn" value="{{ idconfirm }}" onclick="deleteConfirmation(this.value)"
+  id="button-delete{{ idconfirm }}">Удалить</button>
+<div class="input-group mb-0" {% if session['url']!='sheffproj' %} hidden {% endif %}>
+  <button class="btn btn-outline-secondary" type="button" onclick="uploadConfirmation(this.value)"
+    id="button-upload{{ idconfirm }}" value="{{ idconfirm }}">Загрузить</button>
+  <input type="file" accept=".doc,.docx,.pdf" class="form-control" id="input-upload{{ idconfirm }}"
+    aria-describedby="button-upload{{ idconfirm }}" aria-label="Upload">
+</div>
