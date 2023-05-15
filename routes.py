@@ -5258,14 +5258,17 @@ def student_members():
         confirmations = db_sessions.execute(select_confirmation).all()
         projects = db_sessions.execute(select_projects).all()
         levels = db_sessions.execute((select(Levels))).all()
+        groups = db_sessions.execute(select(Groups)).all()
         return render_template(
-            "students_members.html", projects=projects, approved=confirmations, levels=levels
+            "students_members.html", projects=projects, approved=confirmations, levels=levels, groups=groups
         )
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
         fio_filter = request.form.get("projectFioFilter")
         project_filter = request.form.get("projectNameFilter")
+        group_filter = request.form.get("groupFilter")
+        napr_filter = request.form.get("naprFilter")
         where_fio_filter = (
             Students.FullName.ilike("%" + fio_filter + "%") if fio_filter else text("1=1")
         )
@@ -5273,6 +5276,12 @@ def student_members():
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
             else text("1=1")
+        )
+        where_group_filter = (
+            Groups.IDgroups == group_filter if group_filter else text('1=1')
+        )
+        where_napr_filter = (
+            Specializations.FullSpec.ilike('%' + napr_filter + '%') if napr_filter else text('1=1')
         )
         idstudent = session["user"][1]
         select_projects = (
@@ -5299,26 +5308,23 @@ def student_members():
             )
             .distinct()
             .join_from(
-                Applications,
+                StudentsInProjects,
                 Students,
-                Students.IDstudents == Applications.IDstudents,
+                Students.IDstudents == StudentsInProjects.IDstudents,
                 isouter=True,
             )
             .join(RolesOfProjects)
-            .join(Confirmation)
-            .join(Levels)
+            .join(Confirmation, isouter=True)
+            .join(Levels, isouter=True)
             .join(Groups)
-            .join(Projects)
-            .join(PassportOfProjects)
+            .join(Projects, StudentsInProjects.IDprojects == Projects.IDprojects)
+            .join(PassportOfProjects, Projects.IDpassport == PassportOfProjects.IDpassport)
             .join(Specializations)
-            .join(
-                StudentsInProjects,
-                isouter=True,
-                onclause=Confirmation.IDconfirmation == StudentsInProjects.IDconfirmation,
-            )
             .filter(Students.IDstudents != idstudent)
             .filter(where_fio_filter)
             .filter(where_project_filter)
+            .filter(where_group_filter)
+            .filter(where_napr_filter)
             .order_by(PassportOfProjects.passportName)
         )
         projects = db_sessions.execute(select_projects).all()

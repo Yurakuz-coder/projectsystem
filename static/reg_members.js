@@ -112,26 +112,27 @@ function applyMemFilters() {
   const projectNameFilter = document.getElementById("projectNameFilter")?.value;
   const groupFilter = document.getElementById("grname")?.value;
   const roleFilter = document.getElementById("roleFilter")?.value;
+  const naprFilter = document.getElementById("naprFilter")?.value;
 
-  if (!groupFilter && !roleFilter && !projectFioFilter && !projectNameFilter) {
+  if (!groupFilter && !roleFilter && !projectFioFilter && !projectNameFilter && !naprFilter) {
     return;
   }
-  getDataMem(roleFilter, groupFilter, projectFioFilter, projectNameFilter);
+  getDataMem(roleFilter, groupFilter, projectFioFilter, projectNameFilter, naprFilter);
 }
 
 function dropMemFilter() {
-  getDataMem(null, null, null, null);
+  getDataMem(null, null, null, null, null);
 }
 
 function getDataMem(
-  roleFilter, groupFilter, projectFioFilter, projectNameFilter
+  roleFilter, groupFilter, projectFioFilter, projectNameFilter, naprFilter
 ) {
   const url = window.location.pathname.split("/")[1];
   $.ajax({
     type: "POST",
     url: "/" + url + "/members",
     dataSrc: "data",
-    data: { roleFilter, groupFilter, projectFioFilter, projectNameFilter },
+    data: { roleFilter, groupFilter, projectFioFilter, projectNameFilter, naprFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
