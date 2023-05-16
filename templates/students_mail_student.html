@@ -5,6 +5,7 @@
 
 
 <div class="form-group">
+  <label for="project" class="form-select-label">Выберите проект</label>
   <select class="form-select" aria-label="Default select example" name="project" id="project" {% if projects==[] %}
     disabled {% endif %} onchange="changeStudent(this.value)">
     {% for el in projects %}
