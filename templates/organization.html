@@ -192,8 +192,9 @@
           </select>
           <div class="form-group">
             <label for="redsheforg" class="form-select-label">Выберите руководителя организации</label>
-            <select class="form-select" aria-label="Default select example" name="redsheforg" {% if shefforg==[] %}
-              disabled {% endif %}>
+            <select class="form-select" aria-label="Default select example" id="redsheforg" name="redsheforg" {% if
+              shefforg==[] %} disabled {% endif %}>
+              <option value="">Не менять руководителя</option>
               {% for el in shefforg %}
               <option value="{{ el[1] }}"> {{ el[2] }} </option>
               {% endfor %}

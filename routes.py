@@ -346,13 +346,13 @@ def organization():
                 Shefforganizations.IDshefforg,
                 Shefforganizations.FullName,
             )
+            .distinct()
             .join_from(
                 Shefforganizations,
                 Organizations,
                 Organizations.IDshefforg == Shefforganizations.IDshefforg,
                 isouter=True,
             )
-            .filter(Organizations.IDshefforg.is_(None))
             .order_by(Shefforganizations.FullName)
         )
         shefforg = db_sessions.execute(select_shefforg).all()
@@ -2989,12 +2989,13 @@ def admin_mail_shefforg():
         shefforg = db_sessions.execute(select_shefforg).all()
         return render_template("mail_shefforg.html", users=shefforg, projects=projects)
 
+
 @pages.route("/iniciators/mailSheffOrg", methods=["GET"])
 def iniciators_mail_shefforg():
     if request.method == "GET":
         db_sessions = get_session()
         select = get_select()
-        idorg = session['user'][0]
+        idorg = session["user"][0]
         select_shefforg = (
             select(
                 Shefforganizations.shefforgEmail,
@@ -3940,11 +3941,13 @@ def sheff_proj_approved_tickets():
                 RolesOfProjects,
                 PassportOfProjects,
                 StudentsInProjects,
+                StadiaOfWorks,
             )
             .distinct()
             .join_from(
                 StudentsInProjects, Students, Students.IDstudents == StudentsInProjects.IDstudents
             )
+            .join(StadiaOfWorks)
             .join(RolesOfProjects)
             .join(
                 Confirmation,
@@ -4016,11 +4019,13 @@ def sheff_proj_approved_tickets():
                 RolesOfProjects,
                 PassportOfProjects,
                 StudentsInProjects,
+                StadiaOfWorks,
             )
             .distinct()
             .join_from(
                 StudentsInProjects, Students, Students.IDstudents == StudentsInProjects.IDstudents
             )
+            .join(StadiaOfWorks)
             .join(RolesOfProjects)
             .join(
                 Confirmation,
@@ -4349,6 +4354,7 @@ def student_mail_iniciator():
         )
         iniciators = db_sessions.execute(select_iniciators).all()
         return render_template("students_mail_iniciator.html", users=iniciators, projects=projects)
+
 
 @pages.route("/shefforg/mailIniciator", methods=["GET", "POST"])
 def shefforg_mail_iniciator():
@@ -5109,7 +5115,7 @@ def sheff_org_members():
                 RolesOfProjects,
                 PassportOfProjects,
                 StudentsInProjects,
-                StadiaOfWorks
+                StadiaOfWorks,
             )
             .distinct()
             .join_from(
@@ -5142,7 +5148,7 @@ def sheff_org_members():
             approved=approved,
             levels=levels,
             groups=groups,
-            status=status
+            status=status,
         )
     if request.method == "POST":
         select = get_select()
@@ -5153,9 +5159,7 @@ def sheff_org_members():
         role_filter = request.form.get("roleFilter")
         status_filter = request.form.get("statusFilter")
         where_status_filter = (
-            StadiaOfWorks.IDstadiaofworks == status_filter
-            if status_filter
-            else text("1=1")
+            StadiaOfWorks.IDstadiaofworks == status_filter if status_filter else text("1=1")
         )
         where_fio_filter = (
             Students.FullName.ilike("%" + fio_filter + "%") if fio_filter else text("1=1")
@@ -5203,7 +5207,7 @@ def sheff_org_members():
                 RolesOfProjects,
                 PassportOfProjects,
                 StudentsInProjects,
-                StadiaOfWorks
+                StadiaOfWorks,
             )
             .distinct()
             .join_from(
@@ -5266,7 +5270,7 @@ def iniciators_members():
                 RolesOfProjects,
                 PassportOfProjects,
                 StudentsInProjects,
-                StadiaOfWorks
+                StadiaOfWorks,
             )
             .distinct()
             .join_from(
@@ -5292,7 +5296,11 @@ def iniciators_members():
         levels = db_sessions.execute((select(Levels))).all()
         status = db_sessions.execute(select(StadiaOfWorks)).all()
         return render_template(
-            "iniciators_members.html", projects=projects, approved=confirmations, levels=levels, status=status
+            "iniciators_members.html",
+            projects=projects,
+            approved=confirmations,
+            levels=levels,
+            status=status,
         )
     if request.method == "POST":
         select = get_select()
@@ -5301,9 +5309,7 @@ def iniciators_members():
         project_filter = request.form.get("projectNameFilter")
         status_filter = request.form.get("statusFilter")
         where_status_filter = (
-            StadiaOfWorks.IDstadiaofworks == status_filter
-            if status_filter
-            else text("1=1")
+            StadiaOfWorks.IDstadiaofworks == status_filter if status_filter else text("1=1")
         )
         where_fio_filter = (
             Students.FullName.ilike("%" + fio_filter + "%") if fio_filter else text("1=1")
@@ -5340,7 +5346,7 @@ def iniciators_members():
                 RolesOfProjects,
                 PassportOfProjects,
                 StudentsInProjects,
-                StadiaOfWorks
+                StadiaOfWorks,
             )
             .distinct()
             .join_from(
@@ -5401,7 +5407,7 @@ def student_members():
                 RolesOfProjects,
                 PassportOfProjects,
                 StudentsInProjects,
-                StadiaOfWorks
+                StadiaOfWorks,
             )
             .distinct()
             .join_from(
@@ -5432,7 +5438,7 @@ def student_members():
             approved=confirmations,
             levels=levels,
             groups=groups,
-            status=status
+            status=status,
         )
     if request.method == "POST":
         select = get_select()
@@ -5443,9 +5449,7 @@ def student_members():
         napr_filter = request.form.get("naprFilter")
         status_filter = request.form.get("statusFilter")
         where_status_filter = (
-            StadiaOfWorks.IDstadiaofworks == status_filter
-            if status_filter
-            else text("1=1")
+            StadiaOfWorks.IDstadiaofworks == status_filter if status_filter else text("1=1")
         )
         where_fio_filter = (
             Students.FullName.ilike("%" + fio_filter + "%") if fio_filter else text("1=1")
@@ -5483,7 +5487,7 @@ def student_members():
                 RolesOfProjects,
                 PassportOfProjects,
                 StudentsInProjects,
-                StadiaOfWorks
+                StadiaOfWorks,
             )
             .distinct()
             .join_from(
