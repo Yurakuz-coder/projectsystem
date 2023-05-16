@@ -1538,7 +1538,7 @@ def modifyCafedra():
             firstname if firstname else npr.sheffprFirstname,
             name if name else npr.sheffprName,
             lastname if lastname else npr.sheffprFathername,
-            positions.Positions.positionsName if positions else npr.positionsName.positionsName,
+            positions.positionsName if positions else npr.positionsName.positionsName,
         ]
     db_sessions.commit()
     return redirect("/admin/cafedra")

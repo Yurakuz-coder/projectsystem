@@ -213,6 +213,7 @@
             <label for="redposName" class="form-select-label">Выберите должность</label>
             <select class="form-select" aria-label="Default select example" id="redposName" name="redposName" {% if
               pos==[] %} disabled {% endif %}>
+              <option value=""></option>
               {% for el in pos %}
               <option value="{{ el.Positions.IDpositions }}"> {{ el.Positions.positionsName }}</option>
               {% endfor %}
