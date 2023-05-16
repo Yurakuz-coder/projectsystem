@@ -5,18 +5,21 @@
 
 
 <div class="form-group">
-  <label for="admin" class="form-select-label">Выберите проект</label>
-  <select class="form-select" aria-label="Default select example" name="project" id="project" {% if projects==[] %}
-    disabled {% endif %} onchange="changeIniciator(this.value)">
-    {% for el in projects %}
-    <option value="{{ el[0] }}"> {{ el[1] }} </option>
-    {% endfor %}
-    {% if projects == [] %}
-    <option value="">Проекты не найдены</option>
-    {% endif %}
-  </select>
+  <div {% if session['url']=='shefforg' %} hidden {% endif %}>
+    <label for="admin" class="form-select-label">Выберите проект</label>
+    <select class="form-select" aria-label="Default select example" name="project" id="project" {% if projects==[] %}
+      disabled {% endif %} onchange="changeIniciator(this.value)">
+      {% for el in projects %}
+      <option value="{{ el[0] }}"> {{ el[1] }} </option>
+      {% endfor %}
+      {% if projects == [] %}
+      <option value="">Проекты не найдены</option>
+      {% endif %}
+    </select>
+  </div>
   <label for="admin" class="form-select-label">Выберите инициатора</label>
-  <select class="form-select" aria-label="Default select example" name="admin" id="admin" disabled required>
+  <select class="form-select" aria-label="Default select example" name="admin" id="admin" {% if
+    session['url']!='shefforg' %} disabled {% endif %} required>
     {% for el in users %}
     <option value="{{ el[0] }}"> {{ el[2] }} ({{ el[1] }}) - {{ el[3] }} </option>
     {% endfor %}

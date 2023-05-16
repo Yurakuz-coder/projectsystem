@@ -29,6 +29,16 @@
         {% endif %}
     </select>
     <br>
+    <select class="form-select" aria-label="Default select example" name="status" id="status">
+        <option value="">Не использовать фильтр по статусу</option>
+        {% for el in status %}
+        <option value="{{ el.StadiaOfWorks.IDstadiaofworks }}"> {{ el.StadiaOfWorks.stadiaofworksName }}</option>
+        {% endfor %}
+        {% if status==[] %}
+        <option value="">Статусы работ не найдены</option>
+        {% endif %}
+    </select>
+    <br>
     <input type="text" id="naprFilter" class="form-control" placeholder="Фильтр по направлению" aria-label="naprFilter"
         aria-describedby="basic-addon1">
     <br>

@@ -33,6 +33,9 @@
                                 <h5 class="mb-1">Группа</h5>{{ el.Groups.groupsName }}
                             </li>
                             <li class="list-group-item">
+                                <h5 class="mb-1">Направление подготовки</h5>{{ el.Specializations.FullSpec }}
+                            </li>
+                            <li class="list-group-item">
                                 <h5 class="mb-1">Название проекта</h5> {{ el.PassportOfProjects.passportName }}
                             </li>
                             <li class="list-group-item">
@@ -42,9 +45,18 @@
                                 <h5 class="mb-1">Функционал</h5>{{ el.RolesOfProjects.rolesFunction }}
                             </li>
                             <li class="list-group-item">
+                                <h5 class="mb-1">Статус работы</h5> {{ el.StadiaOfWorks.stadiaofworksName }}
+                            </li>
+                            <li class="list-group-item">
                                 <h5 class="mb-1">Заявка на участие</h5><a
                                     href="/getApplication?idApplication={{ el.StudentsInProjects.IDapplications }}"
                                     role="button" class="btn btn-primary">Скачать</a>
+                            </li>
+                            <li class="list-group-item" {% if session['url'] !="student" %} hidden {% endif %}>
+                                <h5 class="mb-1">Результат работы</h5><a
+                                    href="/workResult?idwork={{ el.StudentsInProjects.IDstudentspr }}" role="button"
+                                    class="btn btn-primary {{ 'disabled' if not el.StudentsInProjects.studentsinprFull else '' }} d-inline-block">Скачать
+                                    результат работы</a>
                             </li>
                             <li class="list-group-item" {% if not el.Confirmation.IDconfirmation %} hidden {% endif %}>
                                 <h5 class="mb-1">Период участия в проекте</h5>{{ el.Confirmation.confirmationPeriod }}

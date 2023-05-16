@@ -1,41 +1,9 @@
-function applyWorksFilters() {
-  const dateContractFilter =
-    document.getElementById("dateContractFilter").value;
-  const orgFilters = document.getElementById("orgFilter").value;
-  const numberContractFilter = document.getElementById(
-    "numberContractFilter"
-  ).value;
-  if (!dateContractFilter && !orgFilters && !numberContractFilter) {
-    return;
-  }
-  getDataWorks(dateContractFilter, orgFilters, numberContractFilter);
-}
-
-function dropWorksFilters() {
-  getDataWorks(null, null, null);
-}
-
-function getDataWorks(dateContractFilter, orgFilters, numberContractFilter) {
-  $.ajax({
-    type: "POST",
-    url: "/student/works",
-    dataSrc: "data",
-    data: { dateContractFilter, orgFilters, numberContractFilter },
-    success: function (data) {
-      const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
-      table.className = "collapse show";
-    },
-    error: function (err) {
-      console.log(err);
-    },
-  });
-}
-
-function uploadWork(id, idproject) {
+function uploadWork(id) {
   const formData = new FormData();
-  const button = document.getElementById("button-upload" + id);
+  const button = document.getElementById("button-upload" + id)
+  const buttonName = button.id;
   const file = document.getElementById("input-upload" + id).files[0];
+  const workDiv = document.getElementById("work" + id);
   if (!file) return;
   formData.append("file", file);
   formData.append("work_id", id);
@@ -45,8 +13,9 @@ function uploadWork(id, idproject) {
     contentType: false,
     data: formData,
     url: "/uploadWorkStudent",
-    success: function () {
-      button.innerHTML = "Файл загружен!";
+    success: function (data) {
+      workDiv.innerHTML = data
+      document.getElementById(buttonName).innerHTML = 'Файл загружен!'
     },
     error: function () {
       button.innerHTML = "Файл не загружен!";
@@ -55,14 +24,20 @@ function uploadWork(id, idproject) {
 }
 
 function deleteWork(id) {
-  const button = document.getElementById("input-delete" + id);
+  const button = document.getElementById("button-delete" + id)
+  const buttonName = button.id;
+  const workconfirmedDiv = document.getElementById("work" + id);
   $.ajax({
     type: "POST",
     dataSrc: "data",
     data: { idWork: id },
     url: "/deleteWorkStudent",
-    success: function () {
-      button.innerHTML = "Файл удален!";
+    success: function (data) {
+      workconfirmedDiv.innerHTML = data
+      document.getElementById(buttonName).innerHTML = 'Файл удален!'
+    },
+    error: function () {
+      button.innerHTML = "Файл не удален!";
     },
   });
 }

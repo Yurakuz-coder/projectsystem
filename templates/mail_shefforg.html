@@ -5,16 +5,18 @@
 
 
 <div class="form-group">
-  <label for="admin" class="form-select-label">Выберите проект</label>
-  <select class="form-select" aria-label="Default select example" name="project" id="project" {% if projects==[] %}
-    disabled {% endif %} onchange="changeSheffOrg(this.value)">
-    {% for el in projects %}
-    <option value="{{ el[0] }}"> {{ el[1] }} </option>
-    {% endfor %}
-    {% if admins == [] %}
-    <option value="">Проекты не найдены</option>
-    {% endif %}
-  </select>
+  <div {% if session['url']=='iniciators' %} hidden {% endif %}>
+    <label for="admin" class="form-select-label">Выберите проект</label>
+    <select class="form-select" aria-label="Default select example" name="project" id="project" {% if projects==[] %}
+      disabled {% endif %} onchange="changeSheffOrg(this.value)">
+      {% for el in projects %}
+      <option value="{{ el[0] }}"> {{ el[1] }} </option>
+      {% endfor %}
+      {% if admins == [] %}
+      <option value="">Проекты не найдены</option>
+      {% endif %}
+    </select>
+  </div>
   <label for="admin" class="form-select-label">Выберите руководителя</label>
   <select class="form-select" aria-label="Default select example" name="admin" id="admin" disabled required>
     {% for el in users %}

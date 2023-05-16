@@ -2,22 +2,23 @@ function applyGroupFilters() {
   const formEducation = document.getElementById("formEducation").value;
   const directStudy = document.getElementById("directStudy").value;
   const yearStudy = document.getElementById("yearStudy").value;
-  if (!formEducation && !directStudy && !yearStudy) {
+  const nameGroup = document.getElementById("nameGroup").value;
+  if (!formEducation && !directStudy && !yearStudy && !nameGroup) {
     return;
   }
-  getDataGroup(formEducation, directStudy, yearStudy);
+  getDataGroup(formEducation, directStudy, yearStudy, nameGroup);
 }
 
 function dropGroupFilters() {
-  getDataGroup(null, null, null);
+  getDataGroup(null, null, null, null);
 }
 
-function getDataGroup(formEducation, directStudy, yearStudy) {
+function getDataGroup(formEducation, directStudy, yearStudy, nameGroup) {
   $.ajax({
     type: "POST",
     url: "/admin/groups",
     dataSrc: "data",
-    data: { formEducation, directStudy, yearStudy },
+    data: { formEducation, directStudy, yearStudy, nameGroup },
     success: function (data) {
       const table = document.getElementById("collapseTableBody");
       table.innerHTML = data;

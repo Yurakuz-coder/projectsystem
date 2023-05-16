@@ -1,0 +1,12 @@
+<a href="/workResult?idwork={{ idstud }}" role="button"
+    class="btn btn-primary {{ 'disabled' if not signed else '' }} d-inline-block">Скачать
+    результат работы</a>
+<button {% if not signed %} disabled {% endif %} {% if session['url']=='iniciators' %} hidden {% endif %}
+    class="btn btn-danger btn" value="{{ idstud }}" id="button-delete{{ idstud }}"
+    onclick="deleteWork(this.value, this.name)">Удалить</button>
+<div class="input-group mb-0" {% if session['url']=='iniciators' %} hidden {% endif %}>
+    <button class="btn btn-outline-secondary" value="{{ idstud }}" type="button"
+        onclick="uploadWork(this.value, this.name)" id="button-upload{{ idstud }}">Загрузить</button>
+    <input type="file" accept=".doc,.docx,.pdf" class="form-control" id="input-upload{{ idstud }}"
+        aria-describedby="button-upload{{ idstud }}" aria-label="Upload">
+</div>

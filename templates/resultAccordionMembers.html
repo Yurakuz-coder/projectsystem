@@ -55,6 +55,9 @@
                                 }}
                             </li>
                             <li class="list-group-item">
+                                <h5 class="mb-1">Статус работы</h5> {{ stud[7] }}
+                            </li>
+                            <li class="list-group-item">
                                 <div class="btn-toolbar justify-content-between" role="toolbar">
                                     <a href="/workResult?idwork={{ stud[5] }}" role="button"
                                         class="btn btn-primary {{ 'disabled' if not stud[6] else '' }} d-inline-block">Скачать
