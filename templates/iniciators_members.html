@@ -18,6 +18,20 @@
     <input type="text" id="projectNameFilter" class="form-control" placeholder="Фильтр по названию проекта"
         aria-label="projectNameFilter" aria-describedby="basic-addon1">
     <br>
+    <input type="text" id="roleFilter" class="form-control" placeholder="Фильтр по роли в проекте"
+        aria-label="roleFilter" aria-describedby="basic-addon1">
+    <br>
+    <select class="form-select" aria-label="Default select example" name="grname" id="grname">
+        <option value="">Не использовать фильтр по группе</option>
+        {% for el in groups %}
+        <option value="{{ el.Groups.IDgroups }}"> {{ el.Groups.groupsName }} - {{
+            el.Groups.groupsYear }}</option>
+        {% endfor %}
+        {% if groups==[] %}
+        <option value="">Группы не найдены</option>
+        {% endif %}
+    </select>
+    <br>
     <select class="form-select" aria-label="Default select example" name="status" id="status">
         <option value="">Не использовать фильтр по статусу</option>
         {% for el in status %}
