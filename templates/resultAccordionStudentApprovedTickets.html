@@ -68,7 +68,7 @@
                                 <h5 class="mb-1">Уровень компетенций</h5>{{ el.Levels.levelsName }}
                             </li>
                             <li class="list-group-item" {% if not el.Confirmation.IDconfirmation %} hidden {% endif %}>
-                                <h5 class="mb-1">Подтверждение на участие в проекте</h5>
+                                <h5 class="mb-1">Подтверждение участия в проекте</h5>
                                 <div class="btn-toolbar justify-content-between" role="toolbar"
                                     id="confirmed{{ el.Confirmation.IDconfirmation }}">
                                     {% with idconfirm=el.Confirmation.IDconfirmation,
