@@ -24,9 +24,9 @@
     <input type="text" id="roleFilter" class="form-control" placeholder="Фильтр по роли" aria-label="projectFilter"
         aria-describedby="basic-addon1">
     <br>
-    <label for="stageFilter" class="form-select-label">Фильтр по стадию работы</label>
+    <label for="stageFilter" class="form-select-label">Фильтр по статусу работы</label>
     <select class="form-select" name="stageFilter" id="stageFilter" {% if stage==[] %} disabled {% endif %}>
-        <option value=""> Не использовать фильтр по стадии
+        <option value=""> Не использовать фильтр по статусу
         </option>
         {% for el in stage %}
         <option value="{{ el.StadiaOfWorks.IDstadiaofworks }}"> {{

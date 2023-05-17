@@ -45,7 +45,7 @@
                                 <div class="btn-toolbar justify-content-between" role="toolbar"
                                     id="work{{ work.StudentsInProjects.IDstudentspr }}">
                                     {% with idstud=work.StudentsInProjects.IDstudentspr,
-                                    signed=not work.StudentsInProjects.studentsinprFull %}
+                                    signed=work.StudentsInProjects.studentsinprFull %}
                                     {% include "works_template.html" %}
                                     {% endwith %}
                                 </div>

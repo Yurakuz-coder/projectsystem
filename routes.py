@@ -4472,7 +4472,7 @@ def sheffproj_mail_iniciator():
         )
 
         projects = db_sessions.execute(select_projects).all()
-        idproj = projects[0][0] if projects else text("1=0")
+        idinic = projects[0][0] if projects else text("1=0")
 
         iniciators = db_sessions.execute(
             text(
@@ -4482,16 +4482,11 @@ def sheffproj_mail_iniciator():
             CONCAT_WS(' ', i.initprFirstname, i.initprName, i.initprFathername),
             o.orgname
         FROM
-            projects p
-        join passportofprojects p2 on
-            ( p2.IDpassport = p.IDpassport )
-        join initiatorsofprojects i on
-            (i.IDinitpr = p2.IDinitpr)
+            initiatorsofprojects i
         join organizations o on ( o.idorg = i.idorg )
-        WHERE	p2.IDsheffpr = :idsheffproj
-                and p.idprojects = :idproj"""
+        WHERE	i.IDinitpr = :idinic"""
             ),
-            {"idsheffproj": idsheff_proj, "idproj": idproj},
+            {"idinic": idinic},
         ).all()
         return render_template("students_mail_iniciator.html", users=iniciators, projects=projects)
 
@@ -5295,12 +5290,14 @@ def iniciators_members():
         projects = db_sessions.execute(select_projects).all()
         levels = db_sessions.execute((select(Levels))).all()
         status = db_sessions.execute(select(StadiaOfWorks)).all()
+        groups = db_sessions.execute(select(Groups)).all()
         return render_template(
             "iniciators_members.html",
             projects=projects,
             approved=confirmations,
             levels=levels,
             status=status,
+            groups=groups
         )
     if request.method == "POST":
         select = get_select()
@@ -5308,6 +5305,12 @@ def iniciators_members():
         fio_filter = request.form.get("projectFioFilter")
         project_filter = request.form.get("projectNameFilter")
         status_filter = request.form.get("statusFilter")
+        group_filter = request.form.get("groupFilter")
+        role_filter = request.form.get("roleFilter")
+        where_group_filter = Students.IDgroups == group_filter if group_filter else text("1=1")
+        where_role_filter = (
+            RolesOfProjects.rolesRole.ilike("%" + role_filter + "%") if role_filter else text("1=1")
+        )
         where_status_filter = (
             StadiaOfWorks.IDstadiaofworks == status_filter if status_filter else text("1=1")
         )
@@ -5330,8 +5333,11 @@ def iniciators_members():
                 Projects, PassportOfProjects, PassportOfProjects.IDpassport == Projects.IDpassport
             )
             .join(StudentsInProjects)
+            .join(RolesOfProjects, RolesOfProjects.IDroles == StudentsInProjects.IDroles)
             .join(Students)
             .filter(PassportOfProjects.IDinitpr == idiniciator)
+            .filter(where_role_filter)
+            .filter(where_group_filter)
             .filter(where_fio_filter)
             .filter(where_project_filter)
             .order_by(PassportOfProjects.passportName)
@@ -5364,6 +5370,8 @@ def iniciators_members():
             .join(Levels, isouter=True)
             .join(PassportOfProjects, PassportOfProjects.IDpassport == Projects.IDpassport)
             .join(Specializations)
+            .filter(where_group_filter)
+            .filter(where_role_filter)
             .filter(where_fio_filter)
             .filter(where_project_filter)
             .filter(where_status_filter)
