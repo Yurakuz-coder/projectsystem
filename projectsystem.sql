@@ -1,6 +1,6 @@
 ﻿-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 6.0.441.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 10.05.2023 16:16:19
+-- Дата скрипта: 18.05.2023 16:57:00
 -- Версия сервера: 5.5.25
 -- Версия клиента: 4.1
 
@@ -90,8 +90,8 @@ CREATE TABLE shefforganizations (
   UNIQUE INDEX UK_shefforganizations_Login (Login, Pass)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 4
-AVG_ROW_LENGTH = 8192
+AUTO_INCREMENT = 8
+AVG_ROW_LENGTH = 3276
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Руководители организаций';
@@ -109,8 +109,8 @@ CREATE TABLE specializations (
   UNIQUE INDEX UK_specializations (specShifr, specNapravlenie, specNapravlennost)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 6
-AVG_ROW_LENGTH = 5461
+AUTO_INCREMENT = 9
+AVG_ROW_LENGTH = 2730
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Специализации';
@@ -143,7 +143,8 @@ CREATE TABLE stadiaofworks (
   UNIQUE INDEX UK_stadiaofworks_stadiaofworksName (stadiaofworksName)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Стадии работы';
@@ -165,7 +166,7 @@ CREATE TABLE competensions (
 )
 ENGINE = INNODB
 AUTO_INCREMENT = 14
-AVG_ROW_LENGTH = 1365
+AVG_ROW_LENGTH = 1638
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Компетенции учебного плана';
@@ -188,8 +189,8 @@ CREATE TABLE groups (
     REFERENCES specializations(IDspec) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 6
-AVG_ROW_LENGTH = 5461
+AUTO_INCREMENT = 7
+AVG_ROW_LENGTH = 4096
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Группы';
@@ -213,8 +214,8 @@ CREATE TABLE organizations (
     REFERENCES shefforganizations(IDshefforg) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 5
-AVG_ROW_LENGTH = 8192
+AUTO_INCREMENT = 8
+AVG_ROW_LENGTH = 3276
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Организации';
@@ -239,11 +240,11 @@ CREATE TABLE sheffofprojects (
   UNIQUE INDEX UK_sheffofprojects (Login, Pass),
   UNIQUE INDEX UK_sheffofprojects2 (IDpositions, sheffprFirstname, sheffprName, sheffprFathername),
   CONSTRAINT FK_sheffofprojects_positions_IDpositions FOREIGN KEY (IDpositions)
-    REFERENCES positions(IDpositions) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES positions(IDpositions) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 7
-AVG_ROW_LENGTH = 5461
+AUTO_INCREMENT = 9
+AVG_ROW_LENGTH = 3276
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Руководители проектов';
@@ -268,7 +269,7 @@ CREATE TABLE initiatorsofprojects (
   UNIQUE INDEX UK_initiatorsofprojects (initprFirstname, initprName, initprFathername, IDorg),
   UNIQUE INDEX UK_initiatorsofprojects2 (Login, Pass),
   CONSTRAINT FK_initiatorsofprojects_organizations_IDorg FOREIGN KEY (IDorg)
-    REFERENCES organizations(IDorg) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES organizations(IDorg) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
 AUTO_INCREMENT = 5
@@ -294,7 +295,7 @@ CREATE TABLE projectsudycontracts (
   INDEX IDX_projectsudycontracts_IDorg (IDorg),
   UNIQUE INDEX UK_projectsudycontracts_contractsNumber (contractsNumber, contractsStart, contractsFinish),
   CONSTRAINT FK_projectsudycontracts_organizations_IDorg FOREIGN KEY (IDorg)
-    REFERENCES organizations(IDorg) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES organizations(IDorg) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
 AUTO_INCREMENT = 10
@@ -313,7 +314,7 @@ CREATE TABLE students (
   studentsFirstname VARCHAR(255) NOT NULL,
   studentsName VARCHAR(255) NOT NULL,
   studentsFathername VARCHAR(255) DEFAULT NULL,
-  studentsStudbook INT(9) NOT NULL,
+  studentsStudbook INT(9) UNSIGNED NOT NULL,
   studentsPhone VARCHAR(12) NOT NULL,
   studentsEmail VARCHAR(100) NOT NULL,
   Login VARCHAR(100) NOT NULL,
@@ -327,8 +328,8 @@ CREATE TABLE students (
     REFERENCES groups(IDgroups) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 4
-AVG_ROW_LENGTH = 5461
+AUTO_INCREMENT = 5
+AVG_ROW_LENGTH = 4096
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Студенты';
@@ -362,12 +363,12 @@ CREATE TABLE passportofprojects (
   INDEX IDX_passportofprojects_passportDate (passportDate),
   UNIQUE INDEX UK_passportofprojects (IDinitpr, passportName(255)),
   CONSTRAINT FK_passportofprojects_initiatorsofprojects_IDinitpr FOREIGN KEY (IDinitpr)
-    REFERENCES initiatorsofprojects(IDinitpr) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES initiatorsofprojects(IDinitpr) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_passportofprojects_sheffofprojects_IDsheffpr FOREIGN KEY (IDsheffpr)
-    REFERENCES sheffofprojects(IDsheffpr) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES sheffofprojects(IDsheffpr) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 5
+AUTO_INCREMENT = 14
 AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
@@ -385,12 +386,12 @@ CREATE TABLE projects (
   PRIMARY KEY (IDprojects),
   UNIQUE INDEX UK_projects_IDpassport (IDpassport),
   CONSTRAINT FK_projects_passportofprojects_IDpassport FOREIGN KEY (IDpassport)
-    REFERENCES passportofprojects(IDpassport) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES passportofprojects(IDpassport) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_projects_stadiaofprojects_IDstadiaofpr FOREIGN KEY (IDstadiaofpr)
-    REFERENCES stadiaofprojects(IDstadiaofpr) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES stadiaofprojects(IDstadiaofpr) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 5
+AUTO_INCREMENT = 14
 AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
@@ -412,11 +413,11 @@ CREATE TABLE rolesofprojects (
   INDEX IDX_rolesofprojects_IDpassport (IDpassport),
   UNIQUE INDEX UK_rolesofprojects (IDpassport, rolesRole(255)),
   CONSTRAINT FK_rolesofprojects_passportofprojects_IDpassport FOREIGN KEY (IDpassport)
-    REFERENCES passportofprojects(IDpassport) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES passportofprojects(IDpassport) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 5
-AVG_ROW_LENGTH = 4096
+AUTO_INCREMENT = 14
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Роли в проекте';
@@ -440,15 +441,15 @@ CREATE TABLE applications (
   INDEX IDX_applications_IDprojects (IDprojects),
   UNIQUE INDEX UK_applications (IDprojects, IDstudents),
   CONSTRAINT FK_applications_projects_IDprojects FOREIGN KEY (IDprojects)
-    REFERENCES projects(IDprojects) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES projects(IDprojects) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_applications_rolesofprojects_IDroles FOREIGN KEY (IDroles)
-    REFERENCES rolesofprojects(IDroles) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES rolesofprojects(IDroles) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_applications_students_IDstudents FOREIGN KEY (IDstudents)
-    REFERENCES students(IDstudents) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES students(IDstudents) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 2
-AVG_ROW_LENGTH = 16384
+AUTO_INCREMENT = 15
+AVG_ROW_LENGTH = 4096
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Заявки на участие в проекте';
@@ -463,13 +464,13 @@ CREATE TABLE competensionsinproject (
   IDcompetensions INT(11) UNSIGNED NOT NULL,
   PRIMARY KEY (IDcompetensionspr),
   CONSTRAINT FK_competensionsinproject_competensions_IDcompetensions FOREIGN KEY (IDcompetensions)
-    REFERENCES competensions(IDcompetensions) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES competensions(IDcompetensions) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_competensionsinproject_rolesofprojects_IDroles FOREIGN KEY (IDroles)
-    REFERENCES rolesofprojects(IDroles) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES rolesofprojects(IDroles) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 15
-AVG_ROW_LENGTH = 1170
+AUTO_INCREMENT = 111
+AVG_ROW_LENGTH = 682
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Компетенции в проекте';
@@ -484,13 +485,13 @@ CREATE TABLE specializationsinprojects (
   IDspec INT(11) UNSIGNED NOT NULL,
   PRIMARY KEY (IDspecinpr),
   CONSTRAINT FK_specializationsinprojects_rolesofprojects_IDroles FOREIGN KEY (IDroles)
-    REFERENCES rolesofprojects(IDroles) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES rolesofprojects(IDroles) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_specializationsinprojects_specializations_IDspec FOREIGN KEY (IDspec)
-    REFERENCES specializations(IDspec) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES specializations(IDspec) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 13
-AVG_ROW_LENGTH = 1365
+AUTO_INCREMENT = 46
+AVG_ROW_LENGTH = 1820
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Специализации в проекте';
@@ -511,13 +512,13 @@ CREATE TABLE confirmation (
   PRIMARY KEY (IDconfirmation),
   UNIQUE INDEX UK_confirmation_IDapplications (IDapplications),
   CONSTRAINT FK_confirmation_applications_IDapplications FOREIGN KEY (IDapplications)
-    REFERENCES applications(IDapplications) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES applications(IDapplications) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_confirmation_levels_IDlevels FOREIGN KEY (IDlevels)
-    REFERENCES levels(IDlevels) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES levels(IDlevels) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 2
-AVG_ROW_LENGTH = 16384
+AUTO_INCREMENT = 7
+AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Подтверждение участия в проекте';
@@ -531,25 +532,29 @@ CREATE TABLE studentsinprojects (
   IDstudents INT(11) UNSIGNED NOT NULL,
   IDprojects INT(11) UNSIGNED NOT NULL,
   IDroles INT(11) UNSIGNED NOT NULL,
-  IDconfirmation INT(11) UNSIGNED NOT NULL,
+  IDconfirmation INT(11) UNSIGNED DEFAULT NULL,
   IDstadiaofworks INT(11) UNSIGNED NOT NULL,
   studentsinprFull VARCHAR(1000) DEFAULT NULL,
+  IDapplications INT(11) UNSIGNED NOT NULL,
   PRIMARY KEY (IDstudentspr),
   INDEX IDX_studentsinprojects_IDstudents (IDstudents),
   UNIQUE INDEX UK_studentsinprojects (IDstudents, IDprojects, IDconfirmation),
+  CONSTRAINT FK_studentsinprojects_applications_IDapplications FOREIGN KEY (IDapplications)
+    REFERENCES applications(IDapplications) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT FK_studentsinprojects_confirmation_IDconfirmation FOREIGN KEY (IDconfirmation)
-    REFERENCES confirmation(IDconfirmation) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES confirmation(IDconfirmation) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_studentsinprojects_projects_IDprojects FOREIGN KEY (IDprojects)
-    REFERENCES projects(IDprojects) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES projects(IDprojects) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_studentsinprojects_rolesofprojects_IDroles FOREIGN KEY (IDroles)
-    REFERENCES rolesofprojects(IDroles) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES rolesofprojects(IDroles) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_studentsinprojects_stadiaofworks_IDstadiaofworks FOREIGN KEY (IDstadiaofworks)
-    REFERENCES stadiaofworks(IDstadiaofworks) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    REFERENCES stadiaofworks(IDstadiaofworks) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT FK_studentsinprojects_students_IDstudents FOREIGN KEY (IDstudents)
-    REFERENCES students(IDstudents) ON DELETE RESTRICT ON UPDATE RESTRICT
+    REFERENCES students(IDstudents) ON DELETE CASCADE ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 8
+AVG_ROW_LENGTH = 4096
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Студенты в проекте';
@@ -583,16 +588,22 @@ INSERT INTO positions VALUES
 -- Вывод данных для таблицы shefforganizations
 --
 INSERT INTO shefforganizations VALUES
-(1, 'Кузнецов', 'Василий', 'Александрович', 'директор', 'Доверенность', 'sibir124@hotmail.com', '+7913197341', 'prazdnik', '358b3ade2fed6f80e801633b056c4d78'),
-(3, 'Борисов', 'Алишер', 'Александрович', 'директор', 'доверенность', '432@yandex.ru', '+72334561231', 'boris', '4dbf44c6b1be736ee92ef90090452fc2');
+(1, 'Кузнецов', 'Василий', 'Александрович', 'директор', 'доверенность', 'sibir124@hotmail.com', '+7913197341', 'prazdnik', '358b3ade2fed6f80e801633b056c4d78'),
+(3, 'Борисов', 'Алишер', 'Александрович', 'директор', 'доверенность', '432@yandex.ru', '+72334561231', 'boris', '4dbf44c6b1be736ee92ef90090452fc2'),
+(4, 'Ляпин', 'Евгений', 'Михайлович', 'директор', 'устав', 'szp@24.ru', '+73912345678', 'lypin', '21d91e97f73f488ea635bd0a63968453'),
+(6, 'Михайлова', 'Анастасия', 'Михайловна', 'директор', 'доверенность', 'nastya@mail.ru', '+79762543456', 'nastya', 'f7126b1ce9faf63a53673ccb3de5f653'),
+(7, 'Полозов', 'Сергей', 'Геннадьевич', 'директор', 'устав', 'poloz@ya.ru', '+79863217855', 'poloz', '9904176e4e796bb39aee6e83d9d57c3d');
 
 -- 
 -- Вывод данных для таблицы specializations
 --
 INSERT INTO specializations VALUES
+(8, '09.03.02', 'Информационные системы и технологии', 'Информационные системы в нефтегазовой отрасли'),
+(7, '09.03.02', 'Информационные системы и технологии', 'Информационные системы и технологии в управлении'),
 (4, '09.04.01', 'Информатика и вычислительная техника', 'Интеллектуальные системы'),
 (3, '09.04.02', 'Информационные системы и технологии', 'Мультимедиатехнологии'),
-(5, '09.04.02', 'Информационные системы и технологии', 'Управление данными');
+(5, '09.04.02', 'Информационные системы и технологии', 'Управление данными'),
+(6, '09.04.04', 'Программная инженерия', 'Разработка программных комплексов и систем');
 
 -- 
 -- Вывод данных для таблицы stadiaofprojects
@@ -607,15 +618,15 @@ INSERT INTO stadiaofprojects VALUES
 -- 
 -- Вывод данных для таблицы stadiaofworks
 --
-
--- Таблица projectsystem.stadiaofworks не содержит данных
+INSERT INTO stadiaofworks VALUES
+(2, 'В процессе выполнения'),
+(1, 'Начата работа'),
+(3, 'Работа выполнена');
 
 -- 
 -- Вывод данных для таблицы competensions
 --
 INSERT INTO competensions VALUES
-(1, 4, 'ПК-1', 'Способен критически воспринимать информацию'),
-(3, 4, 'ПК-2', 'Плавать'),
 (4, 3, 'УK-1', 'Способен управлять своим временем, выстраивать и реализовывать траекторию саморазвития на основе принципов образования в течении всей жизни'),
 (5, 4, 'УK-2', 'Способен определять круг задач в рамах поставленной цели и выбирать оптимальные  способы их \r\nрешения, исходя из действующих правовых норм имеющихся решений и ограничений'),
 (6, 3, 'УK-2', 'Способен определять круг задач в рамах поставленной цели и выбирать оптимальные способы их решения, исходя из действующих правовых норм имеющихся решений и ограничений'),
@@ -633,14 +644,18 @@ INSERT INTO competensions VALUES
 INSERT INTO groups VALUES
 (3, 'МИФ22-01', 2022, 1, 3),
 (4, 'МИД21-01', 2021, 1, 5),
-(5, 'МИИ21-01', 2021, 1, 4);
+(5, 'МИИ21-01', 2021, 1, 4),
+(6, 'МИИ22-01', 2022, 1, 4);
 
 -- 
 -- Вывод данных для таблицы organizations
 --
 INSERT INTO organizations VALUES
 (1, 1, 'ООО "Праздник 1"', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 3', '662525, Красноярский край, Емельяновский район, п. Емельяново, ул. Борисова, д. 2', 'sibir124@hotmail.com', '+73913132244'),
-(4, 3, 'ТО КГКУ УСЗН', 'Красноярск', 'Красноярск', 'uszn21@mail.ru', '+73913123345');
+(4, 3, 'КГКУ УСЗН', '662500, Красноярский край, г. Красноярск, пр. Мира, д. 10', '662500, Красноярский край, г. Красноярск, пр. Мира, д. 10', 'uszn21@mail.ru', '+73913123345'),
+(5, 4, 'ООО "Орион-Телеком"', '662400, Красноярский край, г. Красноярск, ул. Ленина д. 1, пом. 125', '662400, Красноярский край, г. Красноярск, ул. Ленина д. 1, пом. 125', 'orion@mail.ru', '+73912345665'),
+(6, 6, 'ЗАО "Типография №1"', '662598, Красноярский край, г. Красноярск, ул. Борисевича д. 13, пом. 123', '662598, Красноярский край, г. Красноярск, ул. Борисевича д. 13, пом. 123', 'tip1@yandex.ru', '+73912390088'),
+(7, 7, 'АО "ИТ-Проф"', '662401, Красноярский край, г. Красноярск, ул. 9 Мая, д. 123, пом. 64', '662401, Красноярский край, г. Красноярск, ул. 9 Мая, д. 123, пом. 64', 'it@prof.ru', '+73912667799');
 
 -- 
 -- Вывод данных для таблицы sheffofprojects
@@ -648,7 +663,9 @@ INSERT INTO organizations VALUES
 INSERT INTO sheffofprojects VALUES
 (1, 1, 'Козлова', 'Юлия', 'Борисовна', '83912139623', 'iurij.kuznetsov2011@yandex.ru', 'Admin', '9e727fdd3aec8274f46685441900280d'),
 (2, 2, 'Козлова', 'Юлия', 'Борисовна', '+78927892144', 'yulya_sib_gau@mail.ru', 'yulia', '03be66295cd7eb6cf6001c9181bb904d'),
-(6, 1, 'Кузнецов', 'Юрий', 'Александрович', '+79121973415', 'iu@yandex.ru', '33', '182be0c5cdcd5072bb1864cdee4d3d6e');
+(6, 1, 'Зотин', 'Александр', 'Геннадьевич', '+79121973415', 'iu@yandex.ru', '33', '182be0c5cdcd5072bb1864cdee4d3d6e'),
+(7, 2, 'Зотин', 'Александр', 'Геннадьевич', '+79137864563', 'zotin@sibsau.ru', 'zotin', '2e15b1ffbb7b73b0c3f2e91c2b3d1aef'),
+(8, 2, 'Буряченко', 'Владимир', 'Викторович', '+79927892144', 'buryachenko@sibsau.ru', 'buryachenko', '150b86373c84f2f7f08a890e8ec13f43');
 
 -- 
 -- Вывод данных для таблицы initiatorsofprojects
@@ -661,95 +678,93 @@ INSERT INTO initiatorsofprojects VALUES
 -- Вывод данных для таблицы projectsudycontracts
 --
 INSERT INTO projectsudycontracts VALUES
-(7, 4, 122, '2023-04-13', '2024-04-15', 'test', 'full', NULL),
-(9, 1, 123, '2023-04-13', '2024-04-15', 'test', 'full', NULL);
+(7, 4, 122, '2023-04-13', '2024-04-15', 'test', 'full', 'documents\\Отчет НИП.doc'),
+(9, 1, 123, '2023-04-13', '2024-04-15', 'test', 'full', 'documents\\Отчет ПП.doc');
 
 -- 
 -- Вывод данных для таблицы students
 --
 INSERT INTO students VALUES
-(1, 4, 'Тимофеев', 'Сергей', 'Николаевич', 125678096, '+79131973415', 'iurij.kuznetsov2011@yandex.ru', '125678096', '4fddf81f8acb968856d7a668cc6510f2'),
+(1, 4, 'Тимофеев', 'Сергей', 'Николаевич', 125678096, '+79131973415', 'iurij.kuznetsov2011@yandex.ru', '987654321', '6ebe76c9fb411be97b3b0d48b791a7c9'),
 (2, 4, 'Сергеев', 'Сергей', 'Николаевич', 123456789, '+79082209565', 'e.star00@mail.ru', '123456789', '25f9e794323b453885f5181f1b624d0b'),
-(3, 4, 'Вакарчук', 'Анатолий', 'Петрович', 234489012, '+78927892144', '1@ya.ru', '234489012', '9d6b7e06a07cef69baf2e2b52e43cf49');
+(3, 4, 'Вакарчук', 'Анатолий', 'Петрович', 234489012, '+78927892144', '1@ya.ru', '234489012', '9d6b7e06a07cef69baf2e2b52e43cf49'),
+(4, 4, 'Антонов', 'Антон', 'Антонович', 123456780, '+79991233211', 'anton@ya.ru', '123456780', '102a23a0e4661368943dacb516a18cc8');
 
 -- 
 -- Вывод данных для таблицы passportofprojects
 --
 INSERT INTO passportofprojects VALUES
-(2, 4, 2, 'Разработка web-сайта компании ООО "Праздник 1"', '2023-04-28', 'Компании необходим сайт', 'Разработать сайт', 'Разработать сайт', 'Web-сайта компании ООО "Праздник 1"', 'Что-то разработать', 'До конца марта 2024 года ', '1. Привет\r\n2. Как дела', 'Отсутствует', 'Отсутствует', 'Отсутствуют', 'Разработанное приложение', '', '', ''),
-(3, 4, 2, 'Разработка мобильной игры "Праздник везде"', NULL, 'Компания разрабатывает новую мобильную игру, которая поможет решить многие проблемы наших сотрудников', 'Разработка CRM-системы', 'Разработать CRM-систему', 'Мобильное приложение для ОС Android', 'ампипа', '1\r\n2\r\n3', 'чбвощсторива', 'паитерапоьп', 'апврапо', 'ыеренаое', 'авырпнео', '', '', ''),
-(4, 4, 2, 'Разработка и создание интернет-портала (web-приложения) «Школьные лесничества Красноярского края»', NULL, 'Интернет-портал (web-приложение) «Школьные лесничества Красноярского края» позволит проводить мониторинг деятельности и достижений каждого учащегося школьных лесничеств на протяжении всего периода обучения. Также интернет-портал предоставит широкий спектр возможностей школьным лесничествам для предоставления информации о своей деятельности в сети интернет (новости, статьи, фото и видео с мероприятий и др.)', 'Разработка и создание интернет-портала (web-приложения) для проведения мониторинга деятельности и достижений каждого учащегося школьных лесничеств Красноярского края на протяжении всего периода обучения', '1. Разработка технического задания на разработку интернет-портала (web-приложения)\r\n2. Разработка веб-дизайна интернет-портала (web-приложения)\r\n3. Разработка базы данных\r\n4. Программирование, тестирование и запуск интернет-портала (web-приложения)\r\n5. Администрирование и сопровождение интернет-портала (web-приложения)', 'Интернет-портал (web-приложение) «Школьные лесничества Красноярского края»', 'Техническое задание приложения (структура, возможности учебной платформы). Веб-дизайн интернет-портала (web-приложения). База данных. Программирование, тестирование и запуск приложения. Администрирование и сопровождение приложения', '2024 г.', '2023 г.:\r\n1. Определение и постановка задач. Разработка \r\nтехнического задания (далее ТЗ)\r\n2024 г.:\r\n1. Разработка прототипа структуры и дизайна интернетпортала (web-приложения) в рамках ТЗ \r\n2. Разработка пользовательской части интернет-портала \r\n(web-приложения) в частности главной страницы и \r\nвнутренние страницы приложения\r\n3. Разработка дизайна административной части \r\nприложения \r\n4. Вёрстка дизайна пользовательской части приложения\r\n5. Вёрстка дизайна административной части приложения \r\n6. Разработка базы данных приложения\r\n7. Программирование\r\n8. Тестирование приложения\r\n9. Запуск приложения на сервер \r\n10. Сопровождение приложения\r\n11. Доработка выявленных недочетов', 'Материально-техническое обеспечение и информационные ресурсы СибГУ им. М.Ф. Решетнева (ИИТК)', 'Финансирование проекта не предусмотрено', 'Проект оценивается на основе комплексного анализа полученных результатов', 'Результатами проекта является оформленный презентационный материал, согласованный с заказчиком', '', '', '');
+(7, 4, 2, 'Разработка и создание интернет-портала (web-приложения) «Школьные лесничества Красноярского края»', NULL, 'Интернет-портал (web-приложение) «Школьные лесничества Красноярского края» позволит проводить мониторинг деятельности и достижений каждого учащегося школьных лесничеств на протяжении всего периода обучения. Также интернет-портал предоставит широкий спектр возможностей школьным лесничествам для предоставления информации о своей деятельности в сети интернет (новости, статьи, фото и видео с мероприятий и др.)', 'Разработка и создание интернет-портала (web-приложения) для проведения мониторинга деятельности и достижений каждого учащегося школьных лесничеств Красноярского края на протяжении всего периода обучения', '1. Разработка технического задания на разработку интернет-портала (web-приложения)\r\n2. Разработка веб-дизайна интернет-портала (web-приложения)\r\n3. Разработка базы данных\r\n4. Программирование, тестирование и запуск интернет-портала (web-приложения)\r\n5. Администрирование и сопровождение интернет-портала (web-приложения)', 'Интернет-портал (web-приложение) «Школьные лесничества Красноярского края»', 'Техническое задание приложения (структура, возможности учебной платформы). Веб-дизайн мобильного приложения. База данных. Программирование, тестирование и запуск приложения. Администрирование и сопровождение приложения.\r\n', '2024 г.', '2023 г.:\r\n1. Определение и постановка задач. Разработка технического задания (далее ТЗ)\r\n2024 г.:\r\n1. Разработка прототипа структуры и дизайна мобильного приложения в рамках ТЗ \r\n2. Разработка пользовательской части мобильного приложения в частности главной страницы и внутренние страницы приложения\r\n3. Разработка дизайна административной части приложения \r\n4. Вёрстка дизайна пользовательской части приложения\r\n5. Вёрстка дизайна административной части приложения \r\n6. Разработка базы данных приложения\r\n7. Программирование\r\n8. Тестирование приложения\r\n9. Запуск приложения на сервер \r\n10. Сопровождение приложения\r\n11. Доработка выявленных недочетов', 'Материально-техническое обеспечение и информационные ресурсы СибГУ им. М.Ф. Решетнева (ИИТК)', 'Финансирование проекта не предусмотрено', 'Проект оценивается на основе комплексного анализа полученных результатов', 'Результатами проекта является оформленный презентационный материал, согласованный с заказчиком', '', '', ''),
+(13, 4, 2, 'Разработка и создание мобильного приложения «Школьные лесничества Красноярского края»', NULL, 'Мобильное приложение «Школьные лесничества Красноярского края» позволит проводить мониторинг деятельности и достижений каждого учащегося школьных лесничеств на протяжении всего периода обучения. Также мобильное приложение предоставит широкий спектр возможностей школьным лесничествам для предоставления информации о своей деятельности в сети интернет (новости, статьи, фото и видео с мероприятий и др.).', 'Разработка и создание мобильного приложения для проведения мониторинга деятельности и достижений каждого учащегося школьных лесничеств Красноярского края на протяжении всего периода обучения', '1. Разработка технического задания на разработку мобильного приложения\r\n2. Разработка веб-дизайна мобильного приложения\r\n3. Разработка базы данных\r\n4. Программирование, тестирование и запуск мобильного приложения\r\n5. Администрирование и сопровождение мобильного приложения', 'Мобильное приложение «Школьные лесничества Красноярского края»', 'Техническое задание приложения (структура, возможности учебной платформы). Веб-дизайн мобильного приложения. База данных. Программирование, тестирование и запуск приложения. Администрирование и сопровождение приложения.', '2024 г.', '2023 г.:\r\n1. Определение и постановка задач. Разработка технического задания (далее ТЗ)\r\n2024 г.:\r\n1. Разработка прототипа структуры и дизайна мобильного приложения в рамках ТЗ \r\n2. Разработка пользовательской части мобильного приложения в частности главной страницы и внутренние страницы приложения\r\n3. Разработка дизайна административной части приложения \r\n4. Вёрстка дизайна пользовательской части приложения\r\n5. Вёрстка дизайна административной части приложения \r\n6. Разработка базы данных приложения\r\n7. Программирование\r\n8. Тестирование приложения\r\n9. Запуск приложения на сервер \r\n10. Сопровождение приложения\r\n11. Доработка выявленных недочетов', 'Материально-техническое обеспечение и информационные ресурсы СибГУ им. М.Ф. Решетнева (ИИТК)', 'Финансирование проекта не предусмотрено', 'Проект оценивается на основе комплексного анализа полученных результатов', 'Результатами проекта является оформленный презентационный материал, согласованный с заказчиком', '', '', '');
 
 -- 
 -- Вывод данных для таблицы projects
 --
 INSERT INTO projects VALUES
-(2, 2, 5, NULL),
-(3, 3, 3, NULL),
-(4, 4, 3, NULL);
+(7, 7, 5, NULL),
+(13, 13, 3, NULL);
 
 -- 
 -- Вывод данных для таблицы rolesofprojects
 --
 INSERT INTO rolesofprojects VALUES
-(1, 2, 'Программист', 2, 'Разрабатывать сайт с адаптивным дизайном', 6, ''),
-(2, 3, 'Программист', 2, 'Разработчики мобильных приложений', 6, 'Отсутствуют'),
-(3, 3, 'Дизайнер', 1, 'Разработать макет дизайна', 3, 'отстутсвуют'),
-(4, 4, 'Программист', 4, 'Разработка и создание приложения', 3, 'Исполнительность, ответственность, пунктуальность');
+(8, 7, 'Программист', 2, 'Разаработать интернет-портал', 4, 'Исполнительность'),
+(13, 13, 'Программист', 2, 'Разработка мобильного приложения', 3, 'Дисциплинированность');
 
 -- 
 -- Вывод данных для таблицы applications
 --
 INSERT INTO applications VALUES
-(1, 3, 2, 2, 2, 'Просто так', '', '', '', 1);
+(6, 7, 2, 2, 8, 'Мне интересна данная работа', '', '', '', 1),
+(7, 7, 1, 2, 8, 'Хочу развиваться как программист', '', '', '', 1),
+(14, 13, 1, 2, 13, 'Мне хочется развиваться как программист', '', '', '', 1);
 
 -- 
 -- Вывод данных для таблицы competensionsinproject
 --
 INSERT INTO competensionsinproject VALUES
-(1, 1, 1),
-(2, 1, 3),
-(3, 2, 1),
-(4, 2, 3),
-(5, 3, 1),
-(6, 3, 3),
-(7, 4, 4),
-(8, 4, 6),
-(9, 4, 7),
-(10, 4, 9),
-(11, 4, 10),
-(12, 4, 11),
-(13, 4, 12),
-(14, 4, 13);
+(39, 8, 4),
+(40, 8, 6),
+(41, 8, 7),
+(42, 8, 9),
+(43, 8, 10),
+(44, 8, 11),
+(45, 8, 12),
+(46, 8, 13),
+(103, 13, 4),
+(104, 13, 6),
+(105, 13, 7),
+(106, 13, 9),
+(107, 13, 10),
+(108, 13, 11),
+(109, 13, 12),
+(110, 13, 13);
 
 -- 
 -- Вывод данных для таблицы specializationsinprojects
 --
 INSERT INTO specializationsinprojects VALUES
-(1, 1, 4),
-(2, 1, 3),
-(3, 1, 5),
-(4, 2, 4),
-(5, 2, 3),
-(6, 2, 5),
-(7, 3, 4),
-(8, 3, 3),
-(9, 3, 5),
-(10, 4, 4),
-(11, 4, 3),
-(12, 4, 5);
+(28, 8, 4),
+(29, 8, 3),
+(30, 8, 5),
+(43, 13, 4),
+(44, 13, 3),
+(45, 13, 5);
 
 -- 
 -- Вывод данных для таблицы confirmation
 --
 INSERT INTO confirmation VALUES
-(1, 1, 'Весь период существования проекта', 'Согласно учебному плану', 1, '', '', NULL);
+(5, 7, 'Весь проект', 'Хорошие результаты', 1, '', '', NULL),
+(6, 6, 'Весь период', 'Студент научился программировать', 1, '', '', 'documents\\МИФ21-Кузнецов-НИП.pdf');
 
 -- 
 -- Вывод данных для таблицы studentsinprojects
 --
-
--- Таблица projectsystem.studentsinprojects не содержит данных
+INSERT INTO studentsinprojects VALUES
+(4, 1, 7, 8, 5, 1, NULL, 7),
+(5, 2, 7, 8, 6, 2, 'documents\\Отчет НИП.doc', 6),
+(7, 1, 13, 13, NULL, 1, NULL, 14);
 
 -- 
 -- Включение внешних ключей
