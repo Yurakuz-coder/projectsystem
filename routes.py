@@ -3470,7 +3470,7 @@ def student_participation_ticket():
                 )
                 .join(Applications, isouter=True)
                 .filter(RolesOfProjects.IDpassport == first_project.PassportOfProjects.IDpassport)
-                .filter(Applications.IDprojects.notin_(cur_proj))
+                .filter((Applications.IDprojects.notin_(cur_proj)) | (Applications.IDprojects == None))
                 .filter((Applications.IDstudents != idstudent) | (Applications.IDstudents == None))
             )
             roles = db_sessions.execute(select_roles).all()
@@ -3567,12 +3567,16 @@ def student_get_roles():
     idstudent = session["user"][1]
     select = get_select()
     db_sessions = get_session()
+    select_current_projects = db_sessions.execute(
+            select(Applications.IDprojects).distinct().filter(Applications.IDstudents == idstudent)
+        ).all()
+    cur_proj = [value[0] for value in select_current_projects]
     select_roles = (
         select(RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction)
         .join(Applications, isouter=True)
         .filter(RolesOfProjects.IDpassport == idpassport)
+        .filter((Applications.IDprojects.notin_(cur_proj)) | (Applications.IDprojects == None))
         .filter((Applications.IDstudents != idstudent) | (Applications.IDstudents == None))
-        .filter((Applications.IDroles == None) | (Applications.applicationApproved == 0))
     )
     roles = db_sessions.execute(select_roles).all()
     return jsonify([dict(row._mapping) for row in roles]), 200
