@@ -3470,7 +3470,7 @@ def student_participation_ticket():
                 )
                 .join(Applications, isouter=True)
                 .filter(RolesOfProjects.IDpassport == first_project.PassportOfProjects.IDpassport)
-                .filter((Applications.IDroles == None) | (Applications.applicationApproved == 0))
+                .filter(Applications.IDprojects.notin_(cur_proj))
                 .filter((Applications.IDstudents != idstudent) | (Applications.IDstudents == None))
             )
             roles = db_sessions.execute(select_roles).all()
@@ -4101,7 +4101,7 @@ def send_confirmation():
     idconfirmation = args.get("idConfirmation")
 
     db_sessions = get_session()
-    db_sessions.execute(text("SET global group_concat_max_len=15000"))
+    db_sessions.execute(text("SET group_concat_max_len=15000"))
     confirmed_ticket = db_sessions.execute(
         text(
             r"""SELECT
