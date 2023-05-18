@@ -2787,7 +2787,7 @@ def sheffproj_members():
         db_sessions = get_session()
         select = get_select()
         idsheffpr = session["user"][0]
-        db_sessions.execute(text("SET global group_concat_max_len=15000"))
+        db_sessions.execute(text("SET group_concat_max_len=15000"))
         select_projects = (
             select(
                 PassportOfProjects.IDpassport, PassportOfProjects.passportName, Projects.IDprojects
@@ -5297,7 +5297,7 @@ def iniciators_members():
             approved=confirmations,
             levels=levels,
             status=status,
-            groups=groups
+            groups=groups,
         )
     if request.method == "POST":
         select = get_select()
