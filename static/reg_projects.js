@@ -1,4 +1,4 @@
-function applyProjectFilters() {
+function applyProjectFilters(page) {
   const projectFilter = document.getElementById("projectFilter")?.value;
   const stadiaFilter = document.getElementById("stadiaFilter")?.value;
   const orgFilter = document.getElementById("orgFilter")?.value;
@@ -8,20 +8,20 @@ function applyProjectFilters() {
   if (!projectFilter && !stadiaFilter && !sheffProjFilter && !inicFilter && !orgFilter) {
     return;
   }
-  getDataProject(projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter);
+  getDataProject(page, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter);
 }
 
 function dropProjectFilter() {
-  getDataProject(null, null, null, null, null);
+  getDataProject(null, null, null, null, null, null);
 }
 
-function getDataProject(projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter) {
+function getDataProject(page, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter) {
   const url = window.location.pathname.split('/')[1]
   $.ajax({
     type: "POST",
     url: "/" + url + "/projects",
     dataSrc: "data",
-    data: { projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter },
+    data: { page, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
@@ -284,4 +284,8 @@ function getDataParticTickets(orgFilter, inicFilter, sheffProjFilter, projectFil
       console.log(err);
     },
   });
+}
+
+function paginate() {
+  const a = 1;
 }

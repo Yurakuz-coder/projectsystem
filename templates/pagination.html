@@ -1,0 +1,14 @@
+<nav>
+  <ul class="pagination justify-content-end">
+    <li class="page-item {{'disabled' if page == 0 else ''}}">
+      <a class="page-link" value="prev" tabindex="-1" aria-disabled="true">Предыдущая страница</a>
+    </li>
+    {% for el in range(count//11+1) %}
+    <li class="page-item {{'disabled' if page == el else ''}}"><a class="page-link" onclick="paginate(this.value)"
+        value="{{ el }}">{{ el+1 }}</a></li>
+    {% endfor %}
+    <li class="page-item {{'disabled' if page == count // 11 else ''}}">
+      <a class="page-link" value="{{ page }}" onclick="paginate(this.value+1)">Следующая страница</a>
+    </li>
+  </ul>
+</nav>

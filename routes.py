@@ -16,7 +16,7 @@ from flask import (
     jsonify,
     url_for,
 )
-from sqlalchemy import text
+from sqlalchemy import text, func
 from pymorphy2 import MorphAnalyzer
 from models.models import (
     Sheffofprojects,
@@ -1945,10 +1945,21 @@ def iniciators_project():
             .filter(PassportOfProjects.IDinitpr == idinitpr)
             .order_by(PassportOfProjects.passportName)
         )
+        select_projects_count = (select(Projects).join_from(
+                Projects, PassportOfProjects, Projects.IDpassport == PassportOfProjects.IDpassport
+            )
+            .join(Sheffofprojects, isouter=True)
+            .join(Positions, isouter=True)
+            .join(Initiatorsofprojects)
+            .join(StadiaOfProjects)
+            .join(Organizations)
+            .filter(PassportOfProjects.IDinitpr == idinitpr)
+            .order_by(PassportOfProjects.passportName))
+        count_projects = db_sessions.execute(count_records(select_projects_count), {"IDinitpr_1": idinitpr}).first()[0]
 
         stadia = db_sessions.execute(select_stadia).all()
         projects = db_sessions.execute(select_projects).all()
-        return render_template("iniciators_projects.html", projects=projects, stadia=stadia)
+        return render_template("iniciators_projects.html", projects=projects, stadia=stadia, count=count_projects, page=0)
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
@@ -1956,6 +1967,7 @@ def iniciators_project():
         project_filter = request.form["projectFilter"]
         stadia_filter = request.form["stadiaFilter"]
         sheff_proj_filter = request.form["sheffProjFilter"]
+        page = request.form['page']
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
@@ -1993,7 +2005,23 @@ def iniciators_project():
             .filter(PassportOfProjects.IDinitpr == idinitpr)
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
+        select_projects_count = (select(Projects).join_from(
+                Projects, PassportOfProjects, Projects.IDpassport == PassportOfProjects.IDpassport
+            )
+            .join(Sheffofprojects, isouter=True)
+            .join(Positions, isouter=True)
+            .join(Initiatorsofprojects)
+            .join(StadiaOfProjects)
+            .join(Organizations)
+            .where(where_project_filter)
+            .where(where_stadia_filter)
+            .where(where_sheff_proj_filter)
+            .filter(PassportOfProjects.IDinitpr == idinitpr))
+
+        count_projects = db_sessions.execute(count_records(select_projects_count), {"IDinitpr_1": idinitpr}).first()[0]
+
+
+        projects = db_sessions.execute(pagination(select_projects, page)).all()
         return render_template("resultAccordionProjects.html", projects=projects)
 
 
@@ -2672,8 +2700,9 @@ def sheffproj_assignment_project():
             .filter(PassportOfProjects.IDsheffpr == None)
             .order_by(PassportOfProjects.passportName)
         )
+        count_projects = db_sessions.execute(count_records(select_projects), {"param_1": ' ', "param_2": ' ', "param_3": ' ', "param_4": ' ',"IDstadiaofpr_2": 2}).first()[0]
         projects = db_sessions.execute(select_projects).all()
-        return render_template("sheffproj_assignment.html", projects=projects)
+        return render_template("sheffproj_assignment.html", projects=projects, count=count_projects, page=0)
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
@@ -3934,6 +3963,9 @@ def sheff_proj_approved_tickets():
             .join(PassportOfProjects)
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
         )
+        count_projects = db_sessions.execute(count_records(select_projects), {'IDsheffpr_1': idsheff_proj}).first()[0]
+        projects = db_sessions.execute(pagination(select_projects)).all()
+        projects_filter = [val[0] for val in projects]
         select_approved = (
             select(
                 Students,
@@ -3963,6 +3995,7 @@ def sheff_proj_approved_tickets():
             .join(Groups)
             .join(Specializations)
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
+            .filter(PassportOfProjects.IDpassport.in_(projects_filter))
             .order_by(PassportOfProjects.passportName)
         )
         approved = db_sessions.execute(select_approved).all()
@@ -3978,6 +4011,8 @@ def sheff_proj_approved_tickets():
             levels=levels,
             groups=groups,
             is_null=is_null,
+            count=count_projects,
+            page=0,
             is_not_confirmed_null=is_not_confirmed_null,
         )
     if request.method == "POST":
@@ -5645,3 +5680,9 @@ def get_sheff_proj_mail():
     ).all()
 
     return jsonify([list(val) for val in students]), 200
+
+def pagination(query, page=0):
+    return query.limit(10).offset(page * 10)
+
+def count_records(query):
+    return text("SELECT COUNT(1) FROM (" + query.__str__().replace('"', '') + ") AS T")
