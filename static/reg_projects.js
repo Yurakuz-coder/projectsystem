@@ -12,6 +12,16 @@ function applyProjectFilters(page) {
 }
 
 function dropProjectFilter() {
+  const projectFilter = document.getElementById("projectFilter");
+  const stadiaFilter = document.getElementById("stadiaFilter");
+  const orgFilter = document.getElementById("orgFilter");
+  const inicFilter = document.getElementById("inicFilter");
+  const sheffProjFilter = document.getElementById("sheffProjFilter");
+  projectFilter && (projectFilter.value = "")
+  stadiaFilter && (stadiaFilter.value = "")
+  orgFilter && (orgFilter.value = "")
+  inicFilter && (inicFilter.value = "")
+  sheffProjFilter && (sheffProjFilter.value = "")
   getDataProject(null, null, null, null, null, null);
 }
 

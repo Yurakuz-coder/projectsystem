@@ -1958,9 +1958,7 @@ def iniciators_project():
             .filter(PassportOfProjects.IDinitpr == idinitpr)
             .order_by(PassportOfProjects.passportName)
         )
-        count_projects = db_sessions.execute(
-            count_records(select_projects_count), {"IDinitpr_1": idinitpr}
-        ).first()[0]
+        count_projects = db_sessions.execute(count_records(select_projects_count, Projects.IDprojects)).scalar_one()
 
         stadia = db_sessions.execute(select_stadia).all()
         projects = db_sessions.execute(pagination(select_projects)).all()
@@ -1979,7 +1977,7 @@ def iniciators_project():
         project_filter = request.form["projectFilter"]
         stadia_filter = request.form["stadiaFilter"]
         sheff_proj_filter = request.form["sheffProjFilter"]
-        page = request.form.get("page") and int(request.form.get("page"))
+        page = (request.form.get("page") and int(request.form.get("page"))) or 0
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
@@ -2033,10 +2031,7 @@ def iniciators_project():
             .filter(PassportOfProjects.IDinitpr == idinitpr)
         )
 
-        count_projects = db_sessions.execute(
-            count_records(select_projects_count), {"IDinitpr_1": idinitpr}
-        ).first()[0]
-
+        count_projects = db_sessions.execute(count_records(select_projects_count, Projects.IDprojects)).scalar_one()
         projects = db_sessions.execute(pagination(select_projects, page)).all()
         return render_template(
             "resultAccordionProjects.html",
@@ -5717,5 +5712,5 @@ def pagination(query, page=0):
     return query.limit(10).offset(page * 10)
 
 
-def count_records(query):
-    return text("SELECT COUNT(1) FROM (" + query.__str__().replace('"', "") + ") AS T")
+def count_records(query, field):
+    return query.with_only_columns(func.count(field))
