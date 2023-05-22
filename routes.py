@@ -1945,7 +1945,9 @@ def iniciators_project():
             .filter(PassportOfProjects.IDinitpr == idinitpr)
             .order_by(PassportOfProjects.passportName)
         )
-        select_projects_count = (select(Projects).join_from(
+        select_projects_count = (
+            select(Projects)
+            .join_from(
                 Projects, PassportOfProjects, Projects.IDpassport == PassportOfProjects.IDpassport
             )
             .join(Sheffofprojects, isouter=True)
@@ -1954,12 +1956,22 @@ def iniciators_project():
             .join(StadiaOfProjects)
             .join(Organizations)
             .filter(PassportOfProjects.IDinitpr == idinitpr)
-            .order_by(PassportOfProjects.passportName))
-        count_projects = db_sessions.execute(count_records(select_projects_count), {"IDinitpr_1": idinitpr}).first()[0]
+            .order_by(PassportOfProjects.passportName)
+        )
+        count_projects = db_sessions.execute(
+            count_records(select_projects_count), {"IDinitpr_1": idinitpr}
+        ).first()[0]
 
         stadia = db_sessions.execute(select_stadia).all()
-        projects = db_sessions.execute(select_projects).all()
-        return render_template("iniciators_projects.html", projects=projects, stadia=stadia, count=count_projects, page=0)
+        projects = db_sessions.execute(pagination(select_projects)).all()
+        return render_template(
+            "iniciators_projects.html",
+            projects=projects,
+            stadia=stadia,
+            count=count_projects,
+            page=0,
+            function="applyProjectFilters",
+        )
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
@@ -1967,7 +1979,7 @@ def iniciators_project():
         project_filter = request.form["projectFilter"]
         stadia_filter = request.form["stadiaFilter"]
         sheff_proj_filter = request.form["sheffProjFilter"]
-        page = request.form['page']
+        page = request.form.get("page") and int(request.form.get("page"))
         where_project_filter = (
             PassportOfProjects.passportName.ilike("%" + project_filter + "%")
             if project_filter
@@ -2005,7 +2017,9 @@ def iniciators_project():
             .filter(PassportOfProjects.IDinitpr == idinitpr)
             .order_by(PassportOfProjects.passportName)
         )
-        select_projects_count = (select(Projects).join_from(
+        select_projects_count = (
+            select(Projects)
+            .join_from(
                 Projects, PassportOfProjects, Projects.IDpassport == PassportOfProjects.IDpassport
             )
             .join(Sheffofprojects, isouter=True)
@@ -2016,13 +2030,21 @@ def iniciators_project():
             .where(where_project_filter)
             .where(where_stadia_filter)
             .where(where_sheff_proj_filter)
-            .filter(PassportOfProjects.IDinitpr == idinitpr))
+            .filter(PassportOfProjects.IDinitpr == idinitpr)
+        )
 
-        count_projects = db_sessions.execute(count_records(select_projects_count), {"IDinitpr_1": idinitpr}).first()[0]
-
+        count_projects = db_sessions.execute(
+            count_records(select_projects_count), {"IDinitpr_1": idinitpr}
+        ).first()[0]
 
         projects = db_sessions.execute(pagination(select_projects, page)).all()
-        return render_template("resultAccordionProjects.html", projects=projects)
+        return render_template(
+            "resultAccordionProjects.html",
+            count=count_projects,
+            page=page,
+            projects=projects,
+            function="applyProjectFilters",
+        )
 
 
 @pages.route("/iniciators/addProject", methods=["POST"])
@@ -2700,9 +2722,14 @@ def sheffproj_assignment_project():
             .filter(PassportOfProjects.IDsheffpr == None)
             .order_by(PassportOfProjects.passportName)
         )
-        count_projects = db_sessions.execute(count_records(select_projects), {"param_1": ' ', "param_2": ' ', "param_3": ' ', "param_4": ' ',"IDstadiaofpr_2": 2}).first()[0]
+        count_projects = db_sessions.execute(
+            count_records(select_projects),
+            {"param_1": " ", "param_2": " ", "param_3": " ", "param_4": " ", "IDstadiaofpr_2": 2},
+        ).first()[0]
         projects = db_sessions.execute(select_projects).all()
-        return render_template("sheffproj_assignment.html", projects=projects, count=count_projects, page=0)
+        return render_template(
+            "sheffproj_assignment.html", projects=projects, count=count_projects, page=0
+        )
     if request.method == "POST":
         select = get_select()
         db_sessions = get_session()
@@ -3498,7 +3525,9 @@ def student_participation_ticket():
                 )
                 .join(Applications, isouter=True)
                 .filter(RolesOfProjects.IDpassport == first_project.PassportOfProjects.IDpassport)
-                .filter((Applications.IDprojects.notin_(cur_proj)) | (Applications.IDprojects == None))
+                .filter(
+                    (Applications.IDprojects.notin_(cur_proj)) | (Applications.IDprojects == None)
+                )
                 .filter((Applications.IDstudents != idstudent) | (Applications.IDstudents == None))
             )
             roles = db_sessions.execute(select_roles).all()
@@ -3596,8 +3625,8 @@ def student_get_roles():
     select = get_select()
     db_sessions = get_session()
     select_current_projects = db_sessions.execute(
-            select(Applications.IDprojects).distinct().filter(Applications.IDstudents == idstudent)
-        ).all()
+        select(Applications.IDprojects).distinct().filter(Applications.IDstudents == idstudent)
+    ).all()
     cur_proj = [value[0] for value in select_current_projects]
     select_roles = (
         select(RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction)
@@ -3963,7 +3992,9 @@ def sheff_proj_approved_tickets():
             .join(PassportOfProjects)
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
         )
-        count_projects = db_sessions.execute(count_records(select_projects), {'IDsheffpr_1': idsheff_proj}).first()[0]
+        count_projects = db_sessions.execute(
+            count_records(select_projects), {"IDsheffpr_1": idsheff_proj}
+        ).first()[0]
         projects = db_sessions.execute(pagination(select_projects)).all()
         projects_filter = [val[0] for val in projects]
         select_approved = (
@@ -5681,8 +5712,10 @@ def get_sheff_proj_mail():
 
     return jsonify([list(val) for val in students]), 200
 
+
 def pagination(query, page=0):
     return query.limit(10).offset(page * 10)
 
+
 def count_records(query):
-    return text("SELECT COUNT(1) FROM (" + query.__str__().replace('"', '') + ") AS T")
+    return text("SELECT COUNT(1) FROM (" + query.__str__().replace('"', "") + ") AS T")

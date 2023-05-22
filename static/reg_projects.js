@@ -5,7 +5,7 @@ function applyProjectFilters(page) {
   const inicFilter = document.getElementById("inicFilter")?.value;
   const sheffProjFilter = document.getElementById("sheffProjFilter")?.value;
 
-  if (!projectFilter && !stadiaFilter && !sheffProjFilter && !inicFilter && !orgFilter) {
+  if (page == undefined && !projectFilter && !stadiaFilter && !sheffProjFilter && !inicFilter && !orgFilter) {
     return;
   }
   getDataProject(page, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter);
@@ -22,39 +22,6 @@ function getDataProject(page, projectFilter, stadiaFilter, orgFilter, inicFilter
     url: "/" + url + "/projects",
     dataSrc: "data",
     data: { page, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter },
-    success: function (data) {
-      const accordion = document.getElementById("projectsAccordion");
-      accordion.innerHTML = data;
-    },
-    error: function (err) {
-      console.log(err);
-    },
-  });
-}
-
-function applyInicProjectFilter() {
-  const projectFilter = document.getElementById("projectFilter")?.value;
-  const stadiaFilter = document.getElementById("stadiaFilter")?.value;
-  const inicFilter = document.getElementById("inicFilter")?.value;
-  const sheffProjFilter = document.getElementById("sheffProjFilter")?.value;
-
-  if (!projectFilter && !stadiaFilter && !sheffProjFilter && !inicFilter) {
-    return;
-  }
-  getDataInicProject(projectFilter, stadiaFilter, inicFilter, sheffProjFilter);
-}
-
-function dropInicProjectFilter() {
-  getDataInicProject(null, null, null, null);
-}
-
-function getDataInicProject(projectFilter, stadiaFilter, inicFilter, sheffProjFilter) {
-  const url = window.location.pathname.split('/')[1]
-  $.ajax({
-    type: "POST",
-    url: "/" + url + "/projects",
-    dataSrc: "data",
-    data: { projectFilter, stadiaFilter, inicFilter, sheffProjFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
@@ -189,39 +156,6 @@ function deleteResultFile(id) {
   });
 }
 
-function applySheffprojProjectFilters() {
-  const projectFilter = document.getElementById("projectFilter").value;
-  const fioInitFilter = document.getElementById("fioInitFilter").value;
-  const orgFilter = document.getElementById("orgFilter").value;
-  const stadiaFilter = document.getElementById("stadiaFilter").value;
-
-  if (!projectFilter && !fioInitFilter && !orgFilter && !stadiaFilter) {
-    return;
-  }
-  getDataSheffprojProject(projectFilter, orgFilter, fioInitFilter, stadiaFilter);
-}
-
-function dropSheffprojProjectFilter() {
-  getDataSheffprojProject(null, null, null, null);
-}
-
-function getDataSheffprojProject(projectFilter, orgFilter, fioInitFilter, stadiaFilter) {
-  const url = window.location.pathname.split('/')[1]
-  $.ajax({
-    type: "POST",
-    url: "/" + url + "/projects",
-    dataSrc: "data",
-    data: { projectFilter, orgFilter, fioInitFilter, stadiaFilter },
-    success: function (data) {
-      const accordion = document.getElementById("projectsAccordion");
-      accordion.innerHTML = data;
-    },
-    error: function (err) {
-      console.log(err);
-    },
-  });
-}
-
 function applyAssignProjectFilters() {
   const projectFilter = document.getElementById("projectFilter").value;
   const fioInitFilter = document.getElementById("fioInitFilter").value;
@@ -284,8 +218,4 @@ function getDataParticTickets(orgFilter, inicFilter, sheffProjFilter, projectFil
       console.log(err);
     },
   });
-}
-
-function paginate() {
-  const a = 1;
 }
