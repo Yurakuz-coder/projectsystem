@@ -1,29 +1,39 @@
-function applyContractsFilters() {
+function applyContractsFilters(page) {
   const dateContractFilter =
     document.getElementById("dateContractFilter").value;
   const orgFilters = document.getElementById("orgFilter").value;
   const numberContractFilter = document.getElementById(
     "numberContractFilter"
   ).value;
-  if (!dateContractFilter && !orgFilters && !numberContractFilter) {
+  if (page == undefined && !dateContractFilter && !orgFilters && !numberContractFilter) {
     return;
   }
-  getDataContract(dateContractFilter, orgFilters, numberContractFilter);
+  getDataContract(page, dateContractFilter, orgFilters, numberContractFilter);
 }
 
 function dropContractFilters() {
-  getDataContract(null, null, null);
+  const dateContractFilter =
+    document.getElementById("dateContractFilter");
+  const orgFilters = document.getElementById("orgFilter");
+  const numberContractFilter = document.getElementById(
+    "numberContractFilter"
+  );
+  dateContractFilter && (dateContractFilter.value = "")
+  orgFilters && (orgFilters.value = "")
+  numberContractFilter && (numberContractFilter.value = "")
+  getDataContract(null, null, null, null);
 }
 
-function getDataContract(dateContractFilter, orgFilters, numberContractFilter) {
+function getDataContract(page, dateContractFilter, orgFilters, numberContractFilter) {
   $.ajax({
     type: "POST",
     url: "/admin/contracts",
     dataSrc: "data",
-    data: { dateContractFilter, orgFilters, numberContractFilter },
+    data: { page, dateContractFilter, orgFilters, numberContractFilter },
     success: function (data) {
+      const resultTable = document.getElementById("resultTable");
+      resultTable.innerHTML = data;
       const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
       table.className = "collapse show";
     },
     error: function (err) {

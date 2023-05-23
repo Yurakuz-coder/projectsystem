@@ -28,26 +28,32 @@ function getStudTicketsData(projectFioFilter, projectNameFilter, groupFilter) {
   });
 }
 
-function applyStudApprovedTicketsFilters() {
+function applyStudApprovedTicketsFilters(page) {
   const projectFioFilter = document.getElementById("projectFioFilter").value;
   const projectNameFilter = document.getElementById("projectNameFilter").value;
   const groupFilter = document.getElementById("grname").value;
-  if (!projectFioFilter && !projectNameFilter && !groupFilter) {
+  if (page == undefined && !projectFioFilter && !projectNameFilter && !groupFilter) {
     return;
   }
-  getStudApprovedTicketsData(projectFioFilter, projectNameFilter, groupFilter);
+  getStudApprovedTicketsData(page, projectFioFilter, projectNameFilter, groupFilter);
 }
 
 function dropStudApprovedTicketsFilter() {
-  getStudApprovedTicketsData(null, null, null);
+  const projectFioFilter = document.getElementById("projectFioFilter");
+  const projectNameFilter = document.getElementById("projectNameFilter");
+  const groupFilter = document.getElementById("grname");
+  projectFioFilter && (projectFioFilter.value = "")
+  projectNameFilter && (projectNameFilter.value = "")
+  groupFilter && (groupFilter.value = "")
+  getStudApprovedTicketsData(null, null, null, null);
 }
 
-function getStudApprovedTicketsData(projectFioFilter, projectNameFilter, groupFilter) {
+function getStudApprovedTicketsData(page, projectFioFilter, projectNameFilter, groupFilter) {
   $.ajax({
     type: "POST",
     url: "/sheffproj/approved_tickets",
     dataSrc: "data",
-    data: { projectFioFilter, projectNameFilter, groupFilter },
+    data: { page, projectFioFilter, projectNameFilter, groupFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;

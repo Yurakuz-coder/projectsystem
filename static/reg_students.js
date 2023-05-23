@@ -1,26 +1,36 @@
-function applyStudentWorksFilter() {
+function applyStudentWorksFilter(page) {
   const projectFilter = document.getElementById("projectFilter").value;
   const stageFilter = document.getElementById("stageFilter").value;
   const inicFilter = document.getElementById("inicFilter")?.value;
   const sheffProjFilter = document.getElementById("sheffProjFilter")?.value;
   const roleFilter = document.getElementById("roleFilter")?.value;
 
-  if (!projectFilter && !stageFilter && !inicFilter && !sheffProjFilter && !roleFilter) {
+  if (page == undefined && !projectFilter && !stageFilter && !inicFilter && !sheffProjFilter && !roleFilter) {
     return;
   }
-  getDataStudentsWorks(sheffProjFilter, roleFilter, inicFilter, stageFilter, projectFilter);
+  getDataStudentsWorks(page, sheffProjFilter, roleFilter, inicFilter, stageFilter, projectFilter);
 }
 
 function dropStudentsWorksFilters() {
-  getDataStudentsWorks(null, null, null, null, null);
+  const projectFilter = document.getElementById("projectFilter");
+  const stageFilter = document.getElementById("stageFilter");
+  const inicFilter = document.getElementById("inicFilter");
+  const sheffProjFilter = document.getElementById("sheffProjFilter");
+  const roleFilter = document.getElementById("roleFilter");
+  projectFilter && (projectFilter.value = "")
+  stageFilter && (stageFilter.value = "")
+  inicFilter && (inicFilter.value = "")
+  sheffProjFilter && (sheffProjFilter.value = "")
+  roleFilter && (roleFilter.value = "")
+  getDataStudentsWorks(null, null, null, null, null, null);
 }
 
-function getDataStudentsWorks(sheffProjFilter, roleFilter, inicFilter, stageFilter, projectFilter) {
+function getDataStudentsWorks(page, sheffProjFilter, roleFilter, inicFilter, stageFilter, projectFilter) {
   $.ajax({
     type: "POST",
     url: "/student/works",
     dataSrc: "data",
-    data: { sheffProjFilter, roleFilter, inicFilter, stageFilter, projectFilter },
+    data: { page, sheffProjFilter, roleFilter, inicFilter, stageFilter, projectFilter },
     success: function (data) {
       const table = document.getElementById("projectsAccordion");
       table.innerHTML = data;

@@ -32,9 +32,11 @@
   </div>
   <br>
 </div>
-<table class="table table-hover" id="resultTable">
-  {% include "resultTableRegSheffOrg.html" %}
-</table>
+<div class="table-responsive">
+  <table class="table table-hover" id="resultTable">
+    {% include "resultTableRegSheffOrg.html" %}
+  </table>
+</div>
 
 <!-- Button trigger modal -->
 <!-- Modal -->
@@ -123,7 +125,7 @@
             <label for="delsheforg" class="form-select-label">Выберите руководителя организации</label>
             <select class="form-select" aria-label="Default select example" name="delsheforg" {% if shefforg==[] %}
               disabled {% endif %}>
-              {% for el in shefforg %}
+              {% for el in shefforg_edit %}
               <option value="{{ el.Shefforganizations.IDshefforg }}"> {{ el.Shefforganizations.shefforgFirstname }} {{
                 el.Shefforganizations.shefforgName }}
                 {{ el.Shefforganizations.shefforgFathername }} - {{ el.Organizations.orgName or '' }} {{
@@ -158,7 +160,7 @@
             <label for="redshefforg" class="form-select-label">Выберите руководителя организации</label>
             <select class="form-select" aria-label="Default select example" name="redshefforg" {% if shefforg==[] %}
               disabled {% endif %}>
-              {% for el in shefforg %}
+              {% for el in shefforg_edit %}
               <option value="{{ el.Shefforganizations.IDshefforg }}"> {{ el.Shefforganizations.shefforgFirstname }} {{
                 el.Shefforganizations.shefforgName }}
                 {{ el.Shefforganizations.shefforgFathername }} - {{ el.Organizations.orgName or '' }} {{

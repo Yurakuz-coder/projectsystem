@@ -60,7 +60,7 @@
             <label for="passport" class="form-select-label">Выберите проект</label>
             <select class="form-select" aria-label="Default select example" name="passport" {% if projects==[] %}
               disabled {% endif %}>
-              {% for el in projects %}
+              {% for el in projects_edit %}
               <option value="{{ el[2] }}"> {{ el[1] }}</option>
               {% endfor %}
               {% if projects == [] %}
@@ -142,7 +142,7 @@
               <label for="project" class="form-select-label">Выберите проект</label>
               <select onchange="getRolesProjects(this.value)" class="form-select" name="passport" {% if projects==[] %}
                 disabled {% endif %}>
-                {% for el in projects %}
+                {% for el in projects_edit %}
                 <option value="{{ el[0] }}"> {{ el[1] }}
                 </option>
                 {% endfor %}

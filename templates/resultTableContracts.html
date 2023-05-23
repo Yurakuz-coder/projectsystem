@@ -1,35 +1,69 @@
-{% for el in contracts %}
-<tr>
-  <td>{{ el.Contracts.organizations.orgName }}</td>
-  <td> {{ el.Contracts.organizations.orgYuraddress }}</td>
-  <td>{{ el.Contracts.contractsNumber }}</td>
-  <td>{{ el.Contracts.contractsStart }}</td>
-  <td>{{ el.Contracts.contractsFinish }}</td>
-  <td><a href="/getContract?idContract={{ el.Contracts.IDcontracts }}" role="button"
-      class="btn btn-primary">Скачать</button></td>
-  <td class="col-md-4">
-    <div class="input-group mb-0">
-      <button class="btn btn-outline-secondary" value="{{ el.Contracts.IDcontracts }}" type="button"
-        onclick="uploadFile(this.value)" id="button-upload{{ el.Contracts.IDcontracts }}">Загрузить</button>
-      <input type="file" accept=".doc,.docx,.pdf" class="form-control" id="input-upload{{ el.Contracts.IDcontracts }}"
-        aria-describedby="button-upload{{ el.Contracts.IDcontracts }}" aria-label="Upload">
-    </div>
-    <div class="btn-group-vertical">
-      <a href="/getContractSigned?idContract={{ el.Contracts.IDcontracts }}" role="button"
-        aria-disabled="{{ el.Contracts.contractsSigned is none }}"
-        class="btn btn-primary {{ 'disabled' if el.Contracts.contractsSigned is none else '' }}">Скачать</a>
-      <button {% if el.Contracts.contractsSigned is none %} disabled {% endif %} class="btn btn-danger"
-        value="{{ el.Contracts.IDcontracts }}" id="button-delete{{ el.Contracts.IDcontracts }}"
-        onclick="deleteFile(this.value)">Удалить</button>
-    </div>
-  </td>
-</tr>
-{% endfor %}
+<thead>
+  <tr>
+    <th scope="col">
+      Наименование организации
+    </th>
+    <th scope="col">
+      Юридический адрес
+    </th>
+    <th scope="col">
+      Номер договора
+    </th>
+    <th scope="col">
+      Дата заключения договора
+    </th>
+    <th scope="col">
+      Срок действия договора
+    </th>
+    <th scope="col">
+      Электронная версия договора
+    </th>
+    <th scope="col">
+      Подписанная версия договора
+    </th>
+  </tr>
+</thead>
+<tfoot>
+  <tr>
+    <td colspan="8">
+      {% include "pagination.html" %}
+    </td>
+  </tr>
+</tfoot>
+<tbody class="collapse" id="collapseTableBody">
+  {% for el in contracts %}
+  <tr>
+    <td>{{ el.Contracts.organizations.orgName }}</td>
+    <td> {{ el.Contracts.organizations.orgYuraddress }}</td>
+    <td>{{ el.Contracts.contractsNumber }}</td>
+    <td>{{ el.Contracts.contractsStart }}</td>
+    <td>{{ el.Contracts.contractsFinish }}</td>
+    <td><a href="/getContract?idContract={{ el.Contracts.IDcontracts }}" role="button"
+        class="btn btn-primary">Скачать</button></td>
+    <td class="col-md-4">
+      <div class="input-group mb-0">
+        <button class="btn btn-outline-secondary" value="{{ el.Contracts.IDcontracts }}" type="button"
+          onclick="uploadFile(this.value)" id="button-upload{{ el.Contracts.IDcontracts }}">Загрузить</button>
+        <input type="file" accept=".doc,.docx,.pdf" class="form-control" id="input-upload{{ el.Contracts.IDcontracts }}"
+          aria-describedby="button-upload{{ el.Contracts.IDcontracts }}" aria-label="Upload">
+      </div>
+      <div class="btn-group-vertical">
+        <a href="/getContractSigned?idContract={{ el.Contracts.IDcontracts }}" role="button"
+          aria-disabled="{{ el.Contracts.contractsSigned is none }}"
+          class="btn btn-primary {{ 'disabled' if el.Contracts.contractsSigned is none else '' }}">Скачать</a>
+        <button {% if el.Contracts.contractsSigned is none %} disabled {% endif %} class="btn btn-danger"
+          value="{{ el.Contracts.IDcontracts }}" id="button-delete{{ el.Contracts.IDcontracts }}"
+          onclick="deleteFile(this.value)">Удалить</button>
+      </div>
+    </td>
+  </tr>
+  {% endfor %}
 
-{% if contracts == [] %}
-<tr>
-  <td colspan="7">
-    <div> Данных не найдено </div>
-  </td>
-</tr>
-{% endif %}
+  {% if contracts == [] %}
+  <tr>
+    <td colspan="7">
+      <div> Данных не найдено </div>
+    </td>
+  </tr>
+  {% endif %}
+</tbody>

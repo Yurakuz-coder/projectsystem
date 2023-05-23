@@ -1,18 +1,49 @@
-{% for el in orgsheff %}
-<tr>
-    <td>{{ el.Organizations.orgName}}</td>
-    <td> {{ el.Shefforganizations.FullName }}</td>
-    <td>{{ el.Organizations.orgYuraddress }}</td>
-    <td>{{ el.Organizations.orgPostaddress }}</td>
-    <td>{{ el.Organizations.orgEmail }}</td>
-    <td>{{ el.Organizations.orgPhone }}</td>
-</tr>
-{% endfor %}
+<thead>
+    <tr>
+        <th scope="col">
+            Наименование организации
+        </th>
+        <th scope="col">
+            ФИО руководителя организации
+        </th>
+        <th scope="col">
+            Юридический адрес
+        </th>
+        <th scope="col">
+            Почтовый адрес
+        </th>
+        <th scope="col">
+            Электронный адрес организации
+        </th>
+        <th scope="col">
+            Телефон организации
+        </th>
+    </tr>
+</thead>
+<tfoot>
+    <tr>
+        <td colspan="6">
+            {% include "pagination.html" %}
+        </td>
+    </tr>
+</tfoot>
+<tbody class="collapse" id="collapseTableBody">
+    {% for el in orgsheff %}
+    <tr>
+        <td>{{ el.Organizations.orgName}}</td>
+        <td> {{ el.Shefforganizations.FullName }}</td>
+        <td>{{ el.Organizations.orgYuraddress }}</td>
+        <td>{{ el.Organizations.orgPostaddress }}</td>
+        <td>{{ el.Organizations.orgEmail }}</td>
+        <td>{{ el.Organizations.orgPhone }}</td>
+    </tr>
+    {% endfor %}
 
-{% if orgsheff == [] %}
-<tr>
-    <td colspan="8">
-        <div> Данных не найдено </div>
-    </td>
-</tr>
-{% endif %}
+    {% if orgsheff == [] %}
+    <tr>
+        <td colspan="6">
+            <div> Данных не найдено </div>
+        </td>
+    </tr>
+    {% endif %}
+</tbody>

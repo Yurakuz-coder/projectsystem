@@ -68,7 +68,7 @@
           <div class="form-group">
             <label for="modifyProject" class="form-select-label">Выберите проект</label>
             <select class="form-select" name="modifyProject" {% if projects==[] %} disabled {% endif %}>
-              {% for el in projects %}
+              {% for el in projects_edit %}
               <option value="{{ el.Projects.IDprojects }}"> {{ el.PassportOfProjects.passportName }}
               </option>
               {% endfor %}
@@ -148,7 +148,7 @@
           <div class="form-group">
             <label for="project" class="form-select-label">Выберите проект</label>
             <select class="form-select" name="project" {% if projects==[] %} disabled {% endif %}>
-              {% for el in projects %}
+              {% for el in projects_edit %}
               <option value="{{ el.Projects.IDprojects }}"> {{ el.PassportOfProjects.passportName }}
               </option>
               {% endfor %}

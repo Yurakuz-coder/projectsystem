@@ -47,24 +47,27 @@
   <br>
 </div>
 <br>
-<table class="table table-hover">
-  <thead>
-    <tr>
-      <th scope="col">
-        Направление подготовки
-      </th>
-      <th scope="col">
-        Код компетенции
-      </th>
-      <th scope="col">
-        Содержание компетенции
-      </th>
-    </tr>
-  </thead>
-  <tbody class="collapse" id="collapseTableBody">
-    {% include "resultTableCompetitions.html" %}
-  </tbody>
-</table>
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">
+          Направление подготовки
+        </th>
+        <th scope="col">
+          Код компетенции
+        </th>
+        <th scope="col">
+          Содержание компетенции
+        </th>
+      </tr>
+    </thead>
+    <tbody class="collapse" id="collapseTableBody">
+      {% include "resultTableCompetitions.html" %}
+    </tbody>
+  </table>
+</div>
+
 
 <div class="btn-group" role="group">
   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd">

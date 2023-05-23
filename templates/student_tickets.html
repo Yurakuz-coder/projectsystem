@@ -39,36 +39,39 @@
         </button>
     </div>
 </div>
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">
-                Проект
-            </th>
-            <th scope="col">
-                Статус заявки
-            </th>
-            <th scope="col">
-                Курс обучения
-            </th>
-            <th scope="col">
-                Цель участия
-            </th>
-            <th scope="col">
-                Роль в проекте
-            </th>
-            <th scope="col">
-                Заявка на участие
-            </th>
-            <th scope="col">
-                Подписанное подтверждение участия в проекте
-            </th>
-        </tr>
-    </thead>
-    <tbody class="collapse" id="collapseTableBody">
-        {% include "resultTableStudentTickets.html" %}
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">
+                    Проект
+                </th>
+                <th scope="col">
+                    Статус заявки
+                </th>
+                <th scope="col">
+                    Курс обучения
+                </th>
+                <th scope="col">
+                    Цель участия
+                </th>
+                <th scope="col">
+                    Роль в проекте
+                </th>
+                <th scope="col">
+                    Заявка на участие
+                </th>
+                <th scope="col">
+                    Подписанное подтверждение участия в проекте
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapse" id="collapseTableBody">
+            {% include "resultTableStudentTickets.html" %}
+        </tbody>
+    </table>
+</div>
+
 
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalModify">

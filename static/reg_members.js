@@ -1,29 +1,39 @@
-function applyMembersFilters() {
+function applyMembersFilters(page) {
   const projectFioFilter = document.getElementById("projectFioFilter").value;
   const projectRoleFilter = document.getElementById("projectRoleFilter").value;
   const projectNaprFilter = document.getElementById("projectNaprFilter").value;
   const groupFilter = document.getElementById("grname").value;
   const statusFilter = document.getElementById("status").value;
 
-  if (!statusFilter && !projectFioFilter && !projectRoleFilter && !projectNaprFilter && !groupFilter) {
+  if (page == undefined && !statusFilter && !projectFioFilter && !projectRoleFilter && !projectNaprFilter && !groupFilter) {
     return;
   }
-  getDataMembers(statusFilter, projectFioFilter, projectRoleFilter, projectNaprFilter, groupFilter);
+  getDataMembers(page, statusFilter, projectFioFilter, projectRoleFilter, projectNaprFilter, groupFilter);
 }
 
 function dropMembersFilter() {
-  getDataMembers(null, null, null, null, null);
+  const projectFioFilter = document.getElementById("projectFioFilter");
+  const projectRoleFilter = document.getElementById("projectRoleFilter");
+  const projectNaprFilter = document.getElementById("projectNaprFilter");
+  const groupFilter = document.getElementById("grname");
+  const statusFilter = document.getElementById("status");
+  projectFioFilter && (projectFioFilter.value = "")
+  projectRoleFilter && (projectRoleFilter.value = "")
+  groupFilter && (groupFilter.value = "")
+  statusFilter && (statusFilter.value = "")
+  projectNaprFilter && (projectNaprFilter.value = "")
+  getDataMembers(null, null, null, null, null, null);
 }
 
 function getDataMembers(
-  statusFilter, projectFioFilter, projectRoleFilter, projectNaprFilter, groupFilter
+  page, statusFilter, projectFioFilter, projectRoleFilter, projectNaprFilter, groupFilter
 ) {
   const url = window.location.pathname.split("/")[1];
   $.ajax({
     type: "POST",
     url: "/" + url + "/members",
     dataSrc: "data",
-    data: { statusFilter, projectFioFilter, projectRoleFilter, projectNaprFilter, groupFilter },
+    data: { page, statusFilter, projectFioFilter, projectRoleFilter, projectNaprFilter, groupFilter },
     success: function (data) {
       const accordion = document.getElementById("membersAccordion");
       accordion.innerHTML = data;
@@ -71,30 +81,36 @@ function getCompetitionsSpec(id, operation) {
   });
 }
 
-function applyRolesFilters() {
+function applyRolesFilters(page) {
   const projectFilter = document.getElementById("projectFilter").value;
   const opopFilter = document.getElementById("opopFilter").value;
   const projectRoleFilter = document.getElementById("projectRoleFilter").value;
 
-  if (!projectFilter && !projectRoleFilter && !opopFilter) {
+  if (page == undefined && !projectFilter && !projectRoleFilter && !opopFilter) {
     return;
   }
-  getDataRoles(projectFilter, projectRoleFilter, opopFilter);
+  getDataRoles(page, projectFilter, projectRoleFilter, opopFilter);
 }
 
 function dropRolesFilter() {
-  getDataRoles(null, null, null);
+  const projectFilter = document.getElementById("projectFilter");
+  const opopFilter = document.getElementById("opopFilter");
+  const projectRoleFilter = document.getElementById("projectRoleFilter");
+  projectFilter && (projectFilter.value = "")
+  opopFilter && (opopFilter.value = "")
+  projectRoleFilter && (projectRoleFilter.value = "")
+  getDataRoles(null, null, null, null);
 }
 
 function getDataRoles(
-  projectFilter, projectRoleFilter, opopFilter
+  page, projectFilter, projectRoleFilter, opopFilter
 ) {
   const url = window.location.pathname.split("/")[1];
   $.ajax({
     type: "POST",
     url: "/" + url + "/roles",
     dataSrc: "data",
-    data: { projectFilter, projectRoleFilter, opopFilter },
+    data: { page, projectFilter, projectRoleFilter, opopFilter },
     success: function (data) {
       const accordion = document.getElementById("membersAccordion");
       accordion.innerHTML = data;

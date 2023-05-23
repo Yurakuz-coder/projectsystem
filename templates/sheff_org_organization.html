@@ -3,33 +3,36 @@
 {% block content %}
 <h1>Данные об организации</h1>
 <br>
-<table class="table table-hover">
-  <thead>
-    <tr>
-      <th scope="col">
-        Наименование организации
-      </th>
-      <th scope="col">
-        ФИО руководителя организации
-      </th>
-      <th scope="col">
-        Юридический адрес
-      </th>
-      <th scope="col">
-        Почтовый адрес
-      </th>
-      <th scope="col">
-        Электронный адрес организации
-      </th>
-      <th scope="col">
-        Телефон организации
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    {% include "resultTableOrg.html" %}
-  </tbody>
-</table>
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">
+          Наименование организации
+        </th>
+        <th scope="col">
+          ФИО руководителя организации
+        </th>
+        <th scope="col">
+          Юридический адрес
+        </th>
+        <th scope="col">
+          Почтовый адрес
+        </th>
+        <th scope="col">
+          Электронный адрес организации
+        </th>
+        <th scope="col">
+          Телефон организации
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% include "resultTableOrg.html" %}
+    </tbody>
+  </table>
+</div>
+
 
 <div class="btn-group" role="group">
   <!-- Редактировать организацию -->

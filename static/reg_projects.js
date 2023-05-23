@@ -4,11 +4,12 @@ function applyProjectFilters(page) {
   const orgFilter = document.getElementById("orgFilter")?.value;
   const inicFilter = document.getElementById("inicFilter")?.value;
   const sheffProjFilter = document.getElementById("sheffProjFilter")?.value;
+  const fioInitFilter = document.getElementById('fioInitFilter')?.value;
 
-  if (page == undefined && !projectFilter && !stadiaFilter && !sheffProjFilter && !inicFilter && !orgFilter) {
+  if (page == undefined && !fioInitFilter && !projectFilter && !stadiaFilter && !sheffProjFilter && !inicFilter && !orgFilter) {
     return;
   }
-  getDataProject(page, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter);
+  getDataProject(page, fioInitFilter, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter);
 }
 
 function dropProjectFilter() {
@@ -17,21 +18,23 @@ function dropProjectFilter() {
   const orgFilter = document.getElementById("orgFilter");
   const inicFilter = document.getElementById("inicFilter");
   const sheffProjFilter = document.getElementById("sheffProjFilter");
+  const fioInitFilter = document.getElementById('fioInitFilter');
   projectFilter && (projectFilter.value = "")
   stadiaFilter && (stadiaFilter.value = "")
   orgFilter && (orgFilter.value = "")
   inicFilter && (inicFilter.value = "")
   sheffProjFilter && (sheffProjFilter.value = "")
-  getDataProject(null, null, null, null, null, null);
+  fioInitFilter && (fioInitFilter.value = "")
+  getDataProject(null, null, null, null, null, null, null);
 }
 
-function getDataProject(page, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter) {
+function getDataProject(page, fioInitFilter, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter) {
   const url = window.location.pathname.split('/')[1]
   $.ajax({
     type: "POST",
     url: "/" + url + "/projects",
     dataSrc: "data",
-    data: { page, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter },
+    data: { page, fioInitFilter, projectFilter, stadiaFilter, orgFilter, inicFilter, sheffProjFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
@@ -166,28 +169,34 @@ function deleteResultFile(id) {
   });
 }
 
-function applyAssignProjectFilters() {
+function applyAssignProjectFilters(page) {
   const projectFilter = document.getElementById("projectFilter").value;
   const fioInitFilter = document.getElementById("fioInitFilter").value;
   const orgFilter = document.getElementById("orgFilter").value;
 
-  if (!projectFilter && !fioInitFilter && !orgFilter) {
+  if (page == undefined && !projectFilter && !fioInitFilter && !orgFilter) {
     return;
   }
-  getDataAssingProject(projectFilter, orgFilter, fioInitFilter);
+  getDataAssignProject(page, projectFilter, orgFilter, fioInitFilter);
 }
 
 function dropAssignProjectFilter() {
-  getDataAssignProject(null, null, null);
+  const projectFilter = document.getElementById("projectFilter");
+  const fioInitFilter = document.getElementById("fioInitFilter");
+  const orgFilter = document.getElementById("orgFilter");
+  projectFilter && (projectFilter.value = "")
+  fioInitFilter && (fioInitFilter.value = "")
+  orgFilter && (orgFilter.value = "")
+  getDataAssignProject(null, null, null, null);
 }
 
-function getDataAssignProject(projectFilter, orgFilter, fioInitFilter) {
+function getDataAssignProject(page, projectFilter, orgFilter, fioInitFilter) {
   const url = window.location.pathname.split('/')[1]
   $.ajax({
     type: "POST",
     url: "/" + url + "/assignment",
     dataSrc: "data",
-    data: { projectFilter, orgFilter, fioInitFilter },
+    data: { page, projectFilter, orgFilter, fioInitFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
@@ -198,28 +207,36 @@ function getDataAssignProject(projectFilter, orgFilter, fioInitFilter) {
   });
 }
 
-function applyParticTicketsFilters() {
+function applyParticTicketsFilters(page) {
   const projectFilter = document.getElementById("projectFilter")?.value;
   const orgFilter = document.getElementById("orgFilter")?.value;
   const inicFilter = document.getElementById("inicFilter")?.value;
   const sheffProjFilter = document.getElementById("sheffProjFilter")?.value;
 
-  if (!projectFilter && !sheffProjFilter && !inicFilter && !orgFilter) {
+  if (page == undefined && !projectFilter && !sheffProjFilter && !inicFilter && !orgFilter) {
     return;
   }
-  getDataParticTickets(orgFilter, inicFilter, sheffProjFilter, projectFilter);
+  getDataParticTickets(page, orgFilter, inicFilter, sheffProjFilter, projectFilter);
 }
 
 function dropParticTicketsFilter() {
-  getDataParticTickets(null, null, null, null);
+  const projectFilter = document.getElementById("projectFilter");
+  const orgFilter = document.getElementById("orgFilter");
+  const inicFilter = document.getElementById("inicFilter");
+  const sheffProjFilter = document.getElementById("sheffProjFilter");
+  projectFilter && (projectFilter.value = "")
+  orgFilter && (orgFilter.value = "")
+  inicFilter && (inicFilter.value = "")
+  sheffProjFilter && (sheffProjFilter.value = "")
+  getDataParticTickets(null, null, null, null, null);
 }
 
-function getDataParticTickets(orgFilter, inicFilter, sheffProjFilter, projectFilter) {
+function getDataParticTickets(page, orgFilter, inicFilter, sheffProjFilter, projectFilter) {
   $.ajax({
     type: "POST",
     url: "/student/participation_ticket",
     dataSrc: "data",
-    data: { orgFilter, inicFilter, sheffProjFilter, projectFilter },
+    data: { page, orgFilter, inicFilter, sheffProjFilter, projectFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
