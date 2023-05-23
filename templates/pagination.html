@@ -4,10 +4,18 @@
       <a class="page-link" onclick={{ function+"(" + (page-1)|string + ")" }} tabindex="-1"
         aria-disabled="true">Предыдущая страница</a>
     </li>
-    {% for el in range(count//11+1) %}
-    <li class="page-item {{'disabled' if page == el else ''}}"><a class="page-link" onclick={{ function+"("+ el|string
-        + ")" }}>{{ el+1 }}</a></li>
+    <li class="page-item {{'disabled' if page < 10 else ''}}">
+      <a class="page-link" onclick={{ function+"(" + (page-10)|string + ")" }} tabindex="-1"
+        aria-disabled="true">...</a>
+    </li>
+    {% for el in range((page-3 if page > 3 else 0), (page+10 if count//11+1>page+10 else count//11+1)) %}
+    <li class="page-item {{'disabled active' if page == el else ''}}"><a class="page-link" onclick={{ function+"("+
+        el|string + ")" }}>{{ el+1 }}</a></li>
     {% endfor %}
+    <li class="page-item {{'disabled' if count // 10 - page < 10 else ''}}">
+      <a class="page-link" onclick={{ function+"(" + (page+10)|string + ")" }} tabindex="-1"
+        aria-disabled="true">...</a>
+    </li>
     <li class="page-item {{'disabled' if page == count // 11 else ''}}">
       <a class="page-link" onclick={{ function+"(" + (page+1)|string + ")" }}>Следующая страница</a>
     </li>

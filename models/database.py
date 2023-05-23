@@ -7,7 +7,7 @@ from os import getenv
 
 load_dotenv()
 
-engine = create_engine(getenv('MYSQL'))
+engine = create_engine(getenv('MYSQL'), pool_size=20, max_overflow=0)
 db_session = scoped_session(sessionmaker(autoflush=True, bind=engine))
 Base = declarative_base()
 Base.query = db_session.query_property()
@@ -18,6 +18,6 @@ def init_db():
 
 def get_session():
     return db_session
- 
+
 def get_select():
     return Select

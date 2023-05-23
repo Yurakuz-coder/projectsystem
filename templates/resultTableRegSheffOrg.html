@@ -1,20 +1,56 @@
-{% for el in shefforg %}
-<tr>
-    <td> {{ el.Shefforganizations.FullName }}</td>
-    <td>{{ el.Organizations.orgName or '' }}</td>
-    <td>{{ el.Organizations.orgYuraddress }}</td>
-    <td>{{ el.Shefforganizations.shefforgEmail }}</td>
-    <td>{{ el.Shefforganizations.shefforgPositions }}</td>
-    <td>{{ el.Shefforganizations.shefforgDoc }}</td>
-    <td>{{ el.Shefforganizations.shefforgPhone }}</td>
-    <td>{{ el.Shefforganizations.Login }}</td>
-</tr>
-{% endfor %}
-
-{% if shefforg == [] %}
-<tr>
-    <td colspan="8">
-        <div> Данных не найдено </div>
-    </td>
-</tr>
-{% endif %}
+<thead>
+    <tr>
+        <th scope="col">
+            ФИО
+        </th>
+        <th scope="col">
+            Наименование организации
+        </th>
+        <th scope="col">
+            Юридический адрес
+        </th>
+        <th scope="col">
+            Электронный адрес
+        </th>
+        <th scope="col">
+            Должность
+        </th>
+        <th scope="col">
+            Сведения о документе
+        </th>
+        <th scope="col">
+            Телефон
+        </th>
+        <th scope="col">
+            Логин
+        </th>
+    </tr>
+</thead>
+<tfoot>
+    <tr>
+        <td colspan="8">
+            {% include "pagination.html" %}
+        </td>
+    </tr>
+</tfoot>
+<tbody class="collapse" id="collapseTableBody">
+    {% for el in shefforg %}
+    <tr>
+        <td> {{ el.Shefforganizations.FullName }}</td>
+        <td>{{ el.Organizations.orgName or '' }}</td>
+        <td>{{ el.Organizations.orgYuraddress }}</td>
+        <td>{{ el.Shefforganizations.shefforgEmail }}</td>
+        <td>{{ el.Shefforganizations.shefforgPositions }}</td>
+        <td>{{ el.Shefforganizations.shefforgDoc }}</td>
+        <td>{{ el.Shefforganizations.shefforgPhone }}</td>
+        <td>{{ el.Shefforganizations.Login }}</td>
+    </tr>
+    {% endfor %}
+    {% if shefforg == [] %}
+    <tr>
+        <td colspan="8">
+            <div> Данных не найдено </div>
+        </td>
+    </tr>
+    {% endif %}
+</tbody>

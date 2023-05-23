@@ -1,25 +1,30 @@
-function applyFilters() {
+function applyFilters(page) {
   const fioFilter = document.getElementById("fioFilter").value;
   const orgFilter = document.getElementById("orgFilter").value;
-  if (!fioFilter && !orgFilter) {
+  if (page == undefined && !fioFilter && !orgFilter) {
     return;
   }
-  getDataSheffOrg(fioFilter, orgFilter);
+  getDataSheffOrg(page, fioFilter, orgFilter);
 }
 
 function dropFilter() {
-  getDataSheffOrg(null, null);
+  const fioFilter = document.getElementById("fioFilter");
+  const orgFilter = document.getElementById("orgFilter");
+  fioFilter && (fioFilter.value = "")
+  orgFilter && (orgFilter.value = "")
+  getDataSheffOrg(null, null, null);
 }
 
-function getDataSheffOrg(fioFilter, orgFilter) {
+function getDataSheffOrg(page, fioFilter, orgFilter) {
   $.ajax({
     type: "POST",
     url: "/admin/reg_shefforg",
     dataSrc: "data",
-    data: { fioFilter, orgFilter },
+    data: { page, fioFilter, orgFilter },
     success: function (data) {
+      const result = document.getElementById("resultTable");
+      result.innerHTML = data;
       const table = document.getElementById("collapseTableBody");
-      table.innerHTML = data;
       table.className = "collapse show";
     },
     error: function (err) {

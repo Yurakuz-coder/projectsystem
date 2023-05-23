@@ -53,16 +53,17 @@ pages = Blueprint("pages", __name__, template_folder="templates")
 def index():
     if request.method == "GET":
         return render_template("index.html")
+
     login = request.form["login"]
     password = request.form["pass"]
     passw = hashlib.md5(password.encode())
     rendered_pass = passw.hexdigest()
     role = request.form["role"]
-    db_sessions = get_session()
+    db_session = get_session()
 
     if role == "administrator":
         data_workers = (
-            db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
+            db_session.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
         )
         if not (
             data_workers is not None
@@ -83,7 +84,7 @@ def index():
         return redirect("/admin/reg_shefforg")
     if role == "sheffofprojects":
         data_workers = (
-            db_sessions.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
+            db_session.query(Sheffofprojects).filter(Sheffofprojects.Login == login).first()
         )
         if not (
             data_workers is not None
@@ -105,7 +106,7 @@ def index():
         return redirect("/sheffproj/assignment")
     if role == "shefforganizations":
         data_workers = (
-            db_sessions.query(Shefforganizations).filter(Shefforganizations.Login == login).first()
+            db_session.query(Shefforganizations).filter(Shefforganizations.Login == login).first()
         )
         if not (
             data_workers is not None
@@ -113,7 +114,7 @@ def index():
         ):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
         org = (
-            db_sessions.query(Organizations)
+            db_session.query(Organizations)
             .filter(Organizations.IDshefforg == data_workers.IDshefforg)
             .first()
         )
@@ -132,7 +133,7 @@ def index():
         return redirect("/shefforg/reg_shefforg")
     if role == "initiatorsofprojects":
         data_workers = (
-            db_sessions.query(Initiatorsofprojects)
+            db_session.query(Initiatorsofprojects)
             .filter(Initiatorsofprojects.Login == login)
             .first()
         )
@@ -142,7 +143,7 @@ def index():
         ):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
         org = (
-            db_sessions.query(Organizations)
+            db_session.query(Organizations)
             .filter(Organizations.IDorg == data_workers.IDorg)
             .first()
         )
@@ -160,13 +161,13 @@ def index():
         session["user"] = [org.IDorg, data_workers.IDinitpr]
         return redirect("/iniciators/projects")
     if role == "students":
-        data_workers = db_sessions.query(Students).filter(Students.Login == login).first()
+        data_workers = db_session.query(Students).filter(Students.Login == login).first()
         if not (
             data_workers is not None
             and (data_workers.Login == login and data_workers.Pass == rendered_pass)
         ):
             return render_template("index.html", title="Неверный логин и/или пароль!!!")
-        group = db_sessions.query(Groups).filter(Groups.IDgroups == data_workers.IDgroups).first()
+        group = db_session.query(Groups).filter(Groups.IDgroups == data_workers.IDgroups).first()
         session["fullName"] = [
             data_workers.studentsFirstname,
             data_workers.studentsName,
@@ -196,7 +197,7 @@ def exit_page():
 def reg_shefforg():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_shefforg = (
             select(Organizations, Shefforganizations)
             .join_from(
@@ -207,11 +208,16 @@ def reg_shefforg():
             )
             .order_by(Shefforganizations.FullName)
         )
-        shefforg = db_sessions.execute(select_shefforg).all()
-        return render_template("registration.html", shefforg=shefforg)
+        shefforg = db_session.execute(pagination(select_shefforg)).all()
+        count = db_session.execute(count_records(select_shefforg, Shefforganizations.IDshefforg)).scalar_one()
+        db_session.commit()
+        return render_template("registration.html", shefforg=shefforg, count=count,
+            page=0,
+            function="applyFilters")
     if request.method == "POST":
         fio_filter = request.form["fioFilter"]
         org_filter = request.form["orgFilter"]
+        page = (request.form.get("page") and int(request.form.get("page"))) or 0
         where_fio_filter = (
             Shefforganizations.FullName.ilike("%" + fio_filter + "%") if fio_filter else text("1=1")
         )
@@ -219,7 +225,7 @@ def reg_shefforg():
             Organizations.orgName.ilike("%" + org_filter + "%") if org_filter else text("1=1")
         )
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_shefforg = (
             select(Organizations, Shefforganizations)
             .join_from(
@@ -232,14 +238,18 @@ def reg_shefforg():
             .where(where_org_filter)
             .order_by(Shefforganizations.FullName)
         )
-        shefforg = db_sessions.execute(select_shefforg).all()
-        return render_template("resultTableRegSheffOrg.html", shefforg=shefforg)
+        shefforg = db_session.execute(pagination(select_shefforg, page)).all()
+        count = db_session.execute(count_records(select_shefforg, Shefforganizations.IDshefforg)).scalar_one()
+        db_session.commit()
+        return render_template("resultTableRegSheffOrg.html", shefforg=shefforg, count=count,
+            page=page,
+            function="applyFilters")
 
 
 @pages.route("/admin/add-shefforg", methods=["GET", "POST"])  # добавление рук.организации
 def addshefforg():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         firstname = str(request.form["shefforgFirstname"])
         name = str(request.form["shefforgName"])
         fathername = str(request.form["shefforgFathername"])
@@ -262,27 +272,27 @@ def addshefforg():
             Login=login,
             Pass=passw,
         )
-        db_sessions.add(add)
-        db_sessions.commit()
+        db_session.add(add)
+        db_session.commit()
         return redirect("/admin/reg_shefforg")
 
 
 @pages.route("/admin/delsheforg", methods=["GET", "POST"])  # удаление рук.организации
 def delshefforg():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idshefforg = int(request.form["delsheforg"])
-        db_sessions.query(Shefforganizations).filter(
+        db_session.query(Shefforganizations).filter(
             Shefforganizations.IDshefforg == idshefforg
         ).delete()
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/admin/reg_shefforg")
 
 
 @pages.route("/admin/redshefforganiz", methods=["GET", "POST"])  # редактирование рук.организации
 def redshefforg():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idshefforg = int(request.form["redshefforg"])
         firstname = request.form["redshefforgFirstname"]
         name = request.form["redshefforgName"]
@@ -294,7 +304,7 @@ def redshefforg():
         login = request.form["redLogin"]
         password = request.form["redPass"]
         npr = (
-            db_sessions.query(Shefforganizations)
+            db_session.query(Shefforganizations)
             .filter(Shefforganizations.IDshefforg == idshefforg)
             .first()
         )
@@ -318,7 +328,7 @@ def redshefforg():
             password = hashlib.md5(password.encode())
             password = password.hexdigest()
             npr.Pass = str(password)
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/admin/reg_shefforg")
 
 
@@ -326,7 +336,7 @@ def redshefforg():
 def organization():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_org = select(Organizations).order_by(Organizations.orgName)
         select_orgsheff = (
             select(
@@ -355,11 +365,15 @@ def organization():
             )
             .order_by(Shefforganizations.FullName)
         )
-        shefforg = db_sessions.execute(select_shefforg).all()
-        organizations = db_sessions.execute(select_org).all()
-        orgsheff = db_sessions.execute(select_orgsheff).all()
+        shefforg = db_session.execute(select_shefforg).all()
+        organizations = db_session.execute(select_org).all()
+        orgsheff = db_session.execute(pagination(select_orgsheff)).all()
+        count = db_session.execute(count_records(select_orgsheff, Shefforganizations.IDshefforg)).scalar_one()
+        db_session.commit()
         return render_template(
-            "organization.html", shefforg=shefforg, organizations=organizations, orgsheff=orgsheff
+            "organization.html", shefforg=shefforg, organizations=organizations, orgsheff=orgsheff, count=count,
+            page=0,
+            function="applyorgFilters"
         )
     if request.method == "POST":
         fio_filters = request.form["fioFilters"]
@@ -379,7 +393,7 @@ def organization():
             else text("1=1")
         )
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_orgsheff = (
             select(
                 Organizations,
@@ -411,9 +425,10 @@ def organization():
             .filter(Organizations.IDshefforg.is_(None))
             .order_by(Shefforganizations.FullName)
         )
-        shefforg = db_sessions.execute(select_shefforg).all()
-        organizations = db_sessions.execute(select_org).all()
-        orgsheff = db_sessions.execute(select_orgsheff).all()
+        shefforg = db_session.execute(select_shefforg).all()
+        organizations = db_session.execute(select_org).all()
+        orgsheff = db_session.execute(select_orgsheff).all()
+        db_session.commit()
         return render_template(
             "resultTableOrg.html", shefforg=shefforg, organizations=organizations, orgsheff=orgsheff
         )
@@ -422,7 +437,7 @@ def organization():
 @pages.route("/admin/add-org", methods=["GET", "POST"])  # добавление организации
 def addorg():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idsheforg = int(request.form["addsheforg"])
         name = str(request.form["orgName"])
         yur = str(request.form["orgYuraddress"])
@@ -437,25 +452,25 @@ def addorg():
             orgEmail=em,
             orgPhone=phone,
         )
-        db_sessions.add(add)
-        db_sessions.commit()
+        db_session.add(add)
+        db_session.commit()
         return redirect("/admin/organization")
 
 
 @pages.route("/admin/delorg", methods=["GET", "POST"])  # удаление организации
 def delorg():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = int(request.form["delorg"])
-        db_sessions.query(Organizations).filter(Organizations.IDorg == idorg).delete()
-        db_sessions.commit()
+        db_session.query(Organizations).filter(Organizations.IDorg == idorg).delete()
+        db_session.commit()
         return redirect("/admin/organization")
 
 
 @pages.route("/admin/redorganiz", methods=["GET", "POST"])  # редактирование организации
 def redorg():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = int(request.form["redorg"])
         idsheforg = request.form["redsheforg"]
         name = request.form["redorgName"]
@@ -463,7 +478,7 @@ def redorg():
         adres = request.form["redorgPostaddress"]
         em = request.form["redorgEmail"]
         phone = request.form["redorgPhone"]
-        npr = db_sessions.query(Organizations).filter(Organizations.IDorg == idorg).first()
+        npr = db_session.query(Organizations).filter(Organizations.IDorg == idorg).first()
         if str(idsheforg) != "":
             npr.IDshefforg = int(idsheforg)
         if str(name) != "":
@@ -476,7 +491,7 @@ def redorg():
             npr.orgEmail = str(em)
         if str(phone) != "":
             npr.orgPhone = str(phone)
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/admin/organization")
 
 
@@ -486,7 +501,7 @@ def redorg():
 def route_contracts():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_org = select(Organizations).order_by(Organizations.orgName)
         select_contracts = select(Contracts).order_by(
             Contracts.contractsNumber, Contracts.contractsStart
@@ -496,10 +511,11 @@ def route_contracts():
             .join(Organizations)
             .order_by(Organizations.orgName, Contracts.contractsNumber, Contracts.contractsStart)
         )
-        contracts = db_sessions.execute(select_contracts).all()
-        organizations = db_sessions.execute(select_org).all()
-        contracts_order = db_sessions.execute(select_contracts_order).all()
+        contracts = db_session.execute(select_contracts).all()
+        organizations = db_session.execute(select_org).all()
+        contracts_order = db_session.execute(select_contracts_order).all()
 
+        db_session.commit()
         return render_template(
             "contracts.html",
             contracts=contracts,
@@ -522,7 +538,7 @@ def route_contracts():
             else text("1=1")
         )
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_contracts = (
             select(Contracts)
             .join(Organizations)
@@ -531,14 +547,15 @@ def route_contracts():
             .where(where_org_filters)
             .order_by(Contracts.contractsNumber, Contracts.contractsStart)
         )
-        contracts = db_sessions.execute(select_contracts).all()
+        contracts = db_session.execute(select_contracts).all()
+        db_session.commit()
         return render_template("resultTableContracts.html", contracts=contracts)
 
 
 @pages.route("/admin/addContract", methods=["POST"])  # добавление договора
 def add_contract():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         id_org = int(request.form["addorg"])
         contract_number = int(request.form["contractNumber"])
         contract_start_date = datetime.strptime(request.form["contractStart"], "%Y-%m-%d").date()
@@ -551,31 +568,31 @@ def add_contract():
             contractsPattern="test",
             contractsFull="full",
         )
-        db_sessions.add(add)
-        db_sessions.commit()
+        db_session.add(add)
+        db_session.commit()
         return redirect("/admin/contracts")
 
 
 @pages.route("/admin/delContract", methods=["POST"])  # удаление договора
 def del_contract():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         id_contract = int(request.form["delContract"])
-        db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).delete()
-        db_sessions.commit()
+        db_session.query(Contracts).filter(Contracts.IDcontracts == id_contract).delete()
+        db_session.commit()
         return redirect("/admin/contracts")
 
 
 @pages.route("/admin/modifyContract", methods=["POST"])  # редактирование договора
 def modify_contract():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         id_contract = int(request.form["modifyContract"])
         id_org = request.form["addorg"]
         contract_number = request.form["contractNumber"]
         contract_start_date = request.form["contractStart"]
         contract_end_date = request.form["contractEnd"]
-        npr = db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
+        npr = db_session.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
         if str(id_org) != "":
             npr.IDorg = int(id_org)
         if str(contract_number) != "":
@@ -584,7 +601,7 @@ def modify_contract():
             npr.contractsStart = str(contract_start_date)
         if str(contract_end_date) != "":
             npr.contractsFinish = str(contract_end_date)
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/admin/contracts")
 
 
@@ -594,7 +611,7 @@ def create_and_send_document():
     args = request.args
     id_contract = args.get("idContract")
 
-    db_sessions = get_session()
+    db_session = get_session()
     select = text(
         """SELECT p.contractsNumber, o.orgName, p.contractsFinish, o.orgYuraddress, o.orgPostaddress, p.contractsStart, s.shefforgDoc, s.shefforgFirstname as firstName, s.shefforgName as name, s.shefforgFathername as surname, s.shefforgPositions
         FROM projectsudycontracts p
@@ -605,7 +622,7 @@ def create_and_send_document():
         """
     )
 
-    contract = db_sessions.execute(select, {"id_contract": id_contract}).first()
+    contract = db_session.execute(select, {"id_contract": id_contract}).first()
 
     if not contract:
         return
@@ -716,8 +733,8 @@ def get_document():
     args = request.args
     id_contract = args.get("idContract")
 
-    db_sessions = get_session()
-    contract = db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
+    db_session = get_session()
+    contract = db_session.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
 
     if not contract.contractsSigned:
         return "", 404
@@ -735,10 +752,10 @@ def upload_document():
 
     file_path = path.join("documents", upload_file.filename)
 
-    db_sessions = get_session()
-    contract = db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
+    db_session = get_session()
+    contract = db_session.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
     contract.contractsSigned = file_path
-    db_sessions.commit()
+    db_session.commit()
 
     upload_file.save(file_path)
 
@@ -755,10 +772,10 @@ def upload_shefforg_document():
 
     file_path = path.join("documents", upload_file.filename)
 
-    db_sessions = get_session()
-    contract = db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
+    db_session = get_session()
+    contract = db_session.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
     contract.contractsSigned = file_path
-    db_sessions.commit()
+    db_session.commit()
 
     upload_file.save(file_path)
 
@@ -772,10 +789,10 @@ def delete_document():
     if not id_contract:
         return
 
-    db_sessions = get_session()
-    contract = db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
+    db_session = get_session()
+    contract = db_session.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
     contract.contractsSigned = None
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/admin/contracts", code=307)
 
 
@@ -786,10 +803,10 @@ def delete_shefforg_document():
     if not id_contract:
         return
 
-    db_sessions = get_session()
-    contract = db_sessions.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
+    db_session = get_session()
+    contract = db_session.query(Contracts).filter(Contracts.IDcontracts == id_contract).first()
     contract.contractsSigned = None
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/shefforg/contracts", code=307)
 
 
@@ -797,13 +814,14 @@ def delete_shefforg_document():
 def specializations():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_spec = select(Specializations).order_by(
             Specializations.specShifr,
             Specializations.specNapravlenie,
             Specializations.specNapravlennost,
         )
-        specializations = db_sessions.execute(select_spec).all()
+        specializations = db_session.execute(select_spec).all()
+        db_session.commit()
         return render_template("specializations.html", specializations=specializations)
     if request.method == "POST":
         shifr_filters = request.form.get("shifrFilters")
@@ -819,7 +837,7 @@ def specializations():
             else text("1=1")
         )
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_spec = (
             select(Specializations)
             .where(where_shifr_filters)
@@ -830,14 +848,15 @@ def specializations():
                 Specializations.specNapravlennost,
             )
         )
-        specializations = db_sessions.execute(select_spec).all()
+        specializations = db_session.execute(select_spec).all()
+        db_session.commit()
         return render_template("resultTableSpecializations.html", specializations=specializations)
 
 
 @pages.route("/admin/addSpecialization", methods=["POST"])  # добавление специализации
 def add_spec():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         shifr = str(request.form["specShifr"])
         napravlenie = str(request.form["specNapravlenie"])
         napravlennost = str(request.form["specNapravlennost"])
@@ -846,36 +865,36 @@ def add_spec():
             specNapravlenie=napravlenie,
             specNapravlennost=napravlennost,
         )
-        db_sessions.add(add)
-        db_sessions.commit()
+        db_session.add(add)
+        db_session.commit()
         return redirect("/admin/specializations")
 
 
 @pages.route("/admin/delSpecialization", methods=["POST"])  # удаление специализации
 def del_spec():
-    db_sessions = get_session()
+    db_session = get_session()
     id_spec = int(request.form["delSpecialization"])
-    db_sessions.query(Specializations).filter(Specializations.IDspec == id_spec).delete()
-    db_sessions.commit()
+    db_session.query(Specializations).filter(Specializations.IDspec == id_spec).delete()
+    db_session.commit()
     return redirect("/admin/specializations")
 
 
 @pages.route("/admin/modifySpecialization", methods=["POST"])  # редактирование специализации
 def modify_spec():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         id_spec = int(request.form["modifySpecialization"])
         shifr = request.form["redspecShifr"]
         napr = request.form["redspecNapravlenie"]
         napravlennost = request.form["redspecNapravlennost"]
-        npr = db_sessions.query(Specializations).filter(Specializations.IDspec == id_spec).first()
+        npr = db_session.query(Specializations).filter(Specializations.IDspec == id_spec).first()
         if str(shifr) != "":
             npr.specShifr = str(shifr)
         if str(napr) != "":
             npr.specNapravlenie = str(napr)
         if str(napravlennost) != "":
             npr.specNapravlennost = str(napravlennost)
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/admin/specializations")
 
 
@@ -883,7 +902,7 @@ def modify_spec():
 def groups():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_tablegr = (
             select(Groups, Formstuding.form_stName, Specializations.FullSpec)
             .join(Formstuding)
@@ -902,10 +921,11 @@ def groups():
             Specializations.specNapravlenie,
             Specializations.specNapravlennost,
         )
-        formst = db_sessions.execute(select_formst).all()
-        specializations = db_sessions.execute(select_spec).all()
-        groups = db_sessions.execute(select_groups).all()
-        groups_table = db_sessions.execute(select_tablegr).all()
+        formst = db_session.execute(select_formst).all()
+        specializations = db_session.execute(select_spec).all()
+        groups = db_session.execute(select_groups).all()
+        groups_table = db_session.execute(select_tablegr).all()
+        db_session.commit()
         return render_template(
             "groups.html",
             formst=formst,
@@ -936,7 +956,7 @@ def groups():
             Groups.groupsName.ilike("%" + name_group + "%") if name_group else text("1=1")
         )
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_group = (
             select(Groups, Formstuding.form_stName, Specializations.FullSpec)
             .join(Formstuding)
@@ -952,13 +972,14 @@ def groups():
                 Formstuding.form_stName,
             )
         )
-        groups_table = db_sessions.execute(select_group).all()
+        groups_table = db_session.execute(select_group).all()
+        db_session.commit()
         return render_template("resultTableGroups.html", groups_table=groups_table)
 
 
 @pages.route("/admin/addGroup", methods=["POST"])  # Добавить группы
 def addgroups():
-    db_sessions = get_session()
+    db_session = get_session()
     grname = str(request.form["groupsName"])
     gryear = int(request.form["groupsYear"])
     formst = int(request.form["form_st"])
@@ -969,29 +990,29 @@ def addgroups():
         IDform_st=formst,
         IDspec=spec,
     )
-    db_sessions.add(add)
-    db_sessions.commit()
+    db_session.add(add)
+    db_session.commit()
     return redirect("/admin/groups")
 
 
 @pages.route("/admin/delGroup", methods=["POST"])  # Удалить группы
 def delgroups():
-    db_sessions = get_session()
+    db_session = get_session()
     id_gr = int(request.form["delGroup"])
-    db_sessions.query(Groups).filter(Groups.IDgroups == id_gr).delete()
-    db_sessions.commit()
+    db_session.query(Groups).filter(Groups.IDgroups == id_gr).delete()
+    db_session.commit()
     return redirect("/admin/groups")
 
 
 @pages.route("/admin/modifyGroup", methods=["POST"])  # Редактировать группы
 def redgroups():
-    db_sessions = get_session()
+    db_session = get_session()
     id_gr = int(request.form["modifyGroups"])
     grname = request.form["redgroupsName"]
     gryear = request.form["redgroupsYear"]
     formst = request.form["redform_st"]
     spec = request.form["redspec"]
-    npr = db_sessions.query(Groups).filter(Groups.IDgroups == id_gr).first()
+    npr = db_session.query(Groups).filter(Groups.IDgroups == id_gr).first()
     if str(grname) != "":
         npr.groupsName = str(grname)
     if str(gryear) != "":
@@ -1000,7 +1021,7 @@ def redgroups():
         npr.IDform_st = int(formst)
     if str(spec) != "":
         npr.IDspec = int(spec)
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/admin/groups")
 
 
@@ -1012,7 +1033,7 @@ def insert_csv_spec():
         file_path = path.join("documents", upload_file.filename)
         upload_file.save(file_path)
         with open(file_path, encoding="utf-8") as file:
-            db_sessions = get_session()
+            db_session = get_session()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
                 pattern = re.match(r"^[0-9]{2}\.[0-9]{2}\.[0-9]{2}$", row["Шифр"])
@@ -1023,8 +1044,8 @@ def insert_csv_spec():
                     specNapravlenie=row["Направление"],
                     specNapravlennost=row["Направленность"],
                 )
-                db_sessions.add(add)
-                db_sessions.commit()
+                db_session.add(add)
+                db_session.commit()
         return "", 200
     finally:
         remove(file_path)
@@ -1038,17 +1059,17 @@ def insert_csv_group():
         file_path = path.join("documents", upload_file.filename)
         upload_file.save(file_path)
         with open(file_path, encoding="utf-8") as file:
-            db_sessions = get_session()
+            db_session = get_session()
             select = get_select()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
                 napr = row["Направление"].split("-")
-                idform_st = db_sessions.execute(
+                idform_st = db_session.execute(
                     select(Formstuding.IDform_st).where(
                         Formstuding.form_stName == row["Форма обучения"]
                     )
                 ).first()
-                idspec = db_sessions.execute(
+                idspec = db_session.execute(
                     select(Specializations.IDspec)
                     .where(Specializations.specShifr == napr[0])
                     .where(Specializations.specNapravlenie == napr[1])
@@ -1060,8 +1081,8 @@ def insert_csv_group():
                     IDform_st=idform_st[0],
                     IDspec=idspec[0],
                 )
-                db_sessions.add(add)
-                db_sessions.commit()
+                db_session.add(add)
+                db_session.commit()
         return "", 200
     finally:
         remove(file_path)
@@ -1071,9 +1092,9 @@ def insert_csv_group():
 def students():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_groups = select(Groups).order_by(Groups.groupsName)
-        groups = db_sessions.execute(select_groups).all()
+        groups = db_session.execute(select_groups).all()
         select_student = (
             select(
                 Students.IDstudents,
@@ -1104,8 +1125,9 @@ def students():
             .filter(Groups.IDgroups == groups[0].Groups.IDgroups)
             .order_by(Groups.groupsName, Students.FullName)
         )
-        student = db_sessions.execute(select_student).all()
-        modify_student = db_sessions.execute(select_modify_student).all()
+        student = db_session.execute(select_student).all()
+        modify_student = db_session.execute(select_modify_student).all()
+        db_session.commit()
         return render_template(
             "students.html", student=student, groups=groups, modify_student=modify_student
         )
@@ -1115,7 +1137,7 @@ def students():
         where_fio = Students.FullName.ilike("%" + fio + "%") if fio else text("1=1")
         where_grname = Groups.IDgroups == grname if grname else text("1=1")
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_student = (
             select(
                 Students.IDstudents,
@@ -1136,14 +1158,15 @@ def students():
             .where(where_grname)
             .order_by(Groups.groupsName, Students.FullName)
         )
-        student = db_sessions.execute(select_student).all()
+        student = db_session.execute(select_student).all()
+        db_session.commit()
         return render_template("resultTableStudents.html", student=student)
 
 
 @pages.route("/admin/addStudents", methods=["POST"])  # Добавить студента
 def addstudents():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         fname = str(request.form["studentsFirstname"])
         name = str(request.form["studentsName"])
         lname = str(request.form["studentsFathername"])
@@ -1166,23 +1189,23 @@ def addstudents():
             Login=login,
             Pass=passw,
         )
-        db_sessions.add(add)
-        db_sessions.commit()
+        db_session.add(add)
+        db_session.commit()
         return redirect("/admin/students")
 
 
 @pages.route("/admin/delStudent", methods=["POST"])  # Удалить студента
 def delstudents():
-    db_sessions = get_session()
+    db_session = get_session()
     id_st = int(request.form["delStudent"])
-    db_sessions.query(Students).filter(Students.IDstudents == id_st).delete()
-    db_sessions.commit()
+    db_session.query(Students).filter(Students.IDstudents == id_st).delete()
+    db_session.commit()
     return redirect("/admin/students")
 
 
 @pages.route("/admin/modifyStudent", methods=["POST"])  # Редактировать студента
 def modifyStudent():
-    db_sessions = get_session()
+    db_session = get_session()
     id_stud = int(request.form["redStudents"])
     fname = request.form["redstudentsFirstname"]
     name = request.form["redstudentsName"]
@@ -1193,7 +1216,7 @@ def modifyStudent():
     login = request.form["redLogin"]
     password = request.form["redPass"]
     idgroup = request.form["newGroup"]
-    npr = db_sessions.query(Students).filter(Students.IDstudents == id_stud).first()
+    npr = db_session.query(Students).filter(Students.IDstudents == id_stud).first()
     if str(fname) != "":
         npr.studentsFirstname = str(fname)
     if str(name) != "":
@@ -1214,7 +1237,7 @@ def modifyStudent():
         password = hashlib.md5(password.encode())
         password = password.hexdigest()
         npr.Pass = str(password)
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/admin/students")
 
 
@@ -1225,7 +1248,7 @@ def insert_csv_stud():
         file_path = path.join("documents", upload_file.filename)
         upload_file.save(file_path)
         with open(file_path, encoding="utf-8") as file:
-            db_sessions = get_session()
+            db_session = get_session()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
                 password = row["Пароль"]
@@ -1237,7 +1260,7 @@ def insert_csv_stud():
                 )
                 pattern_phone = re.match(r"^\+7[0-9]{10}$", row["Телефон"])
                 pattern_studbook = re.match(r"[0-9]{9}", row["№ зачетной книжки"])
-                group = db_sessions.query(Groups).filter(Groups.groupsName == row["Группа"]).first()
+                group = db_session.query(Groups).filter(Groups.groupsName == row["Группа"]).first()
                 if not pattern_email:
                     return "Неверный формат почты (" + row["Электронная почта"] + ")", 400
                 if not pattern_phone:
@@ -1257,8 +1280,8 @@ def insert_csv_stud():
                     Login=row["Логин"],
                     Pass=password,
                 )
-                db_sessions.add(add)
-                db_sessions.commit()
+                db_session.add(add)
+                db_session.commit()
         return "", 200
     finally:
         remove(file_path)
@@ -1276,13 +1299,13 @@ def insert_csv_stud():
 def get_competitions(error):
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_sp = select(Specializations).order_by(
             Specializations.specShifr,
             Specializations.specNapravlenie,
             Specializations.specNapravlennost,
         )
-        spec = db_sessions.execute(select_sp).all()
+        spec = db_session.execute(select_sp).all()
         idspec = None
         if spec:
             idspec = spec[0].Specializations.IDspec
@@ -1292,7 +1315,8 @@ def get_competitions(error):
             .filter(Competensions.IDspec == idspec)
             .order_by(Competensions.competensionsShifr)
         )
-        competitions = db_sessions.execute(select_competitions).all()
+        competitions = db_session.execute(select_competitions).all()
+        db_session.commit()
         return render_template(
             "competitions.html", spec=spec, competitions=competitions, error=error
         )
@@ -1307,7 +1331,7 @@ def get_competitions(error):
             Competensions.competensionsFull.ilike("%" + full + "%") if full else text("1=1")
         )
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_competitions = (
             select(Competensions, Specializations.FullSpec)
             .join(Specializations)
@@ -1316,7 +1340,8 @@ def get_competitions(error):
             .filter(where_shifr)
             .order_by(Competensions.competensionsShifr)
         )
-        competitions = db_sessions.execute(select_competitions).all()
+        competitions = db_session.execute(select_competitions).all()
+        db_session.commit()
         return render_template("resultTableCompetitions.html", competitions=competitions)
 
 
@@ -1324,7 +1349,7 @@ def get_competitions(error):
     "/admin/competitions/addCompetition", methods=["POST"]
 )  # Добавить компетенцию учебного плана
 def addcompetitions():
-    db_sessions = get_session()
+    db_session = get_session()
     id_spec = int(request.form["specialization"])
     cod = str(request.form["competensionsShifr"])
     full = str(request.form["competensionsFull"])
@@ -1333,8 +1358,8 @@ def addcompetitions():
         competensionsShifr=cod,
         competensionsFull=full,
     )
-    db_sessions.add(add)
-    db_sessions.commit()
+    db_session.add(add)
+    db_session.commit()
     return redirect("/admin/competitions")
 
 
@@ -1343,13 +1368,13 @@ def modify_competition():
     cod = str(request.form["competensionsShifr"])
     full = str(request.form["competensionsFull"])
     id_comp = int(request.form["competetion"])
-    db_sessions = get_session()
-    npr = db_sessions.query(Competensions).filter(Competensions.IDcompetensions == id_comp).first()
+    db_session = get_session()
+    npr = db_session.query(Competensions).filter(Competensions.IDcompetensions == id_comp).first()
     if cod != "":
         npr.competensionsShifr = cod
     if full != "":
         npr.competensionsFull = full
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/admin/competitions")
 
 
@@ -1357,9 +1382,9 @@ def modify_competition():
 def delete_competition():
     try:
         id_comp = int(request.form["competetion"])
-        db_sessions = get_session()
-        db_sessions.query(Competensions).filter(Competensions.IDcompetensions == id_comp).delete()
-        db_sessions.commit()
+        db_session = get_session()
+        db_session.query(Competensions).filter(Competensions.IDcompetensions == id_comp).delete()
+        db_session.commit()
         return redirect("/admin/competitions")
     except:
         return redirect(url_for("pages.get_competitions", error=1))
@@ -1372,21 +1397,21 @@ def insert_csv_comp():
         file_path = path.join("documents", upload_file.filename)
         upload_file.save(file_path)
         with open(file_path, encoding="utf-8") as file:
-            db_sessions = get_session()
+            db_session = get_session()
             select = get_select()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
                 spec = row["Специализация"]
                 code = row["Код"]
                 content = row["Содержание"]
-                id_spec = db_sessions.execute(
+                id_spec = db_session.execute(
                     select(Specializations.IDspec).where(Specializations.FullSpec == spec)
                 ).first()
                 add = Competensions(
                     IDspec=id_spec[0], competensionsShifr=code, competensionsFull=content
                 )
-                db_sessions.add(add)
-                db_sessions.commit()
+                db_session.add(add)
+                db_session.commit()
         return "", 200
     finally:
         remove(file_path)
@@ -1397,13 +1422,13 @@ def get_students_group():
     args = request.args
     id_group = args.get("idGroup")
     select = get_select()
-    db_sessions = get_session()
+    db_session = get_session()
     select_students = (
         select(Students.IDstudents, Students.FullName, Students.studentsStudbook)
         .filter(Students.IDgroups == id_group)
         .order_by(Students.FullName)
     )
-    students = db_sessions.execute(select_students).all()
+    students = db_session.execute(select_students).all()
     return jsonify([dict(row._mapping) for row in students]), 200
 
 
@@ -1412,13 +1437,13 @@ def get_competition_on_spec():
     args = request.args
     id_spec = args.get("spec")
     select = get_select()
-    db_sessions = get_session()
+    db_session = get_session()
     select_competition = (
         select(Competensions.competensionsShifr, Competensions.IDcompetensions)
         .filter(Competensions.IDspec == id_spec)
         .order_by(Competensions.competensionsShifr)
     )
-    competitions = db_sessions.execute(select_competition).all()
+    competitions = db_session.execute(select_competition).all()
     return jsonify([dict(row._mapping) for row in competitions]), 200
 
 
@@ -1426,15 +1451,16 @@ def get_competition_on_spec():
 def cafedra():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_caf = (
             select(Sheffofprojects, Positions)
             .join(Positions)
             .order_by(Sheffofprojects.FullName, Positions.positionsName)
         )
         select_pos = select(Positions).order_by(Positions.positionsName)
-        caf = db_sessions.execute(select_caf).all()
-        pos = db_sessions.execute(select_pos).all()
+        caf = db_session.execute(select_caf).all()
+        pos = db_session.execute(select_pos).all()
+        db_session.commit()
         return render_template("cafedra.html", caf=caf, pos=pos)
     if request.method == "POST":
         fio_filters = request.form.get("cafedraFIO")
@@ -1446,7 +1472,7 @@ def cafedra():
             Positions.positionsName.ilike("%" + pos_filters + "%") if pos_filters else text("1=1")
         )
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_caf = (
             select(Sheffofprojects, Positions)
             .join(Positions)
@@ -1455,14 +1481,15 @@ def cafedra():
             .order_by(Sheffofprojects.FullName, Positions.positionsName)
         )
         select_pos = select(Positions).order_by(Positions.positionsName)
-        caf = db_sessions.execute(select_caf).all()
-        pos = db_sessions.execute(select_pos).all()
+        caf = db_session.execute(select_caf).all()
+        pos = db_session.execute(select_pos).all()
+        db_session.commit()
         return render_template("resultTableCafedra.html", caf=caf, pos=pos)
 
 
 @pages.route("/admin/addCafedra", methods=["POST"])  # добавить сотрудника ИВТ
 def addcafedra():
-    db_sessions = get_session()
+    db_session = get_session()
     firstname = str(request.form["sheffprFirstname"])
     name = str(request.form["sheffprName"])
     lastname = str(request.form["sheffprFathername"])
@@ -1483,23 +1510,23 @@ def addcafedra():
         Login=login,
         Pass=passw,
     )
-    db_sessions.add(add)
-    db_sessions.commit()
+    db_session.add(add)
+    db_session.commit()
     return redirect("/admin/cafedra")
 
 
 @pages.route("/admin/delCafedra", methods=["POST"])  # удалить сотрудника ИВТ
 def delcafedra():
     id_sotr = int(request.form["delsotr"])
-    db_sessions = get_session()
-    db_sessions.query(Sheffofprojects).filter(Sheffofprojects.IDsheffpr == id_sotr).delete()
-    db_sessions.commit()
+    db_session = get_session()
+    db_session.query(Sheffofprojects).filter(Sheffofprojects.IDsheffpr == id_sotr).delete()
+    db_session.commit()
     return redirect("/admin/cafedra")
 
 
 @pages.route("/admin/modifyCafedra", methods=["POST"])  # Редактировать сотрудника ИВТ
 def modifyCafedra():
-    db_sessions = get_session()
+    db_session = get_session()
     id_sotr = request.form["modifysotr"]
     firstname = request.form["redsheffprFirstname"]
     name = request.form["redsheffprName"]
@@ -1509,13 +1536,13 @@ def modifyCafedra():
     em = request.form["redsheffprEmail"]
     login = request.form["redLogin"]
     password = request.form["redPass"]
-    npr = db_sessions.query(Sheffofprojects).filter(Sheffofprojects.IDsheffpr == id_sotr).first()
+    npr = db_session.query(Sheffofprojects).filter(Sheffofprojects.IDsheffpr == id_sotr).first()
     positions = None
     old_name = npr.FullName
     sess_name = f"{session['fullName'][0]} {session['fullName'][1]} {session['fullName'][2]} {session['fullName'][3]}"
     if str(posit) != "":
         npr.IDpositions = int(posit)
-        positions = db_sessions.query(Positions).filter(Positions.IDpositions == posit).first()
+        positions = db_session.query(Positions).filter(Positions.IDpositions == posit).first()
     if str(firstname) != "":
         npr.sheffprFirstname = str(firstname)
     if str(name) != "":
@@ -1540,7 +1567,7 @@ def modifyCafedra():
             lastname if lastname else npr.sheffprFathername,
             positions.positionsName if positions else npr.positionsName.positionsName,
         ]
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/admin/cafedra")
 
 
@@ -1551,7 +1578,7 @@ def insert_csv_cafedra():
         file_path = path.join("documents", upload_file.filename)
         upload_file.save(file_path)
         with open(file_path, encoding="utf-8") as file:
-            db_sessions = get_session()
+            db_session = get_session()
             select = get_select()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
@@ -1572,7 +1599,7 @@ def insert_csv_cafedra():
                     return "Неверный формат почты (" + row["Электронная почта"] + ")", 400
                 if not pattern_phone:
                     return "Неверный формат телефона (" + row["Телефон"] + ")", 400
-                id_pos = db_sessions.execute(
+                id_pos = db_session.execute(
                     select(Positions.IDpositions).where(Positions.positionsName == posit)
                 ).first()
                 if id_pos is None:
@@ -1587,8 +1614,8 @@ def insert_csv_cafedra():
                     Login=login,
                     Pass=password,
                 )
-                db_sessions.add(add)
-                db_sessions.commit()
+                db_session.add(add)
+                db_session.commit()
                 return "", 200
     finally:
         remove(file_path)
@@ -1598,7 +1625,7 @@ def insert_csv_cafedra():
 def sheff_org_organization():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         id_org = session["user"][0]
         select_orgsheff = (
             select(
@@ -1613,21 +1640,22 @@ def sheff_org_organization():
             .where(Organizations.IDorg == id_org)
             .order_by(Organizations.orgName)
         )
-        orgsheff = db_sessions.execute(select_orgsheff).all()
+        orgsheff = db_session.execute(select_orgsheff).all()
+        db_session.commit()
         return render_template("sheff_org_organization.html", orgsheff=orgsheff)
 
 
 @pages.route("/shefforg/redorganiz", methods=["POST"])  # редактирование рук.организации
 def sheff_org_redorg():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = session["user"][0]
         name = request.form["redorgName"]
         yur = request.form["redorgYuraddress"]
         adres = request.form["redorgPostaddress"]
         em = request.form["redorgEmail"]
         phone = request.form["redorgPhone"]
-        npr = db_sessions.query(Organizations).filter(Organizations.IDorg == idorg).first()
+        npr = db_session.query(Organizations).filter(Organizations.IDorg == idorg).first()
         if str(name) != "":
             npr.orgName = str(name)
         if str(yur) != "":
@@ -1638,7 +1666,7 @@ def sheff_org_redorg():
             npr.orgEmail = str(em)
         if str(phone) != "":
             npr.orgPhone = str(phone)
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/shefforg/organization")
 
 
@@ -1646,7 +1674,7 @@ def sheff_org_redorg():
 def shefforg_reg_shefforg():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = session["user"][0]
         select_shefforg = (
             select(Shefforganizations)
@@ -1659,14 +1687,15 @@ def shefforg_reg_shefforg():
             .filter(Organizations.IDorg == idorg)
             .order_by(Shefforganizations.FullName)
         )
-        shefforg = db_sessions.execute(select_shefforg).all()
+        shefforg = db_session.execute(select_shefforg).all()
+        db_session.commit()
         return render_template("sheff_org_registration.html", shefforg=shefforg)
 
 
 @pages.route("/shefforg/redshefforganiz", methods=["POST"])  # редактирование рук.организации
 def shefforg_redshefforg():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idshefforg = session["user"][1]
         firstname = request.form["redshefforgFirstname"]
         name = request.form["redshefforgName"]
@@ -1676,7 +1705,7 @@ def shefforg_redshefforg():
         em = request.form["redshefforgEmail"]
         phone = request.form["redshefforgPhone"]
         npr = (
-            db_sessions.query(Shefforganizations)
+            db_session.query(Shefforganizations)
             .filter(Shefforganizations.IDshefforg == idshefforg)
             .first()
         )
@@ -1700,7 +1729,7 @@ def shefforg_redshefforg():
             name if name else npr.shefforgName,
             fathername if fathername else npr.shefforgFathername,
         ]
-        db_sessions.commit()
+        db_session.commit()
 
         return redirect("/shefforg/reg_shefforg")
 
@@ -1711,30 +1740,32 @@ def shefforg_redshefforg():
 def sheff_org_contracts():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = session["user"][0]
         select_contracts = (
             select(Contracts)
             .filter(Contracts.IDorg == idorg)
             .order_by(Contracts.contractsNumber, Contracts.contractsStart)
         )
-        contracts = db_sessions.execute(select_contracts).all()
+        contracts = db_session.execute(select_contracts).all()
 
+        db_session.commit()
         return render_template(
             "sheff_org_contracts.html",
             contracts=contracts,
         )
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = session["user"][0]
         select_contracts = (
             select(Contracts)
             .filter(Contracts.IDorg == idorg)
             .order_by(Contracts.contractsNumber, Contracts.contractsStart)
         )
-        contracts = db_sessions.execute(select_contracts).all()
+        contracts = db_session.execute(select_contracts).all()
 
+        db_session.commit()
         return render_template(
             "resultTableContracts.html",
             contracts=contracts,
@@ -1745,14 +1776,15 @@ def sheff_org_contracts():
 def sheff_org_mailadmin():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_admins = (
             select(Sheffofprojects)
             .filter(Sheffofprojects.IDpositions == 1)
             .order_by(Sheffofprojects.FullName)
         )
-        admins = db_sessions.execute(select_admins).all()
+        admins = db_session.execute(select_admins).all()
 
+        db_session.commit()
         return render_template("sheff_org_mail_admin.html", admins=admins)
 
 
@@ -1760,18 +1792,19 @@ def sheff_org_mailadmin():
 def sheff_org_iniciators():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = session["user"][0]
         select_inicators = (
             select(Initiatorsofprojects)
             .filter(Initiatorsofprojects.IDorg == idorg)
             .order_by(Initiatorsofprojects.FullName)
         )
-        inic = db_sessions.execute(select_inicators).all()
+        inic = db_session.execute(select_inicators).all()
+        db_session.commit()
         return render_template("iniciators.html", inic=inic)
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = session["user"][0]
         fio_filters = request.form["fioFilter"]
         pos_filters = request.form["posFilter"]
@@ -1792,13 +1825,14 @@ def sheff_org_iniciators():
             .where(where_org_filters)
             .order_by(Initiatorsofprojects.FullName)
         )
-        inic = db_sessions.execute(select_inicators).all()
+        inic = db_session.execute(select_inicators).all()
+        db_session.commit()
         return render_template("resultTableInic.html", inic=inic)
 
 
 @pages.route("/shefforg/addIniciators", methods=["POST"])  # Добавить инициатора проектов
 def sheff_org_addiniciators():
-    db_sessions = get_session()
+    db_session = get_session()
     idorg = session["user"][0]
     fname = str(request.form["initprFirstname"])
     name = str(request.form["initprName"])
@@ -1821,25 +1855,25 @@ def sheff_org_addiniciators():
         Login=login,
         Pass=passw,
     )
-    db_sessions.add(add)
-    db_sessions.commit()
+    db_session.add(add)
+    db_session.commit()
     return redirect("/shefforg/iniciators")
 
 
 @pages.route("/shefforg/deliniciators", methods=["POST"])  # удалить инициатора проектов
 def deliniciators():
     id_sotr = int(request.form["delin"])
-    db_sessions = get_session()
-    db_sessions.query(Initiatorsofprojects).filter(
+    db_session = get_session()
+    db_session.query(Initiatorsofprojects).filter(
         Initiatorsofprojects.IDinitpr == id_sotr
     ).delete()
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/shefforg/iniciators")
 
 
 @pages.route("/shefforg/redinitiators", methods=["POST"])  # Редактировать инициатора проектов
 def sheff_org_redinitiators():
-    db_sessions = get_session()
+    db_session = get_session()
     idin = int(request.form["redin"])
     fname = request.form["redinitprFirstname"]
     name = request.form["redinitprName"]
@@ -1850,7 +1884,7 @@ def sheff_org_redinitiators():
     login = request.form["redLogin"]
     passw = request.form["password"]
     npr = (
-        db_sessions.query(Initiatorsofprojects)
+        db_session.query(Initiatorsofprojects)
         .filter(Initiatorsofprojects.IDinitpr == idin)
         .first()
     )
@@ -1872,7 +1906,7 @@ def sheff_org_redinitiators():
         passw = hashlib.md5(passw.encode())
         passw = passw.hexdigest()
         npr.Pass = str(passw)
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/shefforg/iniciators")
 
 
@@ -1883,7 +1917,7 @@ def insert_csv_inic():
         file_path = path.join("documents", upload_file.filename)
         upload_file.save(file_path)
         with open(file_path, encoding="utf-8") as file:
-            db_sessions = get_session()
+            db_session = get_session()
             reader = csv.DictReader(file, delimiter=";")
             for row in reader:
                 password = row["Пароль"]
@@ -1909,8 +1943,8 @@ def insert_csv_inic():
                     Login=row["Логин"],
                     Pass=password,
                 )
-                db_sessions.add(add)
-                db_sessions.commit()
+                db_session.add(add)
+                db_session.commit()
         return "", 200
     finally:
         remove(file_path)
@@ -1921,7 +1955,7 @@ def insert_csv_inic():
 def iniciators_project():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idinitpr = session["user"][1]
         select_stadia = select(StadiaOfProjects).order_by(StadiaOfProjects.IDstadiaofpr)
         select_projects = (
@@ -1958,10 +1992,11 @@ def iniciators_project():
             .filter(PassportOfProjects.IDinitpr == idinitpr)
             .order_by(PassportOfProjects.passportName)
         )
-        count_projects = db_sessions.execute(count_records(select_projects_count, Projects.IDprojects)).scalar_one()
+        count_projects = db_session.execute(count_records(select_projects_count, Projects.IDprojects)).scalar_one()
 
-        stadia = db_sessions.execute(select_stadia).all()
-        projects = db_sessions.execute(pagination(select_projects)).all()
+        stadia = db_session.execute(select_stadia).all()
+        projects = db_session.execute(pagination(select_projects)).all()
+        db_session.commit()
         return render_template(
             "iniciators_projects.html",
             projects=projects,
@@ -1972,7 +2007,7 @@ def iniciators_project():
         )
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idinitpr = session["user"][1]
         project_filter = request.form["projectFilter"]
         stadia_filter = request.form["stadiaFilter"]
@@ -2031,8 +2066,9 @@ def iniciators_project():
             .filter(PassportOfProjects.IDinitpr == idinitpr)
         )
 
-        count_projects = db_sessions.execute(count_records(select_projects_count, Projects.IDprojects)).scalar_one()
-        projects = db_sessions.execute(pagination(select_projects, page)).all()
+        count_projects = db_session.execute(count_records(select_projects_count, Projects.IDprojects)).scalar_one()
+        projects = db_session.execute(pagination(select_projects, page)).all()
+        db_session.commit()
         return render_template(
             "resultAccordionProjects.html",
             count=count_projects,
@@ -2044,7 +2080,7 @@ def iniciators_project():
 
 @pages.route("/iniciators/addProject", methods=["POST"])
 def iniciators_add_project():
-    db_sessions = get_session()
+    db_session = get_session()
     idinitpr = session["user"][1]
     project_name = str(request.form["projectName"])
     problem = str(request.form["problem"])
@@ -2063,28 +2099,28 @@ def iniciators_add_project():
         passportFull="",
         passportSigned="",
     )
-    db_sessions.add(add_passport)
-    db_sessions.flush()
+    db_session.add(add_passport)
+    db_session.flush()
     idpassport = add_passport.IDpassport
 
     add_project = Projects(IDpassport=idpassport, IDstadiaofpr=1)
-    db_sessions.add(add_project)
-    db_sessions.commit()
+    db_session.add(add_project)
+    db_session.commit()
     return redirect("/iniciators/projects")
 
 
 @pages.route("/iniciators/modifyProject", methods=["POST"])
 def iniciators_modify_project():
-    db_sessions = get_session()
+    db_session = get_session()
     idprojects = request.form["modifyProject"]
     project_name = request.form["projectName"]
     problem = request.form["problem"]
     purpose = request.form["purpose"]
     tasks = request.form["tasks"]
     result = request.form["result"]
-    project = db_sessions.query(Projects).filter(Projects.IDprojects == idprojects).first()
+    project = db_session.query(Projects).filter(Projects.IDprojects == idprojects).first()
     npr = (
-        db_sessions.query(PassportOfProjects)
+        db_session.query(PassportOfProjects)
         .filter(PassportOfProjects.IDpassport == project.IDpassport)
         .first()
     )
@@ -2100,7 +2136,7 @@ def iniciators_modify_project():
     if str(result) != "":
         npr.passportResults = str(result)
 
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/iniciators/projects")
 
 
@@ -2108,7 +2144,7 @@ def iniciators_modify_project():
 def admin_project():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_projects = (
             select(
                 Projects,
@@ -2130,12 +2166,13 @@ def admin_project():
             .order_by(PassportOfProjects.passportName)
         )
         select_stadia = select(StadiaOfProjects).order_by(StadiaOfProjects.IDstadiaofpr)
-        projects = db_sessions.execute(select_projects).all()
-        stadia = db_sessions.execute(select_stadia).all()
+        projects = db_session.execute(select_projects).all()
+        stadia = db_session.execute(select_stadia).all()
+        db_session.commit()
         return render_template("projects.html", projects=projects, stadia=stadia)
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         project_filter = request.form["projectFilter"]
         stadia_filter = request.form["stadiaFilter"]
         org_filter = request.form["orgFilter"]
@@ -2188,25 +2225,26 @@ def admin_project():
             .where(where_stadia_filter)
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template("resultAccordionProjects.html", projects=projects)
 
 
 @pages.route("/checkStadia", methods=["GET"])
 def check_stadia():
     idproject = int(request.args.get("idProject"))
-    db_sessions = get_session()
+    db_session = get_session()
     select = get_select()
     select_project = select(Projects).filter(Projects.IDprojects == idproject)
-    project = db_sessions.execute(select_project).first()
+    project = db_session.execute(select_project).first()
     if project[0].IDstadiaofpr < 3:
-        stadia = db_sessions.execute(
+        stadia = db_session.execute(
             select(StadiaOfProjects.IDstadiaofpr, StadiaOfProjects.stadiaofprName)
             .filter(StadiaOfProjects.IDstadiaofpr < 3)
             .order_by(StadiaOfProjects.IDstadiaofpr)
         ).all()
         return jsonify([dict(row._mapping) for row in stadia]), 200
-    stadia = db_sessions.execute(
+    stadia = db_session.execute(
         select(StadiaOfProjects.IDstadiaofpr, StadiaOfProjects.stadiaofprName).filter(
             StadiaOfProjects.IDstadiaofpr == project[0].IDstadiaofpr
         )
@@ -2216,7 +2254,7 @@ def check_stadia():
 
 @pages.route("/admin/addProject", methods=["POST"])
 def admin_add_project():
-    db_sessions = get_session()
+    db_session = get_session()
     iniciator = int(request.form.get("iniciator"))
     sheffpr = int(request.form["sheffpr"])
     project_name = str(request.form["projectName"])
@@ -2251,19 +2289,19 @@ def admin_add_project():
         passportFull="",
         passportSigned="",
     )
-    db_sessions.add(add_passport)
-    db_sessions.flush()
+    db_session.add(add_passport)
+    db_session.flush()
     idpassport = add_passport.IDpassport
 
     add_project = Projects(IDpassport=idpassport, IDstadiaofpr=1)
-    db_sessions.add(add_project)
-    db_sessions.commit()
+    db_session.add(add_project)
+    db_session.commit()
     return redirect("/admin/projects")
 
 
 @pages.route("/admin/modifyProject", methods=["POST"])
 def admin_modify_project():
-    db_sessions = get_session()
+    db_session = get_session()
     idprojects = request.form["modifyProject"]
     project_name = str(request.form["projectName"])
     problem = str(request.form["problem"])
@@ -2278,9 +2316,9 @@ def admin_modify_project():
     criteria = str(request.form["criteria"])
     formResult = str(request.form["formResult"])
     stadia = request.form.get("stadia")
-    project = db_sessions.query(Projects).filter(Projects.IDprojects == idprojects).first()
+    project = db_session.query(Projects).filter(Projects.IDprojects == idprojects).first()
     npr = (
-        db_sessions.query(PassportOfProjects)
+        db_session.query(PassportOfProjects)
         .filter(PassportOfProjects.IDpassport == project.IDpassport)
         .first()
     )
@@ -2311,18 +2349,18 @@ def admin_modify_project():
         npr.passportFormresults = str(formResult)
     if stadia is not None:
         project.IDstadiaofpr = stadia
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/admin/projects")
 
 
 @pages.route("/admin/deleteProject", methods=["POST"])  # удалить инициатора проектов
 def admin_delete_project():
     idproject = int(request.form["deleteProject"])
-    db_sessions = get_session()
-    db_sessions.query(PassportOfProjects).filter(
+    db_session = get_session()
+    db_session.query(PassportOfProjects).filter(
         PassportOfProjects.IDpassport == idproject
     ).delete()
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/admin/projects")
 
 
@@ -2331,7 +2369,7 @@ def get_passport():
     args = request.args
     idpassport = args.get("idPassport")
 
-    db_sessions = get_session()
+    db_session = get_session()
     select = get_select()
 
     select_passport = (
@@ -2352,7 +2390,7 @@ def get_passport():
         .join(Positions)
         .filter(PassportOfProjects.IDpassport == idpassport)
     )
-    record = db_sessions.execute(select_passport).first()
+    record = db_session.execute(select_passport).first()
     if not record:
         return
     splitted_fio = record.Initiatorsofprojects.FullName.split(" ")
@@ -2402,7 +2440,7 @@ def get_passport():
         .join(Competensions)
         .filter(RolesOfProjects.IDpassport == idpassport)
     )
-    roles = db_sessions.execute(
+    roles = db_session.execute(
         text(
             r"""SELECT
 	rolesofprojects.rolesRole,
@@ -2452,9 +2490,9 @@ def get_passport_signed():
     args = request.args
     idpassport = args.get("idPassport")
 
-    db_sessions = get_session()
+    db_session = get_session()
     passport = (
-        db_sessions.query(PassportOfProjects)
+        db_session.query(PassportOfProjects)
         .filter(PassportOfProjects.IDpassport == idpassport)
         .first()
     )
@@ -2475,19 +2513,20 @@ def upload_passport():
 
     file_path = path.join("documents", upload_file.filename)
 
-    db_sessions = get_session()
+    db_session = get_session()
     passport = (
-        db_sessions.query(PassportOfProjects)
+        db_session.query(PassportOfProjects)
         .filter(PassportOfProjects.IDpassport == idpassport)
         .first()
     )
     passport.passportSigned = file_path
-    db_sessions.commit()
+    db_session.commit()
 
     upload_file.save(file_path)
 
-    project = db_sessions.query(Projects).filter(Projects.IDpassport == passport.IDpassport).first()
+    project = db_session.query(Projects).filter(Projects.IDpassport == passport.IDpassport).first()
 
+    db_session.commit()
     return render_template(
         "documents_template.html",
         idpass=passport.IDpassport,
@@ -2503,17 +2542,18 @@ def delete_passport():
     if not idpassport:
         return
 
-    db_sessions = get_session()
+    db_session = get_session()
     passport = (
-        db_sessions.query(PassportOfProjects)
+        db_session.query(PassportOfProjects)
         .filter(PassportOfProjects.IDpassport == idpassport)
         .first()
     )
     passport.passportSigned = ""
-    db_sessions.commit()
+    db_session.commit()
 
-    project = db_sessions.query(Projects).filter(Projects.IDpassport == passport.IDpassport).first()
+    project = db_session.query(Projects).filter(Projects.IDpassport == passport.IDpassport).first()
 
+    db_session.commit()
     return render_template(
         "documents_template.html",
         idpass=passport.IDpassport,
@@ -2541,7 +2581,7 @@ def student_mailadmin():
 def sheffproj_projects():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idsheffpr = session["user"][0]
         select_projects = (
             select(
@@ -2564,7 +2604,7 @@ def sheffproj_projects():
             .filter(PassportOfProjects.IDsheffpr == idsheffpr)
             .order_by(PassportOfProjects.passportName)
         )
-        projects_assign = db_sessions.execute(
+        projects_assign = db_session.execute(
             select(Projects, PassportOfProjects)
             .join_from(
                 Projects, PassportOfProjects, Projects.IDpassport == PassportOfProjects.IDpassport
@@ -2572,9 +2612,10 @@ def sheffproj_projects():
             .filter(PassportOfProjects.IDsheffpr == None)
             .order_by(PassportOfProjects.passportName)
         ).all()
-        projects = db_sessions.execute(select_projects).all()
-        stadia = db_sessions.query(StadiaOfProjects).filter(StadiaOfProjects.IDstadiaofpr > 2).all()
-        stadia_filter = db_sessions.execute(select(StadiaOfProjects)).all()
+        projects = db_session.execute(select_projects).all()
+        stadia = db_session.query(StadiaOfProjects).filter(StadiaOfProjects.IDstadiaofpr > 2).all()
+        stadia_filter = db_session.execute(select(StadiaOfProjects)).all()
+        db_session.commit()
         return render_template(
             "sheffproj_projects.html",
             projects=projects,
@@ -2584,7 +2625,7 @@ def sheffproj_projects():
         )
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idsheffpr = session["user"][0]
         project_filter = request.form.get("projectFilter")
         org_filter = request.form.get("orgFilter")
@@ -2635,13 +2676,14 @@ def sheffproj_projects():
             .filter(where_org_filter)
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template("resultAccordionProjects.html", projects=projects)
 
 
 @pages.route("/sheffproj/modifyProject", methods=["POST"])
 def sheffproj_modify_project():
-    db_sessions = get_session()
+    db_session = get_session()
     idprojects = request.form["modifyProject"]
     project_name = str(request.form["projectName"])
     problem = str(request.form["problem"])
@@ -2655,9 +2697,9 @@ def sheffproj_modify_project():
     cost = str(request.form["cost"])
     criteria = str(request.form["criteria"])
     formResult = str(request.form["formResult"])
-    project = db_sessions.query(Projects).filter(Projects.IDprojects == idprojects).first()
+    project = db_session.query(Projects).filter(Projects.IDprojects == idprojects).first()
     npr = (
-        db_sessions.query(PassportOfProjects)
+        db_session.query(PassportOfProjects)
         .filter(PassportOfProjects.IDpassport == project.IDpassport)
         .first()
     )
@@ -2686,7 +2728,7 @@ def sheffproj_modify_project():
         npr.passportCriteria = str(criteria)
     if str(formResult) != "":
         npr.passportFormresults = str(formResult)
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/admin/projects")
 
 
@@ -2694,7 +2736,7 @@ def sheffproj_modify_project():
 def sheffproj_assignment_project():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_projects = (
             select(
                 Projects,
@@ -2717,17 +2759,18 @@ def sheffproj_assignment_project():
             .filter(PassportOfProjects.IDsheffpr == None)
             .order_by(PassportOfProjects.passportName)
         )
-        count_projects = db_sessions.execute(
+        count_projects = db_session.execute(
             count_records(select_projects),
             {"param_1": " ", "param_2": " ", "param_3": " ", "param_4": " ", "IDstadiaofpr_2": 2},
         ).first()[0]
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template(
             "sheffproj_assignment.html", projects=projects, count=count_projects, page=0
         )
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         project_filter = request.form.get("projectFilter")
         org_filter = request.form.get("orgFilter")
         fio_init_filter = request.form.get("fioInitFilter")
@@ -2770,32 +2813,33 @@ def sheffproj_assignment_project():
             .filter(where_org_filter)
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template("resultAccordionProjects.html", projects=projects)
 
 
 @pages.route("/sheffproj/assignSheffProj", methods=["POST"])
 def assign_sheff_proj_project():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idproject = request.form["project"]
 
-        project = db_sessions.query(Projects).filter(Projects.IDprojects == idproject).first()
+        project = db_session.query(Projects).filter(Projects.IDprojects == idproject).first()
         npr = (
-            db_sessions.query(PassportOfProjects)
+            db_session.query(PassportOfProjects)
             .filter(PassportOfProjects.IDpassport == project.IDpassport)
             .first()
         )
         npr.IDsheffpr = session["user"][0]
         project.IDstadiaofpr = 3
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/sheffproj/assignment")
 
 
 @pages.route("/admin/stadia", methods=["GET"])
 def admin_stadia():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         select_projects = (
             select(Projects, PassportOfProjects, StadiaOfProjects)
@@ -2804,38 +2848,39 @@ def admin_stadia():
             .filter(StadiaOfProjects.IDstadiaofpr == 1)
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template("stadia.html", projects=projects)
 
 
 @pages.route("/admin/changeStadia", methods=["POST"])
 def admin_change_stadia():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idproject = request.form["project"]
 
-        project = db_sessions.query(Projects).filter(Projects.IDprojects == idproject).first()
+        project = db_session.query(Projects).filter(Projects.IDprojects == idproject).first()
         project.IDstadiaofpr = 2
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/admin/stadia")
 
 
 @pages.route("/sheffproj/changeStatusProject", methods=["POST"])
 def chage_status_project():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idproject = request.form["project"]
         stadia = request.form["stadia"]
-        project = db_sessions.query(Projects).filter(Projects.IDprojects == idproject).first()
+        project = db_session.query(Projects).filter(Projects.IDprojects == idproject).first()
         project.IDstadiaofpr = stadia
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/sheffproj/projects")
 
 
 @pages.route("/sheffproj/members", methods=["GET", "POST"])
 def sheffproj_members():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idsheffpr = session["user"][0]
         select_projects = (
@@ -2852,11 +2897,11 @@ def sheffproj_members():
             .join(PassportOfProjects)
             .filter(PassportOfProjects.IDsheffpr == idsheffpr)
         )
-        roles = db_sessions.execute(select_roles).all()
-        projects = db_sessions.execute(select_projects).all()
-        groups = db_sessions.execute(select(Groups)).all()
-        status = db_sessions.execute(select(StadiaOfWorks)).all()
-        students = db_sessions.execute(
+        roles = db_session.execute(select_roles).all()
+        projects = db_session.execute(select_projects).all()
+        groups = db_session.execute(select(Groups)).all()
+        status = db_session.execute(select(StadiaOfWorks)).all()
+        students = db_session.execute(
             text(
                 r"""SELECT
         r.IDroles,
@@ -2895,6 +2940,7 @@ group BY
             ),
             {"idsheffpr": idsheffpr},
         ).all()
+        db_session.commit()
         return render_template(
             "sheffproj_members.html",
             students=students,
@@ -2904,7 +2950,7 @@ group BY
             status=status,
         )
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         fio_filter = request.form["projectFioFilter"]
         role_filter = request.form["projectRoleFilter"]
@@ -2959,9 +3005,9 @@ group BY
             .filter(PassportOfProjects.IDsheffpr == idsheffpr)
             .filter(where_role_filter)
         )
-        roles = db_sessions.execute(select_roles).all()
-        projects = db_sessions.execute(select_projects).all()
-        students = db_sessions.execute(
+        roles = db_session.execute(select_roles).all()
+        projects = db_session.execute(select_projects).all()
+        students = db_session.execute(
             text(
                 rf"""SELECT
         r.IDroles,
@@ -3003,6 +3049,7 @@ group BY 1, 2, 5, 6, 7, 8"""
             ),
             params,
         ).all()
+        db_session.commit()
         return render_template(
             "resultAccordionMembers.html",
             students=students,
@@ -3014,7 +3061,7 @@ group BY 1, 2, 5, 6, 7, 8"""
 @pages.route("/admin/mailSheffOrg", methods=["GET"])
 def admin_mail_shefforg():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         select_projects = select(
             Initiatorsofprojects.IDorg, PassportOfProjects.passportName
@@ -3023,7 +3070,7 @@ def admin_mail_shefforg():
             Initiatorsofprojects,
             Initiatorsofprojects.IDinitpr == PassportOfProjects.IDinitpr,
         )
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         filter_shefforg = Organizations.IDorg == projects[0][0] if projects else text("1=1")
         select_shefforg = (
             select(
@@ -3036,14 +3083,15 @@ def admin_mail_shefforg():
             .filter(filter_shefforg)
             .order_by(Shefforganizations.FullName)
         )
-        shefforg = db_sessions.execute(select_shefforg).all()
+        shefforg = db_session.execute(select_shefforg).all()
+        db_session.commit()
         return render_template("mail_shefforg.html", users=shefforg, projects=projects)
 
 
 @pages.route("/iniciators/mailSheffOrg", methods=["GET"])
 def iniciators_mail_shefforg():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idorg = session["user"][0]
         select_shefforg = (
@@ -3057,14 +3105,15 @@ def iniciators_mail_shefforg():
             .filter(Organizations.IDorg == idorg)
             .order_by(Shefforganizations.FullName)
         )
-        shefforg = db_sessions.execute(select_shefforg).all()
+        shefforg = db_session.execute(select_shefforg).all()
+        db_session.commit()
         return render_template("mail_shefforg.html", users=shefforg)
 
 
 @pages.route("/getSheffOrgMail", methods=["GET"])
 def get_shefforg_mail():
     idorg = request.args.get("idOrg")
-    db_sessions = get_session()
+    db_session = get_session()
     select = get_select()
     select_shefforg = (
         select(
@@ -3077,7 +3126,7 @@ def get_shefforg_mail():
         .filter(Organizations.IDorg == idorg)
         .order_by(Shefforganizations.FullName)
     )
-    shefforg = db_sessions.execute(select_shefforg).all()
+    shefforg = db_session.execute(select_shefforg).all()
 
     return jsonify([list(val) for val in shefforg]), 200
 
@@ -3085,10 +3134,10 @@ def get_shefforg_mail():
 @pages.route("/admin/mail_inic", methods=["GET"])
 def admin_mail_inic():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         select_projects = select(PassportOfProjects.IDinitpr, PassportOfProjects.passportName)
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         filter_inic = Initiatorsofprojects.IDinitpr == projects[0][0] if projects else text("1=1")
         select_iniciators = (
             select(
@@ -3101,14 +3150,15 @@ def admin_mail_inic():
             .filter(filter_inic)
             .order_by(Initiatorsofprojects.FullName)
         )
-        iniciators = db_sessions.execute(select_iniciators).all()
+        iniciators = db_session.execute(select_iniciators).all()
+        db_session.commit()
         return render_template("mail_inic.html", users=iniciators, projects=projects)
 
 
 @pages.route("/getIniciatorMail", methods=["GET"])
 def get_iniciator_mail():
     idinic = request.args.get("idInic")
-    db_sessions = get_session()
+    db_session = get_session()
     select = get_select()
     select_iniciators = (
         select(
@@ -3121,7 +3171,7 @@ def get_iniciator_mail():
         .filter(Initiatorsofprojects.IDinitpr == idinic)
         .order_by(Initiatorsofprojects.FullName)
     )
-    iniciators = db_sessions.execute(select_iniciators).all()
+    iniciators = db_session.execute(select_iniciators).all()
 
     return jsonify([list(val) for val in iniciators]), 200
 
@@ -3129,7 +3179,7 @@ def get_iniciator_mail():
 @pages.route("/getCompetitionsSpec", methods=["GET"])
 def get_competitions_spec():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idspec = request.args.get("id")
         select_spec = select(
@@ -3137,7 +3187,7 @@ def get_competitions_spec():
             Competensions.competensionsShifr,
             Competensions.competensionsFull,
         ).filter(Competensions.IDspec == idspec)
-        spec = db_sessions.execute(select_spec).all()
+        spec = db_session.execute(select_spec).all()
         return jsonify([list(el) for el in spec]), 200
 
 
@@ -3146,7 +3196,7 @@ def shefforg_project():
     if request.method == "GET":
         idorg = session["user"][0]
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         select_stadia = select(StadiaOfProjects).order_by(StadiaOfProjects.IDstadiaofpr)
         select_projects = (
             select(
@@ -3169,13 +3219,14 @@ def shefforg_project():
             .filter(Initiatorsofprojects.IDorg == idorg)
             .order_by(PassportOfProjects.passportName)
         )
-        stadia = db_sessions.execute(select_stadia).all()
-        projects = db_sessions.execute(select_projects).all()
+        stadia = db_session.execute(select_stadia).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template("sheff_org_projects.html", projects=projects, stadia=stadia)
     if request.method == "POST":
         idorg = session["user"][0]
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         project_filter = request.form["projectFilter"]
         stadia_filter = request.form["stadiaFilter"]
         inic_filter = request.form["inicFilter"]
@@ -3215,14 +3266,15 @@ def shefforg_project():
             .where(where_stadia_filter)
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template("resultAccordionProjects.html", projects=projects)
 
 
 @pages.route("/sheffproj/roles", methods=["GET", "POST"])
 def sheffproj_roles():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idsheffpr = session["user"][0]
         select_projects = (
@@ -3232,7 +3284,7 @@ def sheffproj_roles():
             .join(Projects)
             .filter(PassportOfProjects.IDsheffpr == idsheffpr)
         )
-        roles = db_sessions.execute(
+        roles = db_session.execute(
             text(
                 """select	p.IDpassport,
 		p2.IDprojects,
@@ -3258,7 +3310,7 @@ group by
             ),
             {"idsheffpr": idsheffpr},
         ).all()
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         project_filter = Projects.IDprojects == projects[0][2] if projects else text("1=1")
         select_roles = (
             select(
@@ -3268,8 +3320,9 @@ group by
             .join(Projects)
             .filter(project_filter)
         )
-        roles_selected = db_sessions.execute(select_roles).all()
-        check_spec = db_sessions.execute(select(Specializations)).all()
+        roles_selected = db_session.execute(select_roles).all()
+        check_spec = db_session.execute(select(Specializations)).all()
+        db_session.commit()
         return render_template(
             "sheffproj_roles.html",
             projects=projects,
@@ -3278,7 +3331,7 @@ group by
             roles_selected=roles_selected,
         )
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idsheffpr = session["user"][0]
         opop_filter = request.form.get("opopFilter")
@@ -3314,7 +3367,7 @@ group by
             .join(Projects)
             .filter(PassportOfProjects.IDsheffpr == idsheffpr)
         )
-        roles = db_sessions.execute(
+        roles = db_session.execute(
             text(
                 f"""select	p.IDpassport,
 		p2.IDprojects,
@@ -3343,7 +3396,8 @@ group by
             ),
             params,
         ).all()
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template(
             "resultAccordionRoles.html",
             projects=projects,
@@ -3353,7 +3407,7 @@ group by
 
 @pages.route("/sheffproj/addRole", methods=["POST"])
 def sheffproj_add_role():
-    db_sessions = get_session()
+    db_session = get_session()
     idpassport = request.form["passport"]
     role = str(request.form["role"])
     amount = request.form["amount"]
@@ -3371,25 +3425,25 @@ def sheffproj_add_role():
         rolesCost=cost,
         rolesRequirements=require,
     )
-    db_sessions.add(add_role)
-    db_sessions.flush()
+    db_session.add(add_role)
+    db_session.flush()
     for idspec in idspecs:
         add_spec = SpecializationInProjects(IDroles=add_role.IDroles, IDspec=idspec)
-        db_sessions.add(add_spec)
-        db_sessions.flush()
+        db_session.add(add_spec)
+        db_session.flush()
 
     for idcomp in idcomps:
         add_comp = CompetensionsInProject(IDroles=add_role.IDroles, IDcompetensions=idcomp)
-        db_sessions.add(add_comp)
-        db_sessions.flush()
+        db_session.add(add_comp)
+        db_session.flush()
 
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/sheffproj/roles")
 
 
 @pages.route("/sheffproj/modifyRole", methods=["POST"])
 def sheffproj_modify_role():
-    db_sessions = get_session()
+    db_session = get_session()
     select = get_select()
     idrole = request.form["idrole"]
     idpassport = request.form["passport"]
@@ -3401,29 +3455,29 @@ def sheffproj_modify_role():
     idcomps = request.form.getlist("comp")
     require = str(request.form["require"])
 
-    rop = db_sessions.execute(
+    rop = db_session.execute(
         select(RolesOfProjects).filter(RolesOfProjects.IDroles == idrole)
     ).first()[0]
 
     if len(idspecs) != 0:
-        db_sessions.query(SpecializationInProjects).filter(
+        db_session.query(SpecializationInProjects).filter(
             SpecializationInProjects.IDroles == idrole
         ).delete()
 
     for idspec in idspecs:
         add_spec = SpecializationInProjects(IDroles=idrole, IDspec=idspec)
-        db_sessions.add(add_spec)
-        db_sessions.flush()
+        db_session.add(add_spec)
+        db_session.flush()
 
     if len(idcomps) != 0:
-        db_sessions.query(CompetensionsInProject).filter(
+        db_session.query(CompetensionsInProject).filter(
             CompetensionsInProject.IDroles == idrole
         ).delete()
 
     for idcomp in idcomps:
         add_comp = CompetensionsInProject(IDroles=idrole, IDcompetensions=idcomp)
-        db_sessions.add(add_comp)
-        db_sessions.flush()
+        db_session.add(add_comp)
+        db_session.flush()
 
     if str(idpassport) != "":
         rop.IDpassport = idpassport
@@ -3438,23 +3492,23 @@ def sheffproj_modify_role():
     if str(require) != "":
         rop.rolesRequirements = str(require)
 
-    db_sessions.commit()
+    db_session.commit()
     return redirect("/sheffproj/roles")
 
 
 @pages.route("/sheffproj/deleteRole", methods=["POST"])
 def sheffproj_delete_role():
-    db_sessions = get_session()
+    db_session = get_session()
     idrole = request.form["idrole"]
 
-    db_sessions.query(CompetensionsInProject).filter(
+    db_session.query(CompetensionsInProject).filter(
         CompetensionsInProject.IDroles == idrole
     ).delete()
-    db_sessions.query(SpecializationInProjects).filter(
+    db_session.query(SpecializationInProjects).filter(
         SpecializationInProjects.IDroles == idrole
     ).delete()
-    db_sessions.query(RolesOfProjects).filter(RolesOfProjects.IDroles == idrole).delete()
-    db_sessions.commit()
+    db_session.query(RolesOfProjects).filter(RolesOfProjects.IDroles == idrole).delete()
+    db_session.commit()
     return redirect("/sheffproj/roles")
 
 
@@ -3462,10 +3516,10 @@ def sheffproj_delete_role():
 def student_participation_ticket():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idgroup = session["user"][0]
         idstudent = session["user"][1]
-        select_current_projects = db_sessions.execute(
+        select_current_projects = db_session.execute(
             select(Applications.IDprojects).distinct().filter(Applications.IDstudents == idstudent)
         ).all()
         cur_proj = [value[0] for value in select_current_projects]
@@ -3508,7 +3562,7 @@ def student_participation_ticket():
             .filter(Projects.IDprojects.notin_(cur_proj))
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         first_project = projects[0] if projects else None
         roles = []
         if first_project:
@@ -3525,11 +3579,12 @@ def student_participation_ticket():
                 )
                 .filter((Applications.IDstudents != idstudent) | (Applications.IDstudents == None))
             )
-            roles = db_sessions.execute(select_roles).all()
+            roles = db_session.execute(select_roles).all()
+        db_session.commit()
         return render_template("student_partic_tickets.html", projects=projects, roles=roles)
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idstudent = session["user"][1]
         idgroup = session["user"][0]
         project_filter = request.form["projectFilter"]
@@ -3592,7 +3647,8 @@ def student_participation_ticket():
             .where(where_sheffproj_filter)
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template("resultAccordionProjects.html", projects=projects)
 
 
@@ -3601,14 +3657,14 @@ def get_roles_projects():
     args = request.args
     idproject = args.get("idProject")
     select = get_select()
-    db_sessions = get_session()
+    db_session = get_session()
     select_roles = (
         select(RolesOfProjects.IDroles, RolesOfProjects.rolesRole, RolesOfProjects.rolesFunction)
         .join(PassportOfProjects)
         .join(Projects)
         .filter(Projects.IDprojects == idproject)
     )
-    roles = db_sessions.execute(select_roles).all()
+    roles = db_session.execute(select_roles).all()
     return jsonify([dict(row._mapping) for row in roles]), 200
 
 
@@ -3618,8 +3674,8 @@ def student_get_roles():
     idpassport = args.get("id")
     idstudent = session["user"][1]
     select = get_select()
-    db_sessions = get_session()
-    select_current_projects = db_sessions.execute(
+    db_session = get_session()
+    select_current_projects = db_session.execute(
         select(Applications.IDprojects).distinct().filter(Applications.IDstudents == idstudent)
     ).all()
     cur_proj = [value[0] for value in select_current_projects]
@@ -3630,13 +3686,13 @@ def student_get_roles():
         .filter((Applications.IDprojects.notin_(cur_proj)) | (Applications.IDprojects == None))
         .filter((Applications.IDstudents != idstudent) | (Applications.IDstudents == None))
     )
-    roles = db_sessions.execute(select_roles).all()
+    roles = db_session.execute(select_roles).all()
     return jsonify([dict(row._mapping) for row in roles]), 200
 
 
 @pages.route("/student/addTicket", methods=["POST"])
 def student_add_ticket():
-    db_sessions = get_session()
+    db_session = get_session()
     idproject = request.form["project"]
     idrole = request.form["role"]
     courseYear = session["user"][2]
@@ -3654,8 +3710,8 @@ def student_add_ticket():
         applicationsSigned="",
         applicationApproved=0,
     )
-    db_sessions.add(add_application)
-    db_sessions.commit()
+    db_session.add(add_application)
+    db_session.commit()
 
     return redirect("/student/participation_ticket")
 
@@ -3664,7 +3720,7 @@ def student_add_ticket():
 def student_tickets():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idstudent = session["user"][1]
         select_applications = (
             select(Applications, PassportOfProjects, RolesOfProjects, Confirmation)
@@ -3677,11 +3733,12 @@ def student_tickets():
             .filter(Applications.IDstudents == idstudent)
             .order_by(PassportOfProjects.passportName)
         )
-        applications = db_sessions.execute(select_applications).all()
+        applications = db_session.execute(select_applications).all()
+        db_session.commit()
         return render_template("student_tickets.html", applications=applications)
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idstudent = session["user"][1]
         role_filter = request.form.get("roleFilter")
         project_name_filter = request.form.get("projectNameFilter")
@@ -3713,26 +3770,27 @@ def student_tickets():
             .filter(where_role_filter)
             .order_by(PassportOfProjects.passportName)
         )
-        applications = db_sessions.execute(select_applications).all()
+        applications = db_session.execute(select_applications).all()
+        db_session.commit()
         return render_template("resultTableStudentTickets.html", applications=applications)
 
 
 @pages.route("/student/modifyApplication", methods=["POST"])
 def student_modify_application():
     if request.method == "POST":
-        db_sessions = get_session()
+        db_session = get_session()
         idapplication = request.form["application"]
         purpose = request.form["reason"]
 
         project = (
-            db_sessions.query(Applications)
+            db_session.query(Applications)
             .filter(Applications.IDapplications == idapplication)
             .first()
         )
 
         if str(purpose):
             project.applicationsPurpose = purpose
-        db_sessions.commit()
+        db_session.commit()
         return redirect("/student/tickets")
 
 
@@ -3741,7 +3799,7 @@ def send_application():
     args = request.args
     idapplication = args.get("idApplication")
 
-    db_sessions = get_session()
+    db_session = get_session()
     select = get_select()
 
     select = (
@@ -3754,7 +3812,7 @@ def send_application():
         .join(Groups)
         .filter(Applications.IDapplications == idapplication)
     )
-    record = db_sessions.execute(select).first()
+    record = db_session.execute(select).first()
     if not record:
         return
 
@@ -3790,7 +3848,7 @@ def send_application():
 def sheff_proj_tickets():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idsheff_proj = session["user"][0]
         select_applications = (
             select(
@@ -3825,10 +3883,11 @@ def sheff_proj_tickets():
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
             .filter(Applications.applicationApproved == 0)
         )
-        groups = db_sessions.execute(select(Groups))
-        projects = db_sessions.execute(select_projects).all()
-        applications = db_sessions.execute(select_applications).all()
-        levels = db_sessions.execute((select(Levels))).all()
+        groups = db_session.execute(select(Groups))
+        projects = db_session.execute(select_projects).all()
+        applications = db_session.execute(select_applications).all()
+        levels = db_session.execute((select(Levels))).all()
+        db_session.commit()
         return render_template(
             "sheff_proj_tickets.html",
             projects=projects,
@@ -3838,7 +3897,7 @@ def sheff_proj_tickets():
         )
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         fio_filter = request.form["projectFioFilter"]
         project_filter = request.form["projectNameFilter"]
         group_filter = request.form["groupFilter"]
@@ -3887,8 +3946,9 @@ def sheff_proj_tickets():
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
             .filter(Applications.applicationApproved == 0)
         )
-        projects = db_sessions.execute(select_projects).all()
-        applications = db_sessions.execute(select_applications).all()
+        projects = db_session.execute(select_projects).all()
+        applications = db_session.execute(select_applications).all()
+        db_session.commit()
         return render_template(
             "resultAccordionStudentTickets.html", projects=projects, tickets=applications
         )
@@ -3974,7 +4034,7 @@ def sheff_proj_decline_applications():
 def sheff_proj_approved_tickets():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idsheff_proj = session["user"][0]
         select_projects = (
             select(
@@ -3987,10 +4047,10 @@ def sheff_proj_approved_tickets():
             .join(PassportOfProjects)
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
         )
-        count_projects = db_sessions.execute(
+        count_projects = db_session.execute(
             count_records(select_projects), {"IDsheffpr_1": idsheff_proj}
         ).first()[0]
-        projects = db_sessions.execute(pagination(select_projects)).all()
+        projects = db_session.execute(pagination(select_projects)).all()
         projects_filter = [val[0] for val in projects]
         select_approved = (
             select(
@@ -4024,12 +4084,13 @@ def sheff_proj_approved_tickets():
             .filter(PassportOfProjects.IDpassport.in_(projects_filter))
             .order_by(PassportOfProjects.passportName)
         )
-        approved = db_sessions.execute(select_approved).all()
-        groups = db_sessions.execute(select(Groups))
-        projects = db_sessions.execute(select_projects).all()
-        levels = db_sessions.execute((select(Levels))).all()
+        approved = db_session.execute(select_approved).all()
+        groups = db_session.execute(select(Groups))
+        projects = db_session.execute(select_projects).all()
+        levels = db_session.execute((select(Levels))).all()
         is_null = len([val for val in approved if val.Confirmation]) == 0
         is_not_confirmed_null = len([val for val in approved if not val.Confirmation]) == 0
+        db_session.commit()
         return render_template(
             "sheff_proj_confirmed.html",
             projects=projects,
@@ -4043,7 +4104,7 @@ def sheff_proj_approved_tickets():
         )
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         fio_filter = request.form.get("projectFioFilter")
         project_filter = request.form.get("projectNameFilter")
         group_filter = request.form.get("groupFilter")
@@ -4107,8 +4168,9 @@ def sheff_proj_approved_tickets():
             .filter(where_group_filter)
             .order_by(PassportOfProjects.passportName)
         )
-        approved = db_sessions.execute(select_approved).all()
-        projects = db_sessions.execute(select_projects).all()
+        approved = db_session.execute(select_approved).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template(
             "resultAccordionStudentApprovedTickets.html",
             projects=projects,
@@ -4164,8 +4226,8 @@ def send_confirmation():
     args = request.args
     idconfirmation = args.get("idConfirmation")
 
-    db_sessions = get_session()
-    confirmed_ticket = db_sessions.execute(
+    db_session = get_session()
+    confirmed_ticket = db_session.execute(
         text(
             r"""SELECT
 	CONCAT_WS(' ', s.studentsFirstname, s.studentsName, s.studentsFathername) as fio,
@@ -4275,6 +4337,7 @@ def student_works():
         works = db_session.execute(select_works).all()
         stage = db_session.execute(select(StadiaOfWorks)).all()
 
+        db_session.commit()
         return render_template("student_works.html", projects=projects, works=works, stage=stage)
     if request.method == "POST":
         idstudent = session["user"][1]
@@ -4345,13 +4408,14 @@ def student_works():
             .filter(where_sheffproj_filter)
         )
         works = db_session.execute(select_works).all()
+        db_session.commit()
         return render_template("resultAccordionWorks.html", projects=projects, works=works)
 
 
 @pages.route("/student/mailAnotherStudents", methods=["GET", "POST"])
 def student_mail_students():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idstudent = session["user"][1]
 
@@ -4365,9 +4429,9 @@ def student_mail_students():
             .filter(StudentsInProjects.IDstudents == idstudent)
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idproj = projects[0][0] if projects else text("1=0")
-        students = db_sessions.execute(
+        students = db_session.execute(
             text(
                 """SELECT distinct
                 CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
@@ -4387,13 +4451,14 @@ def student_mail_students():
             {"idproj": idproj, "idstudents": idstudent},
         ).all()
 
+        db_session.commit()
         return render_template("students_mail_student.html", users=students, projects=projects)
 
 
 @pages.route("/student/mailIniciator", methods=["GET", "POST"])
 def student_mail_iniciator():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idstudent = session["user"][1]
         select_projects = (
@@ -4402,7 +4467,7 @@ def student_mail_iniciator():
             .join(StudentsInProjects)
             .filter(StudentsInProjects.IDstudents == idstudent)
         )
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         filter_inic = Initiatorsofprojects.IDinitpr == projects[0][0] if projects else text("1=0")
         select_iniciators = (
             select(
@@ -4415,14 +4480,15 @@ def student_mail_iniciator():
             .filter(filter_inic)
             .order_by(Initiatorsofprojects.FullName)
         )
-        iniciators = db_sessions.execute(select_iniciators).all()
+        iniciators = db_session.execute(select_iniciators).all()
+        db_session.commit()
         return render_template("students_mail_iniciator.html", users=iniciators, projects=projects)
 
 
 @pages.route("/shefforg/mailIniciator", methods=["GET", "POST"])
 def shefforg_mail_iniciator():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idorg = session["user"][0]
         select_iniciators = (
@@ -4436,14 +4502,15 @@ def shefforg_mail_iniciator():
             .filter(Initiatorsofprojects.IDorg == idorg)
             .order_by(Initiatorsofprojects.FullName)
         )
-        iniciators = db_sessions.execute(select_iniciators).all()
+        iniciators = db_session.execute(select_iniciators).all()
+        db_session.commit()
         return render_template("students_mail_iniciator.html", users=iniciators)
 
 
 @pages.route("/student/mailSheffPr", methods=["GET", "POST"])
 def student_mail_sheff_proj():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         idstudent = session["user"][1]
         select = get_select()
         select_projects = (
@@ -4456,10 +4523,10 @@ def student_mail_sheff_proj():
             .filter(StudentsInProjects.IDstudents == idstudent)
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idproj = projects[0][0] if projects else text("1=0")
 
-        students = db_sessions.execute(
+        students = db_session.execute(
             text(
                 """SELECT distinct
         CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
@@ -4475,13 +4542,14 @@ def student_mail_sheff_proj():
             {"idproj": idproj},
         ).all()
 
+        db_session.commit()
         return render_template("students_mail_sheffpr.html", users=students, projects=projects)
 
 
 @pages.route("/sheffproj/mailAnotherStudents", methods=["GET", "POST"])
 def sheffproj_mail_students():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idsheff_proj = session["user"][0]
 
@@ -4494,10 +4562,10 @@ def sheffproj_mail_students():
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idproj = projects[0][0] if projects else text("1=0")
 
-        students = db_sessions.execute(
+        students = db_session.execute(
             text(
                 """SELECT distinct
         CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
@@ -4515,13 +4583,14 @@ def sheffproj_mail_students():
             {"idsheffproj": idsheff_proj, "idproj": idproj},
         ).all()
 
+        db_session.commit()
         return render_template("students_mail_student.html", users=students, projects=projects)
 
 
 @pages.route("/sheffproj/mailIniciator", methods=["GET", "POST"])
 def sheffproj_mail_iniciator():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idsheff_proj = session["user"][0]
 
@@ -4534,10 +4603,10 @@ def sheffproj_mail_iniciator():
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idinic = projects[0][0] if projects else text("1=0")
 
-        iniciators = db_sessions.execute(
+        iniciators = db_session.execute(
             text(
                 """SELECT distinct
             i.initprEmail,
@@ -4551,13 +4620,14 @@ def sheffproj_mail_iniciator():
             ),
             {"idinic": idinic},
         ).all()
+        db_session.commit()
         return render_template("students_mail_iniciator.html", users=iniciators, projects=projects)
 
 
 @pages.route("/iniciators/mailAnotherStudents", methods=["GET", "POST"])
 def iniciator_mail_students():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idiniciator = session["user"][1]
 
@@ -4571,9 +4641,9 @@ def iniciator_mail_students():
             .filter(Initiatorsofprojects.IDinitpr == idiniciator)
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idproj = projects[0][0] if projects else text("1=0")
-        students = db_sessions.execute(
+        students = db_session.execute(
             text(
                 """SELECT distinct CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
 		s3.studentsEmail,
@@ -4589,13 +4659,14 @@ WHERE 	p.idprojects = :idproj"""
             {"idproj": idproj},
         ).all()
 
+        db_session.commit()
         return render_template("students_mail_student.html", users=students, projects=projects)
 
 
 @pages.route("/iniciators/mailSheffPr", methods=["GET", "POST"])
 def iniciator_mail_sheff_proj():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idiniciator = session["user"][1]
         select_projects = (
@@ -4608,10 +4679,10 @@ def iniciator_mail_sheff_proj():
             .filter(Initiatorsofprojects.IDinitpr == idiniciator)
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idproj = projects[0][0] if projects else text("1=0")
 
-        students = db_sessions.execute(
+        students = db_session.execute(
             text(
                 """SELECT distinct
 	CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
@@ -4629,13 +4700,14 @@ WHERE 	p.idprojects = :idproj"""
             {"idproj": idproj},
         ).all()
 
+        db_session.commit()
         return render_template("students_mail_sheffpr.html", users=students, projects=projects)
 
 
 @pages.route("/shefforg/mailAnotherStudents", methods=["GET", "POST"])
 def shefforg_mail_students():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = session["user"][0]
         select = get_select()
         select_projects = (
@@ -4648,10 +4720,10 @@ def shefforg_mail_students():
             .filter(Initiatorsofprojects.IDorg == idorg)
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idproj = projects[0][0] if projects else text("1=0")
 
-        students = db_sessions.execute(
+        students = db_session.execute(
             text(
                 """SELECT distinct
                 CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
@@ -4668,13 +4740,14 @@ def shefforg_mail_students():
             {"idproj": idproj},
         ).all()
 
+        db_session.commit()
         return render_template("students_mail_student.html", users=students, projects=projects)
 
 
 @pages.route("/shefforg/mailSheffPr", methods=["GET", "POST"])
 def shefforg_mail_sheff_proj():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         idorg = session["user"][0]
 
@@ -4688,10 +4761,10 @@ def shefforg_mail_sheff_proj():
             .filter(Initiatorsofprojects.IDorg == idorg)
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idproj = projects[0][0] if projects else text("1=0")
 
-        students = db_sessions.execute(
+        students = db_session.execute(
             text(
                 """SELECT distinct
             CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
@@ -4707,6 +4780,7 @@ def shefforg_mail_sheff_proj():
             {"idproj": idproj},
         ).all()
 
+        db_session.commit()
         return render_template("students_mail_sheffpr.html", users=students, projects=projects)
 
 
@@ -4719,17 +4793,18 @@ def upload_work_student():
 
     file_path = path.join("documents", upload_file.filename)
 
-    db_sessions = get_session()
+    db_session = get_session()
     record = (
-        db_sessions.query(StudentsInProjects)
+        db_session.query(StudentsInProjects)
         .filter(StudentsInProjects.IDstudentspr == id_work)
         .first()
     )
     record.studentsinprFull = file_path
-    db_sessions.commit()
+    db_session.commit()
 
     upload_file.save(file_path)
 
+    db_session.commit()
     return render_template(
         "works_template.html", idstud=record.IDstudentspr, signed=record.studentsinprFull
     )
@@ -4741,14 +4816,15 @@ def delete_work_student():
     if not id_work:
         return
 
-    db_sessions = get_session()
+    db_session = get_session()
     record = (
-        db_sessions.query(StudentsInProjects)
+        db_session.query(StudentsInProjects)
         .filter(StudentsInProjects.IDstudentspr == id_work)
         .first()
     )
     record.studentsinprFull = None
-    db_sessions.commit()
+    db_session.commit()
+    db_session.commit()
     return render_template(
         "works_template.html", idstud=record.IDstudentspr, signed=record.studentsinprFull
     )
@@ -4759,9 +4835,9 @@ def get_work_student():
     args = request.args
     idwork = args.get("idwork")
 
-    db_sessions = get_session()
+    db_session = get_session()
     work = (
-        db_sessions.query(StudentsInProjects)
+        db_session.query(StudentsInProjects)
         .filter(StudentsInProjects.IDstudentspr == idwork)
         .first()
     )
@@ -4810,17 +4886,18 @@ def upload_confirmation_signed():
 
     file_path = path.join("documents", upload_file.filename)
 
-    db_sessions = get_session()
+    db_session = get_session()
     confirmation = (
-        db_sessions.query(Confirmation)
+        db_session.query(Confirmation)
         .filter(Confirmation.IDconfirmation == id_confirmation)
         .first()
     )
     confirmation.confirmationSigned = file_path
-    db_sessions.commit()
+    db_session.commit()
 
     upload_file.save(file_path)
 
+    db_session.commit()
     return render_template(
         "confirmed_template.html",
         idconfirm=confirmation.IDconfirmation,
@@ -4834,14 +4911,15 @@ def delete_confirmation_signed():
     if not idconfirmation:
         return
 
-    db_sessions = get_session()
+    db_session = get_session()
     confirmation = (
-        db_sessions.query(Confirmation)
+        db_session.query(Confirmation)
         .filter(Confirmation.IDconfirmation == idconfirmation)
         .first()
     )
     confirmation.confirmationSigned = None
-    db_sessions.commit()
+    db_session.commit()
+    db_session.commit()
     return render_template(
         "confirmed_template.html",
         idconfirm=confirmation.IDconfirmation,
@@ -4862,7 +4940,6 @@ def iniciators_works():
             .join(PassportOfProjects)
             .filter(PassportOfProjects.IDinitpr == idiniciator)
         )
-        projects = db_session.execute(select_projects).all()
         select_works = (
             select(
                 StudentsInProjects,
@@ -4887,10 +4964,15 @@ def iniciators_works():
             .join(RolesOfProjects, RolesOfProjects.IDroles == StudentsInProjects.IDroles)
             .filter(PassportOfProjects.IDinitpr == idiniciator)
         )
+        projects = db_session.execute(pagination(select_projects)).all()
+        count_projects = db_session.execute(count_records(select_projects, Projects.IDprojects)).scalar_one()
         works = db_session.execute(select_works).all()
         status = db_session.execute(select(StadiaOfWorks)).all()
+        db_session.commit()
         return render_template(
-            "iniciators_works.html", projects=projects, works=works, status=status
+            "iniciators_works.html", projects=projects, works=works, status=status, count=count_projects,
+            page=0,
+            function="applyInicWorkFilters",
         )
     if request.method == "POST":
         idiniciator = session["user"][1]
@@ -4900,6 +4982,7 @@ def iniciators_works():
         project_filter = request.form.get("projectFilter")
         role_filter = request.form.get("roleFilter")
         status_filter = request.form.get("statusFilter")
+        page = (request.form.get("page") and int(request.form.get("page"))) or 0
         where_status_filter = (
             StudentsInProjects.IDstadiaofworks == status_filter if status_filter else text("1=1")
         )
@@ -4927,7 +5010,6 @@ def iniciators_works():
             .filter(where_fio_filter)
             .filter(where_status_filter)
         )
-        projects = db_session.execute(select_projects).all()
         select_works = (
             select(
                 StudentsInProjects,
@@ -4956,9 +5038,13 @@ def iniciators_works():
             .filter(where_role_filter)
             .filter(where_status_filter)
         )
+        projects = db_session.execute(pagination(select_projects, page)).all()
+        count_projects = db_session.execute(count_records(select_projects, Projects.IDprojects)).scalar_one()
         works = db_session.execute(select_works).all()
 
-        return render_template("resultAccordionWorks.html", projects=projects, works=works)
+        db_session.commit()
+        return render_template("resultAccordionWorks.html", projects=projects, works=works, count=count_projects,
+            page=page, function="applyInicWorkFilters",)
 
 
 @pages.route("/shefforg/works", methods=["GET", "POST"])
@@ -5002,6 +5088,7 @@ def sheff_org_works():
         )
         works = db_session.execute(select_works).all()
         stadia = db_session.execute(select(StadiaOfWorks))
+        db_session.commit()
         return render_template(
             "sheff_org_works.html", projects=projects, works=works, stadia=stadia
         )
@@ -5074,6 +5161,7 @@ def sheff_org_works():
             .filter(where_fio_filter)
         )
         works = db_session.execute(select_works).all()
+        db_session.commit()
         return render_template("resultAccordionWorks.html", projects=projects, works=works)
 
 
@@ -5114,6 +5202,7 @@ def upload_project_result():
 
     upload_file.save(file_path)
 
+    db_session.commit()
     return render_template(
         "result_template.html",
         idproj=record.IDprojects,
@@ -5129,10 +5218,11 @@ def delete_project_result():
     if not idproject:
         return
 
-    db_sessions = get_session()
-    record = db_sessions.query(Projects).filter(Projects.IDprojects == idproject).first()
+    db_session = get_session()
+    record = db_session.query(Projects).filter(Projects.IDprojects == idproject).first()
     record.projectsFull = None
-    db_sessions.commit()
+    db_session.commit()
+    db_session.commit()
     return render_template(
         "result_template.html",
         idproj=record.IDprojects,
@@ -5145,7 +5235,7 @@ def delete_project_result():
 def sheff_org_members():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idorg = session["user"][0]
         select_projects = (
             select(
@@ -5195,11 +5285,12 @@ def sheff_org_members():
             .filter(Initiatorsofprojects.IDorg == idorg)
             .order_by(PassportOfProjects.passportName)
         )
-        groups = db_sessions.execute(select(Groups))
-        approved = db_sessions.execute(select_confirmation).all()
-        projects = db_sessions.execute(select_projects).all()
-        levels = db_sessions.execute((select(Levels))).all()
-        status = db_sessions.execute(select(StadiaOfWorks)).all()
+        groups = db_session.execute(select(Groups))
+        approved = db_session.execute(select_confirmation).all()
+        projects = db_session.execute(select_projects).all()
+        levels = db_session.execute((select(Levels))).all()
+        status = db_session.execute(select(StadiaOfWorks)).all()
+        db_session.commit()
         return render_template(
             "sheff_org_members.html",
             projects=projects,
@@ -5210,7 +5301,7 @@ def sheff_org_members():
         )
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         fio_filter = request.form.get("projectFioFilter")
         project_filter = request.form.get("projectNameFilter")
         group_filter = request.form.get("groupFilter")
@@ -5291,8 +5382,9 @@ def sheff_org_members():
             .filter(where_role_filter)
             .order_by(PassportOfProjects.passportName)
         )
-        approved = db_sessions.execute(select_confirmation).all()
-        projects = db_sessions.execute(select_projects).all()
+        approved = db_session.execute(select_confirmation).all()
+        projects = db_session.execute(select_projects).all()
+        db_session.commit()
         return render_template(
             "resultAccordionStudentApprovedTickets.html",
             projects=projects,
@@ -5304,7 +5396,7 @@ def sheff_org_members():
 def iniciators_members():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idiniciator = session["user"][1]
         select_projects = (
             select(
@@ -5349,11 +5441,13 @@ def iniciators_members():
             .filter(PassportOfProjects.IDinitpr == idiniciator)
             .order_by(PassportOfProjects.passportName)
         )
-        confirmations = db_sessions.execute(select_confirmation).all()
-        projects = db_sessions.execute(select_projects).all()
-        levels = db_sessions.execute((select(Levels))).all()
-        status = db_sessions.execute(select(StadiaOfWorks)).all()
-        groups = db_sessions.execute(select(Groups)).all()
+        count_projects = db_session.execute(count_records(select_projects, Projects.IDprojects)).scalar_one()
+        confirmations = db_session.execute(select_confirmation).all()
+        projects = db_session.execute(pagination(select_projects)).all()
+        levels = db_session.execute((select(Levels))).all()
+        status = db_session.execute(select(StadiaOfWorks)).all()
+        groups = db_session.execute(select(Groups)).all()
+        db_session.commit()
         return render_template(
             "iniciators_members.html",
             projects=projects,
@@ -5361,15 +5455,19 @@ def iniciators_members():
             levels=levels,
             status=status,
             groups=groups,
+            count=count_projects,
+            page=0,
+            function="applyMemFilters",
         )
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         fio_filter = request.form.get("projectFioFilter")
         project_filter = request.form.get("projectNameFilter")
         status_filter = request.form.get("statusFilter")
         group_filter = request.form.get("groupFilter")
         role_filter = request.form.get("roleFilter")
+        page = (request.form.get("page") and int(request.form.get("page"))) or 0
         where_group_filter = Students.IDgroups == group_filter if group_filter else text("1=1")
         where_role_filter = (
             RolesOfProjects.rolesRole.ilike("%" + role_filter + "%") if role_filter else text("1=1")
@@ -5441,12 +5539,17 @@ def iniciators_members():
             .filter(PassportOfProjects.IDinitpr == idiniciator)
             .order_by(PassportOfProjects.passportName)
         )
-        confirmations = db_sessions.execute(select_confirmation).all()
-        projects = db_sessions.execute(select_projects).all()
+        confirmations = db_session.execute(select_confirmation).all()
+        count_projects = db_session.execute(count_records(select_projects, Projects.IDprojects)).scalar_one()
+        projects = db_session.execute(pagination(select_projects, page)).all()
+        db_session.commit()
         return render_template(
             "resultAccordionStudentApprovedTickets.html",
             projects=projects,
             approved=confirmations,
+            count=count_projects,
+            page=0,
+            function="applyMemFilters"
         )
 
 
@@ -5454,7 +5557,7 @@ def iniciators_members():
 def student_members():
     if request.method == "GET":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         idstudent = session["user"][1]
         select_projects = (
             select(
@@ -5498,11 +5601,12 @@ def student_members():
             .filter(Students.IDstudents != idstudent)
             .order_by(PassportOfProjects.passportName)
         )
-        confirmations = db_sessions.execute(select_confirmation).all()
-        projects = db_sessions.execute(select_projects).all()
-        levels = db_sessions.execute((select(Levels))).all()
-        groups = db_sessions.execute(select(Groups)).all()
-        status = db_sessions.execute(select(StadiaOfWorks)).all()
+        confirmations = db_session.execute(select_confirmation).all()
+        projects = db_session.execute(select_projects).all()
+        levels = db_session.execute((select(Levels))).all()
+        groups = db_session.execute(select(Groups)).all()
+        status = db_session.execute(select(StadiaOfWorks)).all()
+        db_session.commit()
         return render_template(
             "students_members.html",
             projects=projects,
@@ -5513,7 +5617,7 @@ def student_members():
         )
     if request.method == "POST":
         select = get_select()
-        db_sessions = get_session()
+        db_session = get_session()
         fio_filter = request.form.get("projectFioFilter")
         project_filter = request.form.get("projectNameFilter")
         group_filter = request.form.get("groupFilter")
@@ -5583,8 +5687,9 @@ def student_members():
             .filter(where_napr_filter)
             .order_by(PassportOfProjects.passportName)
         )
-        projects = db_sessions.execute(select_projects).all()
-        confirmations = db_sessions.execute(select_confirmation).all()
+        projects = db_session.execute(select_projects).all()
+        confirmations = db_session.execute(select_confirmation).all()
+        db_session.commit()
         return render_template(
             "resultAccordionStudentApprovedTickets.html",
             projects=projects,
@@ -5595,7 +5700,7 @@ def student_members():
 @pages.route("/admin/mailAnotherStudents", methods=["GET"])
 def admin_mail_students():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         select_projects = (
             select(Projects.IDprojects, PassportOfProjects.passportName)
@@ -5605,9 +5710,9 @@ def admin_mail_students():
             )
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idproj = projects[0][0] if projects else text("1=0")
-        students = db_sessions.execute(
+        students = db_session.execute(
             text(
                 """SELECT distinct
                 CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
@@ -5624,13 +5729,14 @@ def admin_mail_students():
             {"idproj": idproj},
         ).all()
 
+        db_session.commit()
         return render_template("students_mail_student.html", users=students, projects=projects)
 
 
 @pages.route("/admin/mailSheffPr", methods=["GET"])
 def admin_mail_sheff_proj():
     if request.method == "GET":
-        db_sessions = get_session()
+        db_session = get_session()
         select = get_select()
         select_projects = (
             select(Projects.IDprojects, PassportOfProjects.passportName)
@@ -5640,9 +5746,9 @@ def admin_mail_sheff_proj():
             )
         )
 
-        projects = db_sessions.execute(select_projects).all()
+        projects = db_session.execute(select_projects).all()
         idproj = projects[0][0] if projects else text("1=0")
-        students = db_sessions.execute(
+        students = db_session.execute(
             text(
                 """SELECT distinct
         CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),
@@ -5658,14 +5764,15 @@ def admin_mail_sheff_proj():
             {"idproj": idproj},
         ).all()
 
+        db_session.commit()
         return render_template("students_mail_sheffpr.html", users=students, projects=projects)
 
 
 @pages.route("/getStudentsMail", methods=["GET"])
 def get_student_mail():
     idproj = request.args.get("idProject")
-    db_sessions = get_session()
-    students = db_sessions.execute(
+    db_session = get_session()
+    students = db_session.execute(
         text(
             """SELECT distinct
                 CONCAT_WS(' ',s3.studentsFirstname, s3.studentsName, s3.studentsFathername),
@@ -5688,8 +5795,8 @@ def get_student_mail():
 @pages.route("/getSheffProjMail", methods=["GET"])
 def get_sheff_proj_mail():
     idproj = request.args.get("idProject")
-    db_sessions = get_session()
-    students = db_sessions.execute(
+    db_session = get_session()
+    students = db_session.execute(
         text(
             """SELECT distinct
         CONCAT_WS(' ', s2.sheffprFirstname, s2.sheffprName, s2.sheffprFathername),

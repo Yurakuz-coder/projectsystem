@@ -42,30 +42,38 @@ function deleteWork(id) {
   });
 }
 
-function applyInicWorkFilters() {
+function applyInicWorkFilters(page) {
   const fioFilter = document.getElementById("fioFilter")?.value;
   const projectFilter = document.getElementById("projectFilter")?.value;
   const roleFilter = document.getElementById("roleFilter")?.value;
   const statusFilter = document.getElementById("status")?.value;
 
-
-  if (!projectFilter && !fioFilter && !roleFilter && !statusFilter) {
+  if (page == undefined && !projectFilter && !fioFilter && !roleFilter && !statusFilter) {
     return;
   }
-  getDataInicWorkProject(projectFilter, fioFilter, roleFilter, statusFilter);
+  getDataInicWorkProject(page, projectFilter, fioFilter, roleFilter, statusFilter);
 }
 
-function dropInicWorkFilters() {
-  getDataInicWorkProject(null, null, null, null);
+function dropInicWorkFilter() {
+  const fioFilter = document.getElementById("fioFilter");
+  const projectFilter = document.getElementById("projectFilter");
+  const roleFilter = document.getElementById("roleFilter");
+  const statusFilter = document.getElementById("status");
+  fioFilter && (fioFilter.value = "")
+  projectFilter && (projectFilter.value = "")
+  roleFilter && (roleFilter.value = "")
+  statusFilter && (statusFilter.value = "")
+
+  getDataInicWorkProject(null, null, null, null, null);
 }
 
-function getDataInicWorkProject(projectFilter, fioFilter, roleFilter, statusFilter) {
+function getDataInicWorkProject(page, projectFilter, fioFilter, roleFilter, statusFilter) {
   const url = window.location.pathname.split('/')[1]
   $.ajax({
     type: "POST",
     url: "/" + url + "/works",
     dataSrc: "data",
-    data: { projectFilter, fioFilter, roleFilter, statusFilter },
+    data: { page, projectFilter, fioFilter, roleFilter, statusFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;

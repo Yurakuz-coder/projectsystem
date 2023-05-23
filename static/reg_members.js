@@ -105,7 +105,7 @@ function getDataRoles(
   });
 }
 
-function applyMemFilters() {
+function applyMemFilters(page) {
   const projectFioFilter = document.getElementById("projectFioFilter")?.value;
   const projectNameFilter = document.getElementById("projectNameFilter")?.value;
   const groupFilter = document.getElementById("grname")?.value;
@@ -113,25 +113,37 @@ function applyMemFilters() {
   const naprFilter = document.getElementById("naprFilter")?.value;
   const statusFilter = document.getElementById('status')?.value;
 
-  if (!groupFilter && !roleFilter && !projectFioFilter && !projectNameFilter && !naprFilter && !statusFilter) {
+  if (page == undefined && !groupFilter && !roleFilter && !projectFioFilter && !projectNameFilter && !naprFilter && !statusFilter) {
     return;
   }
-  getDataMem(roleFilter, groupFilter, projectFioFilter, projectNameFilter, naprFilter, statusFilter);
+  getDataMem(page, roleFilter, groupFilter, projectFioFilter, projectNameFilter, naprFilter, statusFilter);
 }
 
 function dropMemFilter() {
-  getDataMem(null, null, null, null, null, null);
+  const projectFioFilter = document.getElementById("projectFioFilter");
+  const projectNameFilter = document.getElementById("projectNameFilter");
+  const groupFilter = document.getElementById("grname");
+  const roleFilter = document.getElementById("roleFilter");
+  const naprFilter = document.getElementById("naprFilter");
+  const statusFilter = document.getElementById('status');
+  projectFioFilter && (projectFioFilter.value = "")
+  projectNameFilter && (projectNameFilter.value = "")
+  groupFilter && (groupFilter.value = "")
+  roleFilter && (roleFilter.value = "")
+  naprFilter && (naprFilter.value = "")
+  statusFilter && (statusFilter.value = "")
+  getDataMem(null, null, null, null, null, null, null);
 }
 
 function getDataMem(
-  roleFilter, groupFilter, projectFioFilter, projectNameFilter, naprFilter, statusFilter
+  page, roleFilter, groupFilter, projectFioFilter, projectNameFilter, naprFilter, statusFilter
 ) {
   const url = window.location.pathname.split("/")[1];
   $.ajax({
     type: "POST",
     url: "/" + url + "/members",
     dataSrc: "data",
-    data: { roleFilter, groupFilter, projectFioFilter, projectNameFilter, naprFilter, statusFilter },
+    data: { page, roleFilter, groupFilter, projectFioFilter, projectNameFilter, naprFilter, statusFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
