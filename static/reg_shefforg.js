@@ -1,6 +1,6 @@
 function applyFilters(page) {
-  const fioFilter = document.getElementById("fioFilter").value;
-  const orgFilter = document.getElementById("orgFilter").value;
+  const fioFilter = document.getElementById("fioFilter")?.value;
+  const orgFilter = document.getElementById("orgFilter")?.value;
   if (page == undefined && !fioFilter && !orgFilter) {
     return;
   }

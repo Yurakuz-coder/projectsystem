@@ -1,5 +1,5 @@
 function applyGroupsMembers() {
-  const group = document.getElementById("group").value;
+  const group = document.getElementById("group")?.value;
   if (!group) {
     return;
   }
@@ -30,7 +30,7 @@ window.onload = function () {
 };
 
 function onLoadStudents(op) {
-  const idGroup = document.getElementById(op + 'Group').value
+  const idGroup = document.getElementById(op + 'Group')?.value
   getStudentsGroup(idGroup, op)
 }
 

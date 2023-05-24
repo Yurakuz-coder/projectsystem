@@ -1,6 +1,6 @@
 function applySpecFilters() {
-  const shifrFilters = document.getElementById("shifrFilter").value;
-  const naprFilters = document.getElementById("napravFilter").value;
+  const shifrFilters = document.getElementById("shifrFilter")?.value;
+  const naprFilters = document.getElementById("napravFilter")?.value;
   if (!shifrFilters && !naprFilters) {
     return;
   }

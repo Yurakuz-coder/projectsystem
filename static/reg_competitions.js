@@ -1,5 +1,5 @@
 function applySpec() {
-  const spec = document.getElementById("spec").value;
+  const spec = document.getElementById("spec")?.value;
   console.log(spec);
   if (!spec) {
     return;
@@ -8,9 +8,9 @@ function applySpec() {
 }
 
 function applyCompFilters() {
-  const shifrFilter = document.getElementById("shifr").value;
-  const fullFilter = document.getElementById("full").value;
-  const spec = document.getElementById("spec").value;
+  const shifrFilter = document.getElementById("shifr")?.value;
+  const fullFilter = document.getElementById("full")?.value;
+  const spec = document.getElementById("spec")?.value;
 
   if (!shifrFilter && !fullFilter && !spec) {
     return;
@@ -19,7 +19,7 @@ function applyCompFilters() {
 }
 
 function dropCompFilters() {
-  const spec = document.getElementById("spec").value;
+  const spec = document.getElementById("spec")?.value;
   getDataComp(spec);
 }
 

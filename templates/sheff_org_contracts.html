@@ -3,36 +3,13 @@
 {% block content %}
 <h1>Договоры об организации проектного обучения</h1>
 <br>
+<a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseTableBody" role="button" aria-expanded="false"
+  aria-controls="collapseTableBody">
+  Отобразить данные
+</a>
 <div class="table-responsive">
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        <th scope="col">
-          Наименование организации
-        </th>
-        <th scope="col">
-          Юридический адрес
-        </th>
-        <th scope="col">
-          Номер договора
-        </th>
-        <th scope="col">
-          Дата заключения договора
-        </th>
-        <th scope="col">
-          Срок действия договора
-        </th>
-        <th scope="col">
-          Электронная версия договора
-        </th>
-        <th scope="col">
-          Подписанная версия договора
-        </th>
-      </tr>
-    </thead>
-    <tbody id="collapseTableBody">
-      {% include "resultTableContracts.html" %}
-    </tbody>
+  <table class="table table-hover" id="resultTable">
+    {% include "resultTableContracts.html" %}
   </table>
 </div>
 {% endblock content %}

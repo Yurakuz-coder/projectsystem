@@ -1,6 +1,6 @@
 function applyInicFilters() {
-  const fioFilter = document.getElementById("fioFilter").value;
-  const posFilter = document.getElementById("posFilter").value;
+  const fioFilter = document.getElementById("fioFilter")?.value;
+  const posFilter = document.getElementById("posFilter")?.value;
   if (!fioFilter && !posFilter) {
     return;
   }

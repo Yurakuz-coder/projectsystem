@@ -1,10 +1,10 @@
 function applyContractsFilters(page) {
   const dateContractFilter =
-    document.getElementById("dateContractFilter").value;
-  const orgFilters = document.getElementById("orgFilter").value;
+    document.getElementById("dateContractFilter")?.value;
+  const orgFilters = document.getElementById("orgFilter")?.value;
   const numberContractFilter = document.getElementById(
     "numberContractFilter"
-  ).value;
+  )?.value;
   if (page == undefined && !dateContractFilter && !orgFilters && !numberContractFilter) {
     return;
   }

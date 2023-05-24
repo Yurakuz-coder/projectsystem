@@ -1,23 +1,29 @@
-function applyStudTicketsFilters() {
-  const projectFioFilter = document.getElementById("projectFioFilter").value;
-  const projectNameFilter = document.getElementById("projectNameFilter").value;
-  const groupFilter = document.getElementById("grname").value;
-  if (!projectFioFilter && !projectNameFilter && !groupFilter) {
+function applyStudTicketsFilters(page) {
+  const projectFioFilter = document.getElementById("projectFioFilter")?.value;
+  const projectNameFilter = document.getElementById("projectNameFilter")?.value;
+  const groupFilter = document.getElementById("grname")?.value;
+  if (page == undefined && !projectFioFilter && !projectNameFilter && !groupFilter) {
     return;
   }
-  getStudTicketsData(projectFioFilter, projectNameFilter, groupFilter);
+  getStudTicketsData(page, projectFioFilter, projectNameFilter, groupFilter);
 }
 
 function dropStudTicketsFilter() {
-  getStudTicketsData(null, null, null);
+  const projectFioFilter = document.getElementById("projectFioFilter");
+  const projectNameFilter = document.getElementById("projectNameFilter");
+  const groupFilter = document.getElementById("grname");
+  projectFioFilter && (projectFioFilter.value = "")
+  projectNameFilter && (projectNameFilter.value = "")
+  groupFilter && (groupFilter.value = "")
+  getStudTicketsData(null, null, null, null);
 }
 
-function getStudTicketsData(projectFioFilter, projectNameFilter, groupFilter) {
+function getStudTicketsData(page, projectFioFilter, projectNameFilter, groupFilter) {
   $.ajax({
     type: "POST",
     url: "/sheffproj/tickets",
     dataSrc: "data",
-    data: { projectFioFilter, projectNameFilter, groupFilter },
+    data: { page, projectFioFilter, projectNameFilter, groupFilter },
     success: function (data) {
       const accordion = document.getElementById("projectsAccordion");
       accordion.innerHTML = data;
@@ -29,9 +35,9 @@ function getStudTicketsData(projectFioFilter, projectNameFilter, groupFilter) {
 }
 
 function applyStudApprovedTicketsFilters(page) {
-  const projectFioFilter = document.getElementById("projectFioFilter").value;
-  const projectNameFilter = document.getElementById("projectNameFilter").value;
-  const groupFilter = document.getElementById("grname").value;
+  const projectFioFilter = document.getElementById("projectFioFilter")?.value;
+  const projectNameFilter = document.getElementById("projectNameFilter")?.value;
+  const groupFilter = document.getElementById("grname")?.value;
   if (page == undefined && !projectFioFilter && !projectNameFilter && !groupFilter) {
     return;
   }

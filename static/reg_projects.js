@@ -170,9 +170,9 @@ function deleteResultFile(id) {
 }
 
 function applyAssignProjectFilters(page) {
-  const projectFilter = document.getElementById("projectFilter").value;
-  const fioInitFilter = document.getElementById("fioInitFilter").value;
-  const orgFilter = document.getElementById("orgFilter").value;
+  const projectFilter = document.getElementById("projectFilter")?.value;
+  const fioInitFilter = document.getElementById("fioInitFilter")?.value;
+  const orgFilter = document.getElementById("orgFilter")?.value;
 
   if (page == undefined && !projectFilter && !fioInitFilter && !orgFilter) {
     return;

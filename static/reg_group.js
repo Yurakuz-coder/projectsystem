@@ -1,8 +1,8 @@
 function applyGroupFilters() {
-  const formEducation = document.getElementById("formEducation").value;
-  const directStudy = document.getElementById("directStudy").value;
-  const yearStudy = document.getElementById("yearStudy").value;
-  const nameGroup = document.getElementById("nameGroup").value;
+  const formEducation = document.getElementById("formEducation")?.value;
+  const directStudy = document.getElementById("directStudy")?.value;
+  const yearStudy = document.getElementById("yearStudy")?.value;
+  const nameGroup = document.getElementById("nameGroup")?.value;
   if (!formEducation && !directStudy && !yearStudy && !nameGroup) {
     return;
   }

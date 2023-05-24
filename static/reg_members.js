@@ -1,9 +1,9 @@
 function applyMembersFilters(page) {
-  const projectFioFilter = document.getElementById("projectFioFilter").value;
-  const projectRoleFilter = document.getElementById("projectRoleFilter").value;
-  const projectNaprFilter = document.getElementById("projectNaprFilter").value;
-  const groupFilter = document.getElementById("grname").value;
-  const statusFilter = document.getElementById("status").value;
+  const projectFioFilter = document.getElementById("projectFioFilter")?.value;
+  const projectRoleFilter = document.getElementById("projectRoleFilter")?.value;
+  const projectNaprFilter = document.getElementById("projectNaprFilter")?.value;
+  const groupFilter = document.getElementById("grname")?.value;
+  const statusFilter = document.getElementById("status")?.value;
 
   if (page == undefined && !statusFilter && !projectFioFilter && !projectRoleFilter && !projectNaprFilter && !groupFilter) {
     return;
@@ -82,9 +82,9 @@ function getCompetitionsSpec(id, operation) {
 }
 
 function applyRolesFilters(page) {
-  const projectFilter = document.getElementById("projectFilter").value;
-  const opopFilter = document.getElementById("opopFilter").value;
-  const projectRoleFilter = document.getElementById("projectRoleFilter").value;
+  const projectFilter = document.getElementById("projectFilter")?.value;
+  const opopFilter = document.getElementById("opopFilter")?.value;
+  const projectRoleFilter = document.getElementById("projectRoleFilter")?.value;
 
   if (page == undefined && !projectFilter && !projectRoleFilter && !opopFilter) {
     return;

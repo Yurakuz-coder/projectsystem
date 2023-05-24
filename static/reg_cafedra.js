@@ -1,6 +1,6 @@
 function applyCafedraFilters() {
-  const cafedraFIO = document.getElementById("cafedraFIO").value;
-  const cafedraPos = document.getElementById("cafedraPos").value;
+  const cafedraFIO = document.getElementById("cafedraFIO")?.value;
+  const cafedraPos = document.getElementById("cafedraPos")?.value;
   if (!cafedraFIO && !cafedraPos) {
     return;
   }

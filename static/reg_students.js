@@ -1,6 +1,6 @@
 function applyStudentWorksFilter(page) {
-  const projectFilter = document.getElementById("projectFilter").value;
-  const stageFilter = document.getElementById("stageFilter").value;
+  const projectFilter = document.getElementById("projectFilter")?.value;
+  const stageFilter = document.getElementById("stageFilter")?.value;
   const inicFilter = document.getElementById("inicFilter")?.value;
   const sheffProjFilter = document.getElementById("sheffProjFilter")?.value;
   const roleFilter = document.getElementById("roleFilter")?.value;
@@ -42,8 +42,8 @@ function getDataStudentsWorks(page, sheffProjFilter, roleFilter, inicFilter, sta
 }
 
 function applyStudentsFilters() {
-  const fio = document.getElementById("fio").value;
-  const grname = document.getElementById("grname").value;
+  const fio = document.getElementById("fio")?.value;
+  const grname = document.getElementById("grname")?.value;
   if (!fio && !grname) {
     return;
   }
@@ -124,8 +124,8 @@ function getStudentsGroup(idGroup, op) {
 }
 
 function applyTicketFilters() {
-  const roleFilter = document.getElementById("roleFilter").value;
-  const projectNameFilter = document.getElementById("projectNameFilter").value;
+  const roleFilter = document.getElementById("roleFilter")?.value;
+  const projectNameFilter = document.getElementById("projectNameFilter")?.value;
   const statusFilter = document.getElementById("statusFilter")?.value;
 
   if (!statusFilter && !projectNameFilter && !roleFilter) {

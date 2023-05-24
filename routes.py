@@ -1647,9 +1647,36 @@ def sheff_org_organization():
             .where(Organizations.IDorg == id_org)
             .order_by(Organizations.orgName)
         )
-        orgsheff = db_session.execute(select_orgsheff).all()
+        orgsheff = db_session.execute(pagination(select_orgsheff)).all()
+        count = db_session.execute(count_records(select_orgsheff, Shefforganizations.IDshefforg)).scalar_one()
         db_session.commit()
-        return render_template("sheff_org_organization.html", orgsheff=orgsheff)
+        return render_template("sheff_org_organization.html", orgsheff=orgsheff, count=count,
+            page=0,
+            function="applyorgFilters")
+    if request.method == "POST":
+        select = get_select()
+        db_session = get_session()
+        id_org = session["user"][0]
+        page = (request.form.get("page") and int(request.form.get("page"))) or 0
+        select_orgsheff = (
+            select(
+                Organizations,
+                Shefforganizations,
+            )
+            .join_from(
+                Shefforganizations,
+                Organizations,
+                Organizations.IDshefforg == Shefforganizations.IDshefforg,
+            )
+            .where(Organizations.IDorg == id_org)
+            .order_by(Organizations.orgName)
+        )
+        orgsheff = db_session.execute(pagination(select_orgsheff, page)).all()
+        count = db_session.execute(count_records(select_orgsheff, Shefforganizations.IDshefforg)).scalar_one()
+        db_session.commit()
+        return render_template("resultTableOrg.html", orgsheff=orgsheff, count=count,
+            page=0,
+            function="applyorgFilters")
 
 
 @pages.route("/shefforg/redorganiz", methods=["POST"])  # редактирование рук.организации
@@ -1754,28 +1781,37 @@ def sheff_org_contracts():
             .filter(Contracts.IDorg == idorg)
             .order_by(Contracts.contractsNumber, Contracts.contractsStart)
         )
-        contracts = db_session.execute(select_contracts).all()
+        contracts = db_session.execute(pagination(select_contracts)).all()
+        count = db_session.execute(count_records(select_contracts, Contracts.IDcontracts)).scalar_one()
 
         db_session.commit()
         return render_template(
             "sheff_org_contracts.html",
             contracts=contracts,
+            count=count,
+            page=0,
+            function="applyContractsFilters"
         )
     if request.method == "POST":
         select = get_select()
         db_session = get_session()
         idorg = session["user"][0]
+        page = (request.form.get("page") and int(request.form.get("page"))) or 0
         select_contracts = (
             select(Contracts)
             .filter(Contracts.IDorg == idorg)
             .order_by(Contracts.contractsNumber, Contracts.contractsStart)
         )
-        contracts = db_session.execute(select_contracts).all()
+        contracts = db_session.execute(pagination(select_contracts)).all()
+        count = db_session.execute(count_records(select_contracts, Contracts.IDcontracts)).scalar_one()
 
         db_session.commit()
         return render_template(
             "resultTableContracts.html",
             contracts=contracts,
+            count=count,
+            page=page,
+            function="applyContractsFilters"
         )
 
 
@@ -3929,7 +3965,8 @@ def sheff_proj_tickets():
             .filter(Applications.applicationApproved == 0)
         )
         groups = db_session.execute(select(Groups))
-        projects = db_session.execute(select_projects).all()
+        projects = db_session.execute(pagination(select_projects)).all()
+        count = db_session.execute(count_records(select_projects, Projects.IDprojects)).scalar_one()
         applications = db_session.execute(select_applications).all()
         levels = db_session.execute((select(Levels))).all()
         db_session.commit()
@@ -3939,6 +3976,9 @@ def sheff_proj_tickets():
             tickets=applications,
             levels=levels,
             groups=groups,
+            count=count,
+            page=0,
+            function="applyStudTicketsFilters"
         )
     if request.method == "POST":
         select = get_select()
@@ -3946,6 +3986,7 @@ def sheff_proj_tickets():
         fio_filter = request.form["projectFioFilter"]
         project_filter = request.form["projectNameFilter"]
         group_filter = request.form["groupFilter"]
+        page = (request.form.get("page") and int(request.form.get("page"))) or 0
         where_fio_filter = (
             Students.FullName.ilike("%" + fio_filter + "%") if fio_filter else text("1=1")
         )
@@ -3990,12 +4031,16 @@ def sheff_proj_tickets():
             .join(Applications)
             .filter(PassportOfProjects.IDsheffpr == idsheff_proj)
             .filter(Applications.applicationApproved == 0)
+            .filter(where_project_filter)
         )
-        projects = db_session.execute(select_projects).all()
+        projects = db_session.execute(pagination(select_projects, page)).all()
+        count = db_session.execute(count_records(select_projects, Projects.IDprojects)).scalar_one()
         applications = db_session.execute(select_applications).all()
         db_session.commit()
         return render_template(
-            "resultAccordionStudentTickets.html", projects=projects, tickets=applications
+            "resultAccordionStudentTickets.html", projects=projects, tickets=applications, count=count,
+            page=page,
+            function="applyStudTicketsFilters"
         )
 
 

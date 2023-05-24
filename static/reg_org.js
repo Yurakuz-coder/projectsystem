@@ -1,7 +1,7 @@
 function applyorgFilters(page) {
-  const fioFilters = document.getElementById("fioFilter").value;
-  const orgFilters = document.getElementById("orgFilter").value;
-  const yuradressFilters = document.getElementById("yuradressFilter").value;
+  const fioFilters = document.getElementById("fioFilter")?.value;
+  const orgFilters = document.getElementById("orgFilter")?.value;
+  const yuradressFilters = document.getElementById("yuradressFilter")?.value;
   if (page == undefined && !fioFilters && !orgFilters && !yuradressFilters) {
     return;
   }
